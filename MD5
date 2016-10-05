@@ -1,0 +1,15 @@
+458250d6d870473489617d58e52d0a58 *DESCRIPTION
+e649ea57e718ff01cbf8f550215b65e4 *LICENSE
+9fdfeb11f7ddba6f3aab9aaa6b1ac5dd *NAMESPACE
+9731fb0e31ce109311a8ffba33b3ebbc *NEWS
+442dd0d76458d0eb9fac93d79a71aa08 *R/acepack.R
+f6b7e0fa54360a97e4f82e25a271facc *R/zzz.R
+c40beeade0631086674a30c40ef0db4c *inst/README
+720a673beec675a340036a36cd6b16af *inst/README.ace
+4ba587580ff02aef8ea942c9b80c64ca *inst/README.avas
+473d3304ffc1fec03893b0284959bd44 *inst/ace.doc
+32c7eb677067fec31ced036e516cc095 *man/ace.Rd
+5458d8ccd26dc095ab490a39ef952ed3 *man/avas.Rd
+78c4e2fb1f92842c33124a530c995b99 *src/ace.f
+93c0d1ce31e7293e4c233f0d409742d8 *src/avas.f
+ff626e4f6a4754a383ce9598ebcced09 *src/rlsmo.f
