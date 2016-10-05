@@ -3,6 +3,7 @@
       integer p,pp1,pp2,m(n,*),l(*)
       double precision y(n),x(n,p),w(n),ty(n),tx(n,p),z(n,17),ct(10)
       double precision iters(100,2), delrsq, rsq, yspan, rss
+      double precision sumlog, tres, rr, rnew, cmn, cmx
       common /parms/ itape,maxit,nterm,span,alpha
       double precision sm,sv,sw,svx
       ierr = 0
@@ -241,6 +242,7 @@ c NB: rss is double precision, dof is not.
       return
       end
       block data avasdata
+      double precision big, sml, eps
       common /parms/ itape,maxit,nterm,span,alpha
       common /spans/ spans(3) /consts/ big,sml,eps
 c------------------------------------------------------------------
@@ -385,6 +387,7 @@ c-----------------------------------------------------------------
       end
       subroutine montne (x,n)
       double precision x(n)
+      double precision pmn
       integer bb,eb,br,er,bl,el
       bb=0
       eb=bb
@@ -552,8 +555,9 @@ c    used. reasonable span values are 0.3 to 0.5.
 c
 c------------------------------------------------------------------
       double precision x(n),y(n),w(n),smo(n),sc(n,7)
+      double precision big,sml,eps
       common /spans/ spans(3) /consts/ big,sml,eps
-      double precision h(1),sw,sy,a,scale
+      double precision h(1),sw,sy,a,scale,vsmlsq,resmin,f
       if (x(n).gt.x(1)) go to 30
       sy=0.0
       sw=sy
@@ -611,15 +615,16 @@ c------------------------------------------------------------------
       return
       end
       subroutine smooth (n,x,y,w,span,iper,vsmlsq,smo,acvr)
-      double precision  x(n),y(n),w(n),smo(n),acvr(n)
-      integer in,out
+      double precision  x(n),y(n),w(n),smo(n),acvr(n),vsmlsq
+      double precision  xti,wt,fbw,xm,ym,var,cvar,fbo,tmp,xto,a,h,sy
+      integer in,out,ibw
       xm=0.0
       ym=xm
       var=ym
       cvar=var
       fbw=cvar
       jper=iabs(iper)
-      ibw=0.5*span*n+0.5
+      ibw=int(0.5*span*n+0.5)
       if (ibw.lt.2) ibw=2
       it=2*ibw+1
       do 20 i=1,it
