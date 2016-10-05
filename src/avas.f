@@ -138,7 +138,7 @@ c NB: rss is double precision, dof is not.
      1 goto 23053
       return
 23053 continue
-23023 goto 23022
+      goto 23022
       return
       end
       subroutine calcmu(n,p,l,z,tx)
@@ -157,7 +157,7 @@ c NB: rss is double precision, dof is not.
       subroutine bakfit(iter,delrsq,rsq,sw,l,z,m,x,ty,tx,w,n,p,np)
       integer l(*),m(n,*),p
       double precision z(n,17),ty(n),tx(n,p),x(n,p),w(n)
-      double precision sm,sv,sw, delrsq, rsq
+      double precision sm,sv,sw, delrsq, rsq, rsqi
       common /parms/ itape,maxit,nterm,span,alpha
       call calcmu(n,p,l,z,tx)
       do 23061 j=1,n
@@ -197,7 +197,7 @@ c NB: rss is double precision, dof is not.
 23078 continue
 23068 continue
 23066 continue
-23064 if(.not.(np.eq.1.or.abs(rsq-rsqi).le.delrsq.or.nit.ge.maxit))
+      if(.not.(np.eq.1.or.abs(rsq-rsqi).le.delrsq.or.nit.ge.maxit))
      1 goto 23063
       if(.not.(rsq.eq.0.0.and.iter.eq.0))goto 23080
       do 23082 i = 1,p
@@ -437,7 +437,7 @@ c
       integer iu(20),il(20)
       integer t,tt
       integer a
-      double precision v
+      double precision v,vt,vtt
       m=1
       i=ii
       j=jj
@@ -553,7 +553,7 @@ c
 c------------------------------------------------------------------
       double precision x(n),y(n),w(n),smo(n),sc(n,7)
       common /spans/ spans(3) /consts/ big,sml,eps
-      double precision h(1)
+      double precision h(1),sw,sy,a,scale
       if (x(n).gt.x(1)) go to 30
       sy=0.0
       sw=sy
