@@ -320,16 +320,16 @@ c 570  if (itape.gt.0) write (itape,600) is,rsq(is)
  570  continue
  580  continue
       return
- 590  format('0eigensolution ',i2, ':')
- 600  format(' eigensolution ',i2, 'h   r**2  =  1 - e**2  =',g12.4)
- 610  format('     iteration ',i2, 'h   r**2  =  1 - e**2  =',g12.4)
- 620  format(' ierr=1: sum of weights (w) not positive.')
- 630  format(' ierr=2: y has zero variance.')
- 640  format(' ierr=3: ty(.',i2,') has zero variance.')
- 650  format(' ierr=4: l(',i2,   ') must be nonzero.')
- 660  format(' ierr=5: at least one l(1)-l(',i2,') must be nonzero.')
- 670  format(' ierr=6: l(',i2,    ') =',g12.4,
-     1 ' must be in the range (-5, 5).')
+c 590  format('0eigensolution ',i2, ':')
+c 600  format(' eigensolution ',i2, 'h   r**2  =  1 - e**2  =',g12.4)
+c 610  format('     iteration ',i2, 'h   r**2  =  1 - e**2  =',g12.4)
+c 620  format(' ierr=1: sum of weights (w) not positive.')
+c 630  format(' ierr=2: y has zero variance.')
+c 640  format(' ierr=3: ty(.',i2,') has zero variance.')
+c 650  format(' ierr=4: l(',i2,   ') must be nonzero.')
+c 660  format(' ierr=5: at least one l(1)-l(',i2,') must be nonzero.')
+c 670  format(' ierr=6: l(',i2,    ') =',g12.4,
+c    1 ' must be in the range (-5, 5).')
       end
       subroutine model (p,n,y,w,l,tx,ty,f,t,m,z)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
