@@ -81,7 +81,6 @@
          z(j,4)=z(k,2)
          z(j,5)=w(k)
 23031 continue
-c     NB: rss is double precision, dof is not.
       call rlsmo(z(1,10),z(1,4),z(1,5),yspan,dof,n,z(1,6),rss,z(1,7))
       do 23033 j=1,n
          k=m(j,pp2)
