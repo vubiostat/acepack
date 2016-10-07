@@ -486,9 +486,7 @@ c
  170  yhat=f(low)+(f(high)-f(low))*(th-t(low))/(t(high)-t(low))
  180  return
       end
-      block data acedata
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      common /prams/ alpha,big,span,maxit,nterm
+      
 c
 c     block data
 c     common /prams/ maxit,nterm,span,alpha,big
@@ -507,80 +505,108 @@ c big : a large representable floating point number.
 c
 c------------------------------------------------------------------
 c
-      data maxit,nterm,span,alpha,big /20,3,0.0,0.0,1.0e20/
+      block data acedata
+        implicit double precision (A-H,O-Z)
+        common /prams/ alpha,big,span,maxit,nterm
+        data maxit,nterm,span,alpha,big /20,3,0.0,0.0,1.0e20/
       end
 
-
+c
+c 2016/10/7 Shawn Garbett Refactor to insure initialized variable h, and no division by zero
+c
       subroutine scail (p,n,w,sw,ty,tx,eps,maxit,r,sc)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      integer p
-      double precision w(n),ty(n),tx(n,p),r(n),sc(p,5)
-      double precision s,h,t,u,gama,delta,sw, eps
-      do 10 i=1,p
+        
+        integer p
+        double precision w(n),ty(n),tx(n,p),r(n),sc(p,5)
+        double precision s,h,t,u,gama,delta,sw,eps,v
+        
+      ! Initialization
+      do i=1,p
          sc(i,1)=0.0
- 10   continue
+      end do
       nit=0
- 20   nit=nit+1
-      do 30 i=1,p
-         sc(i,5)=sc(i,1)
- 30   continue
-      do 160 iter=1,p
-         do 50 j=1,n
+      
+      do
+        nit=nit+1   ! nit is iteration number
+        do i=1,p
+           sc(i,5)=sc(i,1)
+        end do
+        
+        h = 1.0 ! Gets rid of unitialized warning
+        do iter=1,p
+          
+          do j=1,n
             s=0.0
-            do 40 i=1,p
-               s=s+sc(i,1)*tx(j,i)
- 40         continue
+            do i=1,p
+              s=s+sc(i,1)*tx(j,i)
+            end do
             r(j)=(ty(j)-s)*w(j)
- 50      continue
-         do 70 i=1,p
+          end do
+          
+          do i=1,p
             s=0.0
-            do 60 j=1,n
-               s=s+r(j)*tx(j,i)
- 60         continue
+            do j=1,n
+              s=s+r(j)*tx(j,i)
+            end do
             sc(i,2)=-2.0*s/sw
- 70      continue
-         s=0.0
-         do 80 i=1,p
-            s=s+sc(i,2)**2
- 80      continue
-         if (s.le.0.0) go to 170
-         if (iter.ne.1) go to 100
-         do 90 i=1,p
-            sc(i,3)=-sc(i,2)
- 90      continue
-         h=s
-         go to 120
- 100     gama=s/h
-         h=s
-         do 110 i=1,p
-            sc(i,3)=-sc(i,2)+gama*sc(i,4)
- 110     continue
- 120     s=0.0
-         t=s
-         do 140 j=1,n
+          end do
+          
+          s=0.0
+          do i=1,p
+             s=s+sc(i,2)**2
+          end do
+          
+          ! Make sure that h gets initialized with s
+          if (iter.eq.1) then 
+            h = s
+          end if
+          
+          ! Patch to ensure sum of sc(i,2)^2 is not zero
+          if (s.le.0.0) exit
+
+          if (iter.eq.1) then
+            do i=1,p
+              sc(i,3)=-sc(i,2)
+            end do
+          else
+            gama=s/h
+            do i=1,p
+              sc(i,3)=-sc(i,2)+gama*sc(i,4)
+            end do
+          end if
+          h=s
+          
+          s=0.0
+          t=s
+          do j=1,n
             u=0.0
-            do 130 i=1,p
-               u=u+sc(i,3)*tx(j,i)
- 130        continue
-            s=s+u*r(j)
-            t=t+w(j)*u**2
- 140     continue
-         delta=s/t
-         do 150 i=1,p
-            sc(i,1)=sc(i,1)+delta*sc(i,3)
-            sc(i,4)=sc(i,3)
- 150     continue
- 160  continue
- 170  v=0.0
-      do 180 i=1,p
-         v=max(v,abs(sc(i,1)-sc(i,5)))
- 180  continue
-      if (v.lt.eps.or.nit.ge.maxit) go to 190
-      go to 20
- 190  do 210 i=1,p
-         do 200 j=1,n
+            do i=1,p
+              u=u+sc(i,3)*tx(j,i)
+            end do
+              s=s+u*r(j)
+              t=t+w(j)*u**2
+          end do
+          delta=s/t
+          do i=1,p
+              sc(i,1)=sc(i,1)+delta*sc(i,3)
+              sc(i,4)=sc(i,3)
+          end do
+        end do ! iter=1,p
+        ! if all  sc(i,2) is zero exits to here
+
+        ! Check for convergence, or maximum iteration
+        v=0.0
+        do i=1,p
+          v=max(v,abs(sc(i,1)-sc(i,5)))
+        end do
+        if (v.lt.eps.or.nit.ge.maxit) exit
+      end do ! Main iterator
+      
+      ! Compute final answer and return
+      do i=1,p
+         do j=1,n
             tx(j,i)=sc(i,1)*tx(j,i)
- 200     continue
- 210  continue
+         end do
+      end do
       return
-      end
+      end ! scail
