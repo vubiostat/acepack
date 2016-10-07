@@ -86,7 +86,7 @@ c
       double precision y(n),x(p,n),w(n),ty(n,ns),tx(n,p,ns)
       double precision z(n,12),ct(10),rsq(ns)
       double precision delrsq
-      common /prams/ alpha,big,span,itape,maxit,nterm
+      common /prams/ alpha,big,span,maxit,nterm
       double precision sm,sv,sw,sw1
       ierr=0
       pp1=p+1
@@ -97,12 +97,10 @@ c
       do 10 i=1,pp1
       if (l(i).ge.-5.and.l(i).le.5) go to 10
       ierr=6
-c     if (itape.gt.0) write (itape,670) i,l(i)
  10   continue
       if (ierr.ne.0) return
       if (l(pp1).ne.0) go to 20
       ierr=4
-c      if (itape.gt.0) write (itape,650) pp1
       return
  20   np=0
       do 30 i=1,p
@@ -110,17 +108,14 @@ c      if (itape.gt.0) write (itape,650) pp1
  30   continue
       if (np.gt.0) go to 40
       ierr=5
-c      if (itape.gt.0) write (itape,660) p
       return
  40   do 50 j=1,n
       sw=sw+w(j)
  50   continue
       if (sw.gt.0.0) go to 60
       ierr=1
-c      if (itape.gt.0) write (itape,620)
       return
  60   do 580 is=1,ns
-c      if (itape.gt.0) write (itape,590) is
       do 70 j=1,n
       if (l(pp1).gt.0) ty(j,is)=y(j)
  70   continue
@@ -163,7 +158,6 @@ c      if (itape.gt.0) write (itape,590) is
  180  continue
       if (sw1.gt.0.0) go to 190
       ierr=1
-c      if (itape.gt.0) write (itape,620)
       return
  190  sm=sm/sw1
       do 210 j=1,n
@@ -181,10 +175,8 @@ c      if (itape.gt.0) write (itape,620)
       go to 260
  230  if (l(pp1).le.0) go to 240
       ierr=2
-c      if (itape.gt.0) write (itape,630)
       go to 250
  240  ierr=3
-c      if (itape.gt.0) write (itape,640) is
  250  return
  260  do 270 j=1,n
       ty(j,is)=ty(j,is)*sv
@@ -294,7 +286,6 @@ c      if (itape.gt.0) write (itape,640) is
       sv=1.0/dsqrt(sv)
       go to 530
  520  ierr=3
-c      if (itape.gt.0) write (itape,640) is
       return
  530  do 540 j=1,n
       k=m(j,pp1)
@@ -305,7 +296,6 @@ c      if (itape.gt.0) write (itape,640) is
       sv=sv+w(j)*(ty(j,is)-z(j,2))**2
  550  continue
       rsq(is)=1.0-sv/sw
-c      if (itape.gt.0) write (itape,610) iter,rsq(is)
       nt=mod(nt,nterm)+1
       ct(nt)=rsq(is)
       cmn=100.0
@@ -316,20 +306,9 @@ c      if (itape.gt.0) write (itape,610) iter,rsq(is)
  560  continue
       if (cmx-cmn.le.delrsq.or.iter.ge.maxit) go to 570
       go to 330
-c 570  if (itape.gt.0) write (itape,600) is,rsq(is)
  570  continue
  580  continue
       return
-c 590  format('0eigensolution ',i2, ':')
-c 600  format(' eigensolution ',i2, 'h   r**2  =  1 - e**2  =',g12.4)
-c 610  format('     iteration ',i2, 'h   r**2  =  1 - e**2  =',g12.4)
-c 620  format(' ierr=1: sum of weights (w) not positive.')
-c 630  format(' ierr=2: y has zero variance.')
-c 640  format(' ierr=3: ty(.',i2,') has zero variance.')
-c 650  format(' ierr=4: l(',i2,   ') must be nonzero.')
-c 660  format(' ierr=5: at least one l(1)-l(',i2,') must be nonzero.')
-c 670  format(' ierr=6: l(',i2,    ') =',g12.4,
-c    1 ' must be in the range (-5, 5).')
       end
       subroutine model (p,n,y,w,l,tx,ty,f,t,m,z)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -361,7 +340,7 @@ c-------------------------------------------------------------------
 c
       integer p,pp1,m(n,1),l(1)
       double precision y(n),w(n),tx(n,p),ty(n),f(n),t(n),z(n,12)
-      common /prams/ alpha,big,span,itape,maxit,nterm
+      common /prams/ alpha,big,span,maxit,nterm
       pp1=p+1
       if (iabs(l(pp1)).ne.5) go to 20
       do 10 j=1,n
@@ -444,7 +423,7 @@ c-------------------------------------------------------------------
 c
       integer p,m(n,1),l(1),low,high,place
       double precision  v(p),x(p,n),f(n),t(n),tx(n,p), yhat
-      common /prams/ alpha,big,span,itape,maxit,nterm
+      common /prams/ alpha,big,span,maxit,nterm
       th=0.0
       do 90 i=1,p
       if (l(i).eq.0) go to 90
@@ -509,10 +488,10 @@ c
       end
       block data acedata
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      common /prams/ alpha,big,span,itape,maxit,nterm
+      common /prams/ alpha,big,span,maxit,nterm
 c
 c     block data
-c     common /prams/ itape,maxit,nterm,span,alpha,big
+c     common /prams/ maxit,nterm,span,alpha,big
 c
 c------------------------------------------------------------------
 c
@@ -520,8 +499,6 @@ c these procedure parameters can be changed in the calling routine
 c by defining the above labeled common and resetting the values with
 c executable statements.
 c
-c itape : fortran file number for printer output.
-c         (itape.le.0 => no printer output.)
 c maxit : maximum number of iterations.
 c nterm : number of consecutive iterations for which
 c         rsq must change less than delcor for convergence.
@@ -530,7 +507,7 @@ c big : a large representable floating point number.
 c
 c------------------------------------------------------------------
 c
-      data itape,maxit,nterm,span,alpha,big /-6,20,3,0.0,0.0,1.0e20/
+      data maxit,nterm,span,alpha,big /20,3,0.0,0.0,1.0e20/
       end
 
 
@@ -540,70 +517,70 @@ c
       double precision w(n),ty(n),tx(n,p),r(n),sc(p,5)
       double precision s,h,t,u,gama,delta,sw, eps
       do 10 i=1,p
-      sc(i,1)=0.0
+         sc(i,1)=0.0
  10   continue
       nit=0
  20   nit=nit+1
       do 30 i=1,p
-      sc(i,5)=sc(i,1)
+         sc(i,5)=sc(i,1)
  30   continue
       do 160 iter=1,p
-      do 50 j=1,n
-      s=0.0
-      do 40 i=1,p
-      s=s+sc(i,1)*tx(j,i)
- 40   continue
-      r(j)=(ty(j)-s)*w(j)
- 50   continue
-      do 70 i=1,p
-      s=0.0
-      do 60 j=1,n
-      s=s+r(j)*tx(j,i)
- 60   continue
-      sc(i,2)=-2.0*s/sw
- 70   continue
-      s=0.0
-      do 80 i=1,p
-      s=s+sc(i,2)**2
- 80   continue
-      if (s.le.0.0) go to 170
-      if (iter.ne.1) go to 100
-      do 90 i=1,p
-      sc(i,3)=-sc(i,2)
- 90   continue
-      h=s
-      go to 120
- 100  gama=s/h
-      h=s
-      do 110 i=1,p
-      sc(i,3)=-sc(i,2)+gama*sc(i,4)
- 110  continue
- 120  s=0.0
-      t=s
-      do 140 j=1,n
-      u=0.0
-      do 130 i=1,p
-      u=u+sc(i,3)*tx(j,i)
- 130  continue
-      s=s+u*r(j)
-      t=t+w(j)*u**2
- 140  continue
-      delta=s/t
-      do 150 i=1,p
-      sc(i,1)=sc(i,1)+delta*sc(i,3)
-      sc(i,4)=sc(i,3)
- 150  continue
+         do 50 j=1,n
+            s=0.0
+            do 40 i=1,p
+               s=s+sc(i,1)*tx(j,i)
+ 40         continue
+            r(j)=(ty(j)-s)*w(j)
+ 50      continue
+         do 70 i=1,p
+            s=0.0
+            do 60 j=1,n
+               s=s+r(j)*tx(j,i)
+ 60         continue
+            sc(i,2)=-2.0*s/sw
+ 70      continue
+         s=0.0
+         do 80 i=1,p
+            s=s+sc(i,2)**2
+ 80      continue
+         if (s.le.0.0) go to 170
+         if (iter.ne.1) go to 100
+         do 90 i=1,p
+            sc(i,3)=-sc(i,2)
+ 90      continue
+         h=s
+         go to 120
+ 100     gama=s/h
+         h=s
+         do 110 i=1,p
+            sc(i,3)=-sc(i,2)+gama*sc(i,4)
+ 110     continue
+ 120     s=0.0
+         t=s
+         do 140 j=1,n
+            u=0.0
+            do 130 i=1,p
+               u=u+sc(i,3)*tx(j,i)
+ 130        continue
+            s=s+u*r(j)
+            t=t+w(j)*u**2
+ 140     continue
+         delta=s/t
+         do 150 i=1,p
+            sc(i,1)=sc(i,1)+delta*sc(i,3)
+            sc(i,4)=sc(i,3)
+ 150     continue
  160  continue
  170  v=0.0
       do 180 i=1,p
-      v=max(v,abs(sc(i,1)-sc(i,5)))
+         v=max(v,abs(sc(i,1)-sc(i,5)))
  180  continue
       if (v.lt.eps.or.nit.ge.maxit) go to 190
       go to 20
  190  do 210 i=1,p
-      do 200 j=1,n
-      tx(j,i)=sc(i,1)*tx(j,i)
- 200  continue
+         do 200 j=1,n
+            tx(j,i)=sc(i,1)*tx(j,i)
+ 200     continue
  210  continue
       return
       end
