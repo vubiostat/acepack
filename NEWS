@@ -1,6 +1,6 @@
 10-6-2016 
 
-   Shawn Garbett cleaned up fortran6 warnings to maintain CRAN status.
+   Shawn Garbett cleaned up fortran6 warnings to maintain CRAN status. Stated precision of exported variables now matches internal computations. An extremely unlikely but possible division by zero path is prevented.
 
 11-23-2014
 

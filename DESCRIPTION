@@ -1,6 +1,6 @@
 Package: acepack
 Maintainer: Jonathan Baron <baron@psych.upenn.edu>
-Version: 1.4
+Version: 1.4.0
 Author: Phil Spector, Jerome Friedman, Robert Tibshirani, Thomas Lumley, Shawn Garbett
 Description: ACE and AVAS methods for choosing regression
         transformations.
