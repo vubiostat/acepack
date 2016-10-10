@@ -556,8 +556,8 @@ c
              s=s+sc(i,2)**2
           end do
           
-          ! Make sure that h gets initialized with s
-          if (iter.eq.1) then 
+          ! Make sure that h gets initialized with s, and division by zero is not possible
+          if (iter.eq.1.or.h.le.0.0) then 
             h = s
           end if
           
