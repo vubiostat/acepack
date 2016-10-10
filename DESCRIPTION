@@ -6,6 +6,8 @@ Description: ACE and AVAS methods for choosing regression
         transformations.
 Title: ace() and avas() for selecting regression transformations
 License: MIT + file LICENSE
+Suggests:
+    testthat
 Packaged: 2014-11-24 11:35:02 UTC; baron
 Repository: CRAN
 Date/Publication: 2014-11-24 12:48:55
