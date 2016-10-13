@@ -1,3 +1,6 @@
+10-13-2016
+   Jonathan Baron (Penn) has transfered maintainer status to Shawn Garbett (Vanderbilt). A shoutout to Dr. Baron's work for the last several years. 
+
 10-6-2016 
 
    Shawn Garbett cleaned up fortran6 warnings to maintain CRAN status. Stated precision of exported variables now matches internal computations. An extremely unlikely but possible division by zero path is prevented.
