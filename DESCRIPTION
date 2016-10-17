@@ -2,9 +2,8 @@ Package: acepack
 Maintainer: Shawn Garbett <shawn.garbett@vanderbilt.edu>
 Version: 1.4.0
 Author: Phil Spector, Jerome Friedman, Robert Tibshirani, Thomas Lumley, Shawn Garbett, Jonathan Baron
-Description: ACE and AVAS methods for choosing regression
-        transformations.
-Title: ace() and avas() for selecting regression transformations
+Description: ACE and AVAS methods for choosing regression transformations.
+Title: ACE and AVAS for Selecting Regression Transformations
 License: MIT + file LICENSE
 Suggests: testthat
 Packaged: 2016-10-13 14:37:24 UTC; garbetsp
