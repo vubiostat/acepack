@@ -514,6 +514,9 @@ c
 c
 c 2016/10/7 Shawn Garbett Refactor to insure initialized variable h, and no division by zero
 c
+c Note: The original function was named "scale", but this is now part of the Fortran 95 namespace
+c       So this was changed to "scail"
+c
       subroutine scail (p,n,w,sw,ty,tx,eps,maxit,r,sc)
         
         integer p
