@@ -1,3 +1,7 @@
+10-27-2016
+
+   Converted all routines to "implicit none" by request for Prof Brian Ripley. Added reference 
+
 10-13-2016
 
    Jonathan Baron (Penn) has transfered maintainer status to
