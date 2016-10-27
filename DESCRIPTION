@@ -12,7 +12,8 @@ Description: Two nonparametric methods for multiple regression transform selecti
   Also included is the Additivity Variance Stabilization (AVAS) method which works better than ACE when
   correlation is low [see Tibshirani, R.. 1986. "Estimating Transformations for Regression via Additivity
   and Variance Stabilization". Journal of the American Statistical Association. 83:394-405. 
-  <doi:10.1080/01621459.1988.10478610>].
+  <doi:10.1080/01621459.1988.10478610>]. A good introduction to these two methods is in chapter 16 of
+  Frank Harrel's "Regression Modeling Strategies" in the Springer Series in Statistics.
 Title: ACE and AVAS for Selecting Multiple Regression Transformations
 License: MIT + file LICENSE
 Suggests: testthat
