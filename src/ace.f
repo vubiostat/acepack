@@ -2,7 +2,7 @@ C     real -> double precision conversion for R use
 C     <TSL>
 c     mortran 2.0     (version of 6/24/75)
       subroutine mace (p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      implicit none
 c
 c   subroutine mace(p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
 c------------------------------------------------------------------
@@ -83,6 +83,9 @@ c
 c------------------------------------------------------------------
 c
       integer p,pp1,m(n,p+1),l(p+1)
+      integer n,ns,ierr,i,is,ism1,iter,j,js,k,maxit,nit,np,nt,nterm
+      double precision rsqi,span
+      double precision alpha, big, cmn, cmx
       double precision y(n),x(p,n),w(n),ty(n,ns),tx(n,p,ns)
       double precision z(n,12),ct(10),rsq(ns)
       double precision delrsq
@@ -310,8 +313,9 @@ c
  580  continue
       return
       end
+
       subroutine model (p,n,y,w,l,tx,ty,f,t,m,z)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      implicit none
 c
 c          subroutine model(p,n,y,w,l,tx,ty,f,t,m,z)
 c--------------------------------------------------------------------
@@ -339,7 +343,9 @@ c
 c-------------------------------------------------------------------
 c
       integer p,pp1,m(n,1),l(1)
+      integer n,i,j,j1,j2,k,maxit,nterm
       double precision y(n),w(n),tx(n,p),ty(n),f(n),t(n),z(n,12)
+      double precision alpha, big, s, span
       common /prams/ alpha,big,span,maxit,nterm
       pp1=p+1
       if (iabs(l(pp1)).ne.5) go to 20
@@ -394,8 +400,9 @@ c
  160  call smothr (1,n,t,z,z(1,2),f,z(1,6))
  170  return
       end
+      
       subroutine acemod (v,p,n,x,l,tx,f,t,m,yhat)
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      implicit none
 c          subroutine acemod(v,p,n,x,l,tx,f,t,m,yhat)
 c--------------------------------------------------------------------
 c
@@ -422,6 +429,8 @@ c
 c-------------------------------------------------------------------
 c
       integer p,m(n,1),l(1),low,high,place
+      integer n,maxit,nterm,i,jh,jl
+      double precision alpha, big, span, th, vi, xt
       double precision  v(p),x(p,n),f(n),t(n),tx(n,p), yhat
       common /prams/ alpha,big,span,maxit,nterm
       th=0.0
@@ -519,7 +528,8 @@ c       So this was changed to "scail"
 c
       subroutine scail (p,n,w,sw,ty,tx,eps,maxit,r,sc)
         
-        integer p
+        implicit none
+        integer p,n,maxit,i,iter,j,nit
         double precision w(n),ty(n),tx(n,p),r(n),sc(p,5)
         double precision s,h,t,u,gama,delta,sw,eps,v
         

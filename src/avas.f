@@ -1,10 +1,14 @@
       subroutine avas(p,n,x,y,w,l,delrsq,tx,ty,rsq,ierr,m,z,yspan,iter,
      1     iters)
-      integer p,pp1,pp2,m(n,*),l(*)
+      implicit none
+      integer p,pp1,pp2,m(n,*),l(*),n,ierr,iter
       double precision y(n),x(n,p),w(n),ty(n),tx(n,p),z(n,17),ct(10)
       double precision iters(100,2), delrsq, rsq, yspan, rss
       double precision sumlog, tres, rr, rnew, cmn, cmx
-      common /parms/ itape,maxit,nterm,span,alpha
+      common /parms/ span,alpha,itape,maxit,nterm
+      integer maxit,nterm,nit,i,j,k,np,nt
+      integer itape
+      double precision dof, alpha, span
       double precision sm,sv,sw,svx
       ierr = 0
       pp1 = p+1
@@ -144,8 +148,10 @@
 
 
       subroutine calcmu(n,p,l,z,tx)
-      integer p, l(*)
+      implicit none
+      integer p, l(*),j,k,n
       double precision z(n,17),tx(n,p)
+      integer i
       do 23055 j=1,n
          z(j,10)=0
          do 23057 i=1,p
@@ -159,10 +165,13 @@
 
 
       subroutine bakfit(iter,delrsq,rsq,sw,l,z,m,x,ty,tx,w,n,p,np)
-      integer l(*),m(n,*),p
+      implicit none
+      integer l(*),m(n,*),p,j,k,nit,i,n,np,iter
       double precision z(n,17),ty(n),tx(n,p),x(n,p),w(n)
       double precision sm,sv,sw, delrsq, rsq, rsqi
-      common /parms/ itape,maxit,nterm,span,alpha
+      double precision alpha,span
+      integer itape,maxit,nterm
+      common /parms/ span,alpha,itape,maxit,nterm
       call calcmu(n,p,l,z,tx)
       do 23061 j=1,n
          ty(j)=ty(j)-z(j,10)
@@ -217,7 +226,9 @@
 
 
       subroutine ctsub(n,u,v,y,ty)
+      implicit none
       double precision u(*),v(*),y(*),ty(*)
+      integer i,j,n
       i=1
 23088 if(.not.(i.le.n))goto 23090
       if(.not.(y(i).le.u(1)))goto 23091
@@ -248,9 +259,12 @@
       end
 
       block data avasdata
+      integer itape, maxit, nterm
+      double precision span, alpha
       double precision big, sml, eps
-      common /parms/ itape,maxit,nterm,span,alpha
-      common /spans/ spans(3) /consts/ big,sml,eps
+      double precision spans(3)
+      common /parms/ span,alpha,itape,maxit,nterm
+      common /spans/ spans /consts/ big,sml,eps
 c------------------------------------------------------------------
 c
 c these procedure parameters can be changed in the calling routine
@@ -292,9 +306,13 @@ c-----------------------------------------------------------------
       end
 
       subroutine smothr (l,n,x,y,w,smo,scr)
+      implicit none
       double precision x(n),y(n),w(n),smo(n),scr(n,7)
-      common /parms/ itape,maxit,nterm,span,alpha
+      common /parms/ span,alpha,itape,maxit,nterm
+      double precision alpha,span
+      integer itape,maxit,nterm
       double precision sm,sw,a,b,d
+      integer i,j,j0,l,n
       if (l.lt.5) go to 50
       j=1
  10   j0=j
@@ -447,10 +465,11 @@ c
 c     this is a modification of cacm algorithm #347 by r. c. singleton,
 c     which is a modified hoare quicksort.
 c     
+      implicit none
       dimension a(jj),v(*)
       integer iu(20),il(20)
-      integer t,tt
-      integer a
+      integer t,tt,ij,j,k,l,jj,nt
+      integer a,ii,m,i
       double precision v,vt,vtt
       m=1
       i=ii
@@ -567,9 +586,13 @@ c     a prespecified fixed span smoother (span > 0) should be
 c     used. reasonable span values are 0.3 to 0.5.
 c     
 c------------------------------------------------------------------
+      implicit none
       double precision x(n),y(n),w(n),smo(n),sc(n,7)
       double precision big,sml,eps
-      common /spans/ spans(3) /consts/ big,sml,eps
+      double precision span,alpha
+      integer i,j,jper,iper,n
+      double precision spans(3)
+      common /spans/ spans /consts/ big,sml,eps
       double precision h(1),sw,sy,a,scale,vsmlsq,resmin,f
       if (x(n).gt.x(1)) go to 30
       sy=0.0
@@ -631,9 +654,12 @@ c------------------------------------------------------------------
       end
 
       subroutine smooth (n,x,y,w,span,iper,vsmlsq,smo,acvr)
+      implicit none
       double precision  x(n),y(n),w(n),smo(n),acvr(n),vsmlsq
       double precision  xti,wt,fbw,xm,ym,var,cvar,fbo,tmp,xto,a,h,sy
+      double precision  span
       integer in,out,ibw
+      integer i,j,j0,it,jper,iper,n
       xm=0.0
       ym=xm
       var=ym
