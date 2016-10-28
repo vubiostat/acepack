@@ -1,12 +1,12 @@
       subroutine avas(p,n,x,y,w,l,delrsq,tx,ty,rsq,ierr,m,z,yspan,iter,
      1     iters)
       implicit none
-      integer p,pp1,pp2,m(n,*),l(*),n,ierr,iter
+      integer n,p,pp1,pp2,m(n,*),l(*),ierr,iter
       double precision y(n),x(n,p),w(n),ty(n),tx(n,p),z(n,17),ct(10)
       double precision iters(100,2), delrsq, rsq, yspan, rss
       double precision sumlog, tres, rr, rnew, cmn, cmx
       common /parms/ span,alpha,itape,maxit,nterm
-      integer maxit,nterm,nit,i,j,k,np,nt
+      integer maxit,nterm,i,j,k,np,nt
       integer itape
       double precision dof, alpha, span
       double precision sm,sv,sw,svx
@@ -149,7 +149,7 @@
 
       subroutine calcmu(n,p,l,z,tx)
       implicit none
-      integer p, l(*),j,k,n
+      integer p, l(*),j,n
       double precision z(n,17),tx(n,p)
       integer i
       do 23055 j=1,n
@@ -166,7 +166,7 @@
 
       subroutine bakfit(iter,delrsq,rsq,sw,l,z,m,x,ty,tx,w,n,p,np)
       implicit none
-      integer l(*),m(n,*),p,j,k,nit,i,n,np,iter
+      integer n,l(*),m(n,*),p,j,k,nit,i,np,iter
       double precision z(n,17),ty(n),tx(n,p),x(n,p),w(n)
       double precision sm,sv,sw, delrsq, rsq, rsqi
       double precision alpha,span
@@ -307,12 +307,13 @@ c-----------------------------------------------------------------
 
       subroutine smothr (l,n,x,y,w,smo,scr)
       implicit none
+      integer n
       double precision x(n),y(n),w(n),smo(n),scr(n,7)
       common /parms/ span,alpha,itape,maxit,nterm
       double precision alpha,span
       integer itape,maxit,nterm
       double precision sm,sw,a,b,d
-      integer i,j,j0,l,n
+      integer i,j,j0,l
       if (l.lt.5) go to 50
       j=1
  10   j0=j
@@ -466,9 +467,10 @@ c     this is a modification of cacm algorithm #347 by r. c. singleton,
 c     which is a modified hoare quicksort.
 c     
       implicit none
+      integer jj
       dimension a(jj),v(*)
       integer iu(20),il(20)
-      integer t,tt,ij,j,k,l,jj,nt
+      integer t,tt,ij,j,k,l
       integer a,ii,m,i
       double precision v,vt,vtt
       m=1
@@ -587,10 +589,11 @@ c     used. reasonable span values are 0.3 to 0.5.
 c     
 c------------------------------------------------------------------
       implicit none
+      integer n
       double precision x(n),y(n),w(n),smo(n),sc(n,7)
       double precision big,sml,eps
       double precision span,alpha
-      integer i,j,jper,iper,n
+      integer i,j,jper,iper
       double precision spans(3)
       common /spans/ spans /consts/ big,sml,eps
       double precision h(1),sw,sy,a,scale,vsmlsq,resmin,f
@@ -655,11 +658,12 @@ c------------------------------------------------------------------
 
       subroutine smooth (n,x,y,w,span,iper,vsmlsq,smo,acvr)
       implicit none
+      integer n
       double precision  x(n),y(n),w(n),smo(n),acvr(n),vsmlsq
       double precision  xti,wt,fbw,xm,ym,var,cvar,fbo,tmp,xto,a,h,sy
       double precision  span
       integer in,out,ibw
-      integer i,j,j0,it,jper,iper,n
+      integer i,j,j0,it,jper,iper
       xm=0.0
       ym=xm
       var=ym

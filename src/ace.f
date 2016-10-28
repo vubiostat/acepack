@@ -82,8 +82,8 @@ c    calling mace.
 c
 c------------------------------------------------------------------
 c
-      integer p,pp1,m(n,p+1),l(p+1)
-      integer n,ns,ierr,i,is,ism1,iter,j,js,k,maxit,nit,np,nt,nterm
+      integer n,p,pp1,m(n,p+1),l(p+1)
+      integer ns,ierr,i,is,ism1,iter,j,js,k,maxit,nit,np,nt,nterm
       double precision rsqi,span
       double precision alpha, big, cmn, cmx
       double precision y(n),x(p,n),w(n),ty(n,ns),tx(n,p,ns)
@@ -342,8 +342,8 @@ c note: this subroutine must be called before subroutine acemod.
 c
 c-------------------------------------------------------------------
 c
-      integer p,pp1,m(n,1),l(1)
-      integer n,i,j,j1,j2,k,maxit,nterm
+      integer n,p,pp1,m(n,1),l(1)
+      integer i,j,j1,j2,k,maxit,nterm
       double precision y(n),w(n),tx(n,p),ty(n),f(n),t(n),z(n,12)
       double precision alpha, big, s, span
       common /prams/ alpha,big,span,maxit,nterm
@@ -428,8 +428,8 @@ c note: this subroutine must not be called before subroutine model.
 c
 c-------------------------------------------------------------------
 c
-      integer p,m(n,1),l(1),low,high,place
-      integer n,maxit,nterm,i,jh,jl
+      integer n,p,m(n,1),l(1),low,high,place
+      integer maxit,nterm,i,jh,jl
       double precision alpha, big, span, th, vi, xt
       double precision  v(p),x(p,n),f(n),t(n),tx(n,p), yhat
       common /prams/ alpha,big,span,maxit,nterm
