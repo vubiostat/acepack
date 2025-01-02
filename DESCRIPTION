@@ -21,3 +21,5 @@ Packaged: 2016-10-27 16:24:58 UTC; garbetsp
 Repository: CRAN
 Date/Publication: 2014-11-24 12:48:55
 NeedsCompilation: yes
+RoxygenNote: 7.3.2
+Encoding: UTF-8
