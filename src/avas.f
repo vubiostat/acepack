@@ -1,4 +1,4 @@
-      subroutine avas(p,n,x,y,w,l,delrsq,tx,ty,rsq,ierr,m,z,yspan,iter,
+      subroutine favas(p,n,x,y,w,l,delrsq,tx,ty,rsq,ierr,m,z,yspan,iter,
      1     iters)
       implicit none
       integer n,p,pp1,pp2,m(n,*),l(*),ierr,iter

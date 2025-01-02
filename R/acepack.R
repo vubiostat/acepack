@@ -208,7 +208,7 @@ avas <- function (x, y, wt = rep(1, nrow(x)), cat = NULL, mon = NULL,
     mode(z) <- "double"
     mode(yspan) <- "double"
     mode(iters) <- "double"
-    junk <- .Fortran("avas", as.integer(ncol(x)), as.integer(nrow(x)), 
+    junk <- .Fortran("favas", as.integer(ncol(x)), as.integer(nrow(x)), 
         x, y, wt, l, delrsq, tx = tx, ty = ty, rsq = double(1), 
         ierr = integer(1), m, z, yspan = yspan, niter = integer(1), 
         iters = iters, PACKAGE = "acepack")

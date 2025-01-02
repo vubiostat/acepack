@@ -16,7 +16,7 @@ Description: Two nonparametric methods for multiple regression transform selecti
   Frank Harrel's "Regression Modeling Strategies" in the Springer Series in Statistics.
 Title: ACE and AVAS for Selecting Multiple Regression Transformations
 License: MIT + file LICENSE
-Suggests: testthat
+Suggests: testthat, roxygen2
 Packaged: 2016-10-27 16:24:58 UTC; garbetsp
 Repository: CRAN
 Date/Publication: 2014-11-24 12:48:55
