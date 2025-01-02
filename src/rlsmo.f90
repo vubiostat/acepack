@@ -4,13 +4,14 @@
 SUBROUTINE RLSMO(x, y, w, span, dof, n, smo, rss, scratch)
   IMPLICIT NONE
 
-  INTEGER, INTENT(IN) :: n
-  DOUBLE PRECISION, INTENT(IN) :: x(n), y(n), w(n)
+  INTEGER,          INTENT(IN)    :: n
+  DOUBLE PRECISION, INTENT(IN)    :: x(n), w(n)
+  DOUBLE PRECISION, INTENT(INOUT) :: y(n) ! Why is this an INOUT ?
   DOUBLE PRECISION, INTENT(INOUT) :: span
-  DOUBLE PRECISION, INTENT(OUT) :: smo(n), rss, dof
-  DOUBLE PRECISION, INTENT(OUT) :: scratch(n)
-  DOUBLE PRECISION :: cvspan(6), cvrss(6), cvmin, penal, s0
-  INTEGER :: k, idmin, i
+  DOUBLE PRECISION, INTENT(OUT)   :: smo(n), rss, dof
+  DOUBLE PRECISION, INTENT(OUT)   :: scratch(n)
+  DOUBLE PRECISION                :: cvspan(6), cvrss(6), cvmin, penal, s0
+  INTEGER                         :: k, idmin, i
 
   cvspan = (/0.3, 0.4, 0.5, 0.6, 0.7, 1.0/)
   penal = 0.01
@@ -70,139 +71,139 @@ SUBROUTINE SuperSmoother(x, y, w, span, dof, n, cross, smo, s0, rss, scratch)
   DOUBLE PRECISION :: sumw, xbar, ybar, cov, var, r
   INTEGER :: fixeds, line
 
-    line = 1
-    fixeds = 1
+  line = 1
+  fixeds = 1
 
-    ! Check for invalid span value
-    IF (span >= 1.0) THEN
-        line = 0
-    END IF
- 
-    ! Initialize the first values
-    xbar = x(1)
-    ybar = y(1)
-    cov = 0.0
-    var = 0.0
-    sumw = w(1)
+  ! Check for invalid span value
+  IF (span >= 1.0) THEN
+    line = 0
+  END IF
 
-    IF (line == 1) THEN
-        ! Main loop over the data
-        DO i = 2, n
-            CALL UPDATESTATS(x(i), y(i), w(i), xbar, ybar, cov, var, sumw, .FALSE.)
-        END DO
-    END IF
+  ! Initialize the first values
+  xbar = x(1)
+  ybar = y(1)
+  cov = 0.0
+  var = 0.0
+  sumw = w(1)
 
-    i = 1
-    DO WHILE (i <= n)
-        IF (cross .EQ. 1) THEN
-            CALL UPDATESTATS(x(i), y(i), w(i), xbar, ybar, cov, var, sumw, .TRUE.)
-        END IF
-
-        IF (var <= 0.0) THEN
-            smo(i) = 0.0
-        ELSE
-            smo(i) = cov * (x(i) - xbar) / var
-        END IF
-
-        i = i + 1
+  IF (line == 1) THEN
+    ! Main loop over the data
+    DO i = 2, n
+      CALL UPDATESTATS(x(i), y(i), w(i), xbar, ybar, cov, var, sumw, .FALSE.)
     END DO
+  END IF
 
-    s0 = ybar
-    scratch(1) = cov / var
-    dof = 1.0
-
-    ! Initialize scratch
-    IF (cross == 0) THEN
-        DO i = 1, n
-            scratch(i) = y(i)
-        END DO
+  i = 1
+  DO WHILE (i <= n)
+    IF (cross .EQ. 1) THEN
+      CALL UPDATESTATS(x(i), y(i), w(i), xbar, ybar, cov, var, sumw, .TRUE.)
     END IF
 
-    ! Handle tied values
-    IF (cross == 0) THEN
-        i = 0
-        DO WHILE (i < n - 1)
-            i = i + 1
-            m0 = i
-            IF (x(i + 1) > x(i)) THEN
-                EXIT
-            END IF
-            IF (i < n) THEN
-                CONTINUE
-            END IF
-        END DO
-
-        IF (i == m0) THEN
-            ntie = i - m0 + 1
-            r = 0.0
-            wt = 0.0
-
-            DO jj = m0, i
-                r = r + y(jj) * w(jj)
-                wt = wt + w(jj)
-            END DO
-
-            r = r / wt
-            DO jj = m0, i
-                y(jj) = r
-            END DO
-        END IF
+    IF (var <= 0.0) THEN
+      smo(i) = 0.0
+    ELSE
+      smo(i) = cov * (x(i) - xbar) / var
     END IF
 
-    ! Final smoothing result
-    ispan = n * span
-    IF (fixeds /= 1) THEN
-        is2 = INT(ispan / 2)
-        IF (is2 < 1) is2 = 1
-    END IF
+    i = i + 1
+  END DO
 
-    ! Final loop to update smoothing
-    DO i = 1, n
-        itnew = MIN(i + is2, n)
-        ibnew = MAX(i - is2, 1)
+  s0 = ybar
+  scratch(1) = cov / var
+  dof = 1.0
 
-        IF (itold >= itnew) THEN
-            itold = itold + 1
-            CALL UPDATESTATS(x(itold), y(itold), w(itold), xbar, ybar, cov, var, sumw, .FALSE.)
-        END IF
-    END DO
+  ! Initialize scratch
+  IF (cross == 0) THEN
+      DO i = 1, n
+          scratch(i) = y(i)
+      END DO
+  END IF
 
-    ! Finalize
-    DO i = 1, n
-        y(i) = scratch(i)
-    END DO
+  ! Handle tied values
+  IF (cross == 0) THEN
+      i = 0
+      DO WHILE (i < n - 1)
+          i = i + 1
+          m0 = i
+          IF (x(i + 1) > x(i)) THEN
+              EXIT
+          END IF
+          IF (i < n) THEN
+              CONTINUE
+          END IF
+      END DO
 
-    ! Calculate the residual sum of squares (rss)
-    rss = 0.0
-    DO i = 1, n
-        rss = rss + (w(i) / sumw) * (y(i) - s0 - smo(i))**2
-    END DO
+      IF (i == m0) THEN
+          ntie = i - m0 + 1
+          r = 0.0
+          wt = 0.0
 
-    ! Calculate the final degrees of freedom (dof)
-    dof = dof + SUM(w) / sumw + SUM(w * (x - xbar)**2) / var
+          DO jj = m0, i
+              r = r + y(jj) * w(jj)
+              wt = wt + w(jj)
+          END DO
 
-    RETURN
+          r = r / wt
+          DO jj = m0, i
+              y(jj) = r
+          END DO
+      END IF
+  END IF
+
+  ! Final smoothing result
+  ispan = n * span
+  IF (fixeds /= 1) THEN
+      is2 = INT(ispan / 2)
+      IF (is2 < 1) is2 = 1
+  END IF
+
+  ! Final loop to update smoothing
+  DO i = 1, n
+      itnew = MIN(i + is2, n)
+      ibnew = MAX(i - is2, 1)
+
+      IF (itold >= itnew) THEN
+          itold = itold + 1
+          CALL UPDATESTATS(x(itold), y(itold), w(itold), xbar, ybar, cov, var, sumw, .FALSE.)
+      END IF
+  END DO
+
+  ! Finalize
+  DO i = 1, n
+      y(i) = scratch(i)
+  END DO
+
+  ! Calculate the residual sum of squares (rss)
+  rss = 0.0
+  DO i = 1, n
+      rss = rss + (w(i) / sumw) * (y(i) - s0 - smo(i))**2
+  END DO
+
+  ! Calculate the final degrees of freedom (dof)
+  dof = dof + SUM(w) / sumw + SUM(w * (x - xbar)**2) / var
+
+  RETURN
 END SUBROUTINE
 
 SUBROUTINE UPDATESTATS(xin, yin, win, xbar, ybar, cov, var, sumw, is_remove)
-    IMPLICIT NONE
-    DOUBLE PRECISION, INTENT(IN) :: xin, yin, win
-    DOUBLE PRECISION, INTENT(INOUT) :: xbar, ybar, cov, var, sumw
-    LOGICAL, INTENT(IN) :: is_remove
+  IMPLICIT NONE
+  DOUBLE PRECISION, INTENT(IN) :: xin, yin, win
+  DOUBLE PRECISION, INTENT(INOUT) :: xbar, ybar, cov, var, sumw
+  LOGICAL, INTENT(IN) :: is_remove
 
-    IF (is_remove) THEN
-        ! If we are removing an element, subtract using (sumw - win)
-        cov = cov - win * (xin - xbar) * (yin - ybar) * sumw / (sumw - win)
-        var = var - win * (xin - xbar)**2 * sumw / (sumw - win)
-        xbar = (sumw * xbar - win * xin) / (sumw - win)
-        ybar = (sumw * ybar - win * yin) / (sumw - win)
-        sumw = sumw - win
-    ELSE
-        ! Normal addition logic for updating stats
-        xbar = (sumw * xbar + xin * win) / (sumw + win)
-        ybar = (sumw * ybar + yin * win) / (sumw + win)
-        cov = cov + win * (xin - xbar) * (yin - ybar) * (sumw + win) / sumw
-        var = var + win * (xin - xbar)**2 * (sumw + win) / sumw
-        sumw = sumw + win
-    END IF
+  IF (is_remove) THEN
+    ! If we are removing an element, subtract using (sumw - win)
+    cov = cov - win * (xin - xbar) * (yin - ybar) * sumw / (sumw - win)
+    var = var - win * (xin - xbar)**2 * sumw / (sumw - win)
+    xbar = (sumw * xbar - win * xin) / (sumw - win)
+    ybar = (sumw * ybar - win * yin) / (sumw - win)
+    sumw = sumw - win
+  ELSE
+    ! Normal addition logic for updating stats
+    xbar = (sumw * xbar + xin * win) / (sumw + win)
+    ybar = (sumw * ybar + yin * win) / (sumw + win)
+    cov = cov + win * (xin - xbar) * (yin - ybar) * (sumw + win) / sumw
+    var = var + win * (xin - xbar)**2 * (sumw + win) / sumw
+    sumw = sumw + win
+  END IF
 END SUBROUTINE
