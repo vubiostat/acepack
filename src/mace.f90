@@ -116,97 +116,136 @@ SUBROUTINE mace (p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
     ierr = 1
     return
   end if
+  
+  ! Main Loop
+  DO is=1,ns
+  
+    IF (l(pp1) > 0) THEN
+      ty(1:n, is) = y(1:n)
+    END IF
+  
+    DO i=1,p
+
+      IF (l(i) == 0) EXIT
       
- 60   do 580 is=1,ns
-      do 70 j=1,n
-      if (l(pp1).gt.0) ty(j,is)=y(j)
- 70   continue
-      do 170 i=1,p
-      if (l(i).ne.0) go to 90
-      do 80 j=1,n
-      tx(j,i,is)=0.0
- 80   continue
-      go to 170
- 90   if (l(i).le.0) go to 110
-      do 100 j=1,n
-      tx(j,i,is)=x(i,j)
- 100  continue
- 110  do 120 j=1,n
-      if (tx(j,i,is).ge.big) go to 120
-      sm=sm+w(j)*tx(j,i,is)
-      sw1=sw1+w(j)
- 120  continue
-      if (sw1.gt.0.0) go to 140
-      do 130 j=1,n
-      tx(j,i,is)=0.0
- 130  continue
+      IF (l(i) >= 0) THEN
+        DO j=1,n
+          tx(j,i,is)=x(i,j)
+        END DO
+      END IF
+ 
+      DO j=1,n
+        IF (tx(j,i,is) < big) THEN
+          sm  = sm  + w(j)*tx(j,i,is)
+          sw1 = sw1 + w(j)
+        END IF
+      END DO
+      
+      IF (sw1 > 0.0) EXIT
+ 
+      DO j=1,n
+        tx(j,i,is)=0.0
+      END DO
+
       sm=0.0
       sw1=sm
-      go to 170
- 140  sm=sm/sw1
-      do 160 j=1,n
-      if (tx(j,i,is).ge.big) go to 150
-      tx(j,i,is)=tx(j,i,is)-sm
-      go to 160
- 150  tx(j,i,is)=0.0
- 160  continue
+      
+    END DO
+    
+    IF (l(i) /= 0) THEN 
+      sm=sm/sw1
+   
+      DO j=1,n
+        IF (tx(j,i,is) >= big) THEN
+          tx(j,i,is) = 0.0
+        ELSE 
+          tx(j,i,is) = tx(j,i,is)-sm
+        END IF
+      END DO
+   
       sm=0.0
       sw1=sm
- 170  continue
-      do 180 j=1,n
-      if (ty(j,is).ge.big) go to 180
-      sm=sm+w(j)*ty(j,is)
-      sw1=sw1+w(j)
- 180  continue
-      if (sw1.gt.0.0) go to 190
+    END IF
+
+    DO j=1,n
+      tx(j,i,is)=0.0
+    END DO
+      
+    DO j=1,n
+      IF (ty(j,is) < big) THEN
+        sm=sm+w(j)*ty(j,is)
+        sw1=sw1+w(j)
+      END IF
+    END DO
+
+    IF (sw1 <= 0.0) THEN
       ierr=1
-      return
- 190  sm=sm/sw1
-      do 210 j=1,n
-      if (ty(j,is).ge.big) go to 200
-      ty(j,is)=ty(j,is)-sm
-      go to 210
- 200  ty(j,is)=0.0
- 210  continue
-      do 220 j=1,n
-      sv=sv+w(j)*ty(j,is)**2
- 220  continue
-      sv=sv/sw
-      if (sv.le.0.0) go to 230
-      sv=1.0/dsqrt(sv)
-      go to 260
- 230  if (l(pp1).le.0) go to 240
-      ierr=2
-      go to 250
- 240  ierr=3
- 250  return
- 260  do 270 j=1,n
-      ty(j,is)=ty(j,is)*sv
- 270  continue
-      if (is.ne.1) go to 310
-      do 280 j=1,n
-      m(j,pp1)=j
-      z(j,2)=y(j)
- 280  continue
+      RETURN
+    END IF
+    
+    sm = sm/sw1
+    
+    DO j=1,n
+      IF (ty(j,is) >= big) THEN
+        ty(j,is) = 0.0
+      ELSE
+        ty(j,is) = ty(j,is)-sm
+      END IF
+    END DO
+    
+    sv = (sv + sum(w*ty(:,is)**2))/sw
+    
+    IF (sv > 0.0) THEN
+      sv = 1.0/dsqrt(sv)
+    ELSE
+      IF (l(pp1) <=0) THEN
+        ierr = 3
+      ELSE 
+        ierr = 2
+      ENDIF 
+      RETURN
+    ENDIF
+    
+    ty(:,is) = ty(:,is)*sv
+ 
+    IF (is == 1) THEN
+    
+      DO j=1,n
+        m(j,pp1)=j
+        z(j,2)=y(j)
+      END DO
+ 
       call sort (z(1,2),m(1,pp1),1,n)
-      do 300 i=1,p
-      if (l(i).eq.0) go to 300
-      do 290 j=1,n
-      m(j,i)=j
-      z(j,2)=x(i,j)
- 290  continue
-      call sort (z(1,2),m(1,i),1,n)
- 300  continue
- 310  call scail (p,n,w,sw,ty(1,is),tx(1,1,is),delrsq,p,z(1,5),z(1,6))
-      rsq(is)=0.0
-      iter=0
-!      nterm=min0(nterm,10)
-      nt=0
-      do 320 i=1,nterm
+      
+      DO i=1,p
+        IF (l(i) /=0) THEN
+          DO j=1,n
+            m(j,i)=j
+            z(j,2)=x(i,j)
+          END DO
+          call sort (z(1,2),m(1,i),1,n)
+        END IF
+      END DO
+  
+    END IF
+ 
+    call scail (p,n,w,sw,ty(1,is),tx(1,1,is),delrsq,p,z(1,5),z(1,6))
+    
+    rsq(is)=0.0
+    iter=0
+!      nterm=min0(nterm,10) ! FIXME Not allowed 
+    nt=0
+    
+    DO i=1,min0(nterm,10)
       ct(i)=100.0
- 320  continue
- 330  iter=iter+1
+    END DO
+    
+    cmx = delrsq+1.0
+    cmn = 0.0
+    DO WHILE (cmx-cmn > delrsq .or. iter < maxit)
+      iter=iter+1
       nit=0
+      
  340  rsqi=rsq(is)
       nit=nit+1
       do 360 j=1,n
@@ -271,45 +310,47 @@ SUBROUTINE mace (p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
       z(j,3)=z(j,3)-sm*ty(k,js)
  470  continue
  480  continue
+ 
  490  sm=0.0
       sv=sm
-      do 500 j=1,n
-      k=m(j,pp1)
-      sm=sm+w(k)*z(j,3)
-      z(k,2)=z(j,1)
- 500  continue
+      DO j=1,n
+        k=m(j,pp1)
+        sm=sm+w(k)*z(j,3)
+        z(k,2)=z(j,1)
+      END DO
+ 
       sm=sm/sw
-      do 510 j=1,n
-      z(j,3)=z(j,3)-sm
-      sv=sv+z(j,4)*z(j,3)**2
- 510  continue
+      
+      DO j=1,n
+        z(j,3)=z(j,3)-sm
+        sv=sv+z(j,4)*z(j,3)**2
+      END DO
+      
       sv=sv/sw
-      if (sv.le.0.0) go to 520
+      
+      IF (sv <= 0.0) THEN
+        ierr=3
+        RETURN
+      END IF
+
       sv=1.0/dsqrt(sv)
-      go to 530
- 520  ierr=3
-      return
- 530  do 540 j=1,n
-      k=m(j,pp1)
-      ty(k,is)=z(j,3)*sv
- 540  continue
-      sv=0.0
-      do 550 j=1,n
-      sv=sv+w(j)*(ty(j,is)-z(j,2))**2
- 550  continue
+      
+      DO j=1,n
+        k=m(j,pp1)
+        ty(k,is)=z(j,3)*sv
+      END DO
+ 
+      sv = sum(w(:)*(ty(:,is)-z(:,2))**2)
       rsq(is)=1.0-sv/sw
       nt=mod(nt,nterm)+1
       ct(nt)=rsq(is)
-      cmn=100.0
-      cmx=-100.0
-      do 560 i=1,nterm
-      cmn=min(cmn,ct(i))
-      cmx=max(cmx,ct(i))
- 560  continue
-      if (cmx-cmn.le.delrsq.or.iter.ge.maxit) go to 570
-      go to 330
- 570  continue
- 580  continue
-      return
-      end
+      DO i=1,nterm
+        cmn=min(100.0, ct(i))
+        cmx=max(-100.0,ct(i))
+      END DO
+    END DO
+
+  END DO
+  RETURN
+END SUBROUTINE mace
 
