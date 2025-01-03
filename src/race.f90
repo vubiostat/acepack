@@ -5,14 +5,13 @@
 !       So this was changed to "scail"
 !
 SUBROUTINE scail(p, n, w, sw, ty, tx, eps, maxit, r, sc)
-    
   IMPLICIT NONE
-  INTEGER, INTENT(IN) :: p, n, maxit
-  DOUBLE PRECISION, INTENT(IN) :: w(n), ty(n), sw, eps
+  INTEGER,          INTENT(IN)    :: p, n, maxit
+  DOUBLE PRECISION, INTENT(IN)    :: w(n), ty(n), sw, eps
   DOUBLE PRECISION, INTENT(INOUT) :: tx(n, p)
-  DOUBLE PRECISION, INTENT(OUT) :: r(n), sc(p, 5)
+  DOUBLE PRECISION, INTENT(OUT)   :: r(n), sc(p, 5)
 
-  INTEGER :: i, j, iter, nit
+  INTEGER          :: i, j, iter, nit
   DOUBLE PRECISION :: s, h, t, u, gama, delta, v
   DOUBLE PRECISION :: residual, product
 
