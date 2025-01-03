@@ -2,7 +2,8 @@
  !
 ! This file is part of acepack.
 !
-! Copyright 2007 Jerome H. Friedman
+! Copyright 1985,2007 Jerome H. Friedman, Department of Statistics and
+!   Stanford Linear Accelerator Center, Stanford University
 ! Copyright 2016,2025 Shawn Garbett, Vanderbilt University Medical Center
 !
 ! Permission to use, copy, modify, distribute, and sell this software and
@@ -14,124 +15,108 @@
 ! without express or implied warranty.
 !______________________________________________________________________________
 
+! Estimate multiple optimal transformations for regression and
+! correlation by alternating conditional expectation estimates.
+!
+! input:
+!
+!    n : number of observations.
+!    p : number of predictor variables for each observation.
+!    x(p,n) : predictor data matrix.
+!    y(n) : response values for the observations.
+!       missing values are signified by a value (response or
+!       predictor) greater than or equal to big.
+!       (see below - default big = 1.0e20)
+!    w(n) : weights for the observations.
+!    l(p+1) : flag for each variable.
+!       l(1) through l(p) : predictor variables.
+!       l(p+1) : response variable.
+!       l(i)=0 => ith variable not to be used.
+!       l(i)=1 => ith variable assumes orderable values.
+!       l(i)=2 => ith variable assumes circular (periodic) values
+!                 in the range (0.0,1.0) with period 1.0.
+!       l(i)=3 => ith variable transformation is to be monotone.
+!       l(i)=4 => ith variable transformation is to be linear.
+!       l(i)=5 => ith variable assumes categorical (unorderable) values.
+!   delrsq : termination threshold. iteration stops when
+!       rsq changes less than delrsq in nterm
+!       consecutive iterations (see below - default nterm=3).
+!   ns : number of eigensolutions (sets of transformations).
+!
+! output:
+!
+!   tx(n,p,ns) : predictor transformations.
+!      tx(j,i,k) = transformed value of ith predictor for jth obs
+!                  for kth eigensolution.
+!   ty(n,ns) = response transformations.
+!      ty(j,k) = transformed response value for jth observation
+!                for kth eigensolution.
+!   rsq(ns) = fraction of variance(ty<y>)
+!                       p
+!         explained by sum tx(i)<x(i)>  for each eigensolution.
+!                      i=1
+!   ierr : error flag.
+!      ierr = 0 : no errors detected.
+!      ierr > 0 : error detected - see format statements below.
+!
+! scratch:
+!
+!    m(n,p+1), z(n,12) : internal working storage.
+!
+! Note: mace uses an iterative procedure for solving the optimization
+!    problem. defa<starting transformations are ty(j,k)=y(j),
+!    tx(j,i,k)=x(i,j) : j=1,n, i=1,p, k=1,ns. other starting transformat
+!    can be specified (if desired) for either the response and/or any of
+!    the predictor variables. This is signaled by negating the
+!    corresponding l(i) value and storing the starting transformed
+!    values in the corresponding array (ty(j,k), tx(j,i,k)) before
+!    calling mace.
+!
+SUBROUTINE mace (p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
+  USE acedata
+  IMPLICIT NONE
 
-      subroutine mace (p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
-      use acedata
-      implicit none
-c
-c   subroutine mace(p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
-c------------------------------------------------------------------
-c
-c estimate multiple optimal transformations for regression and
-c correlation by alternating conditional expectation estimates.
-c
-c version 3/28/85.
-c
-c breiman and friedman, journal of the american statistical
-c association (september, 1985)
-c
-c coded  and copywrite (c) 1985 by:
-c
-c                        jerome h. friedman
-c                     department of statistics
-c                               and
-c                stanford linear accelerator center
-c                        stanford university
-c
-c all rights reserved.
-c
-c
-c input:
-c
-c    n : number of observations.
-c    p : number of predictor variables for each observation.
-c    x(p,n) : predictor data matrix.
-c    y(n) : response values for the observations.
-c       missing values are signified by a value (response or
-c       predictor) greater than or equal to big.
-c       (see below - default, big = 1.0e20)
-c    w(n) : weights for the observations.
-c    l(p+1) : flag for each variable.
-c       l(1) through l(p) : predictor variables.
-c       l(p+1) : response variable.
-c       l(i)=0 => ith variable not to be used.
-c       l(i)=1 => ith variable assumes orderable values.
-c       l(i)=2 => ith variable assumes circular (periodic) values
-c                 in the range (0.0,1.0) with period 1.0.
-c       l(i)=3 => ith variable transformation is to be monotone.
-c       l(i)=4 => ith variable transformation is to be linear.
-c       l(i)=5 => ith variable assumes categorical (unorderable) values.
-c   delrsq : termination threshold. iteration stops when
-c       rsq changes less than delrsq in nterm
-c       consecutive iterations (see below - default, nterm=3).
-c   ns : number of eigensolutions (sets of transformations).
-c
-c output:
-c
-c   tx(n,p,ns) : predictor transformations.
-c      tx(j,i,k) = transformed value of ith predictor for jth obs
-c                  for kth eigensolution.
-c   ty(n,ns) = response transformations.
-c      ty(j,k) = transformed response value for jth observation
-c                for kth eigensolution.
-c   rsq(ns) = fraction of variance(ty<y>)
-c                       p
-c         explained by sum tx(i)<x(i)>  for each eigensolution.
-c                      i=1
-c   ierr : error flag.
-c      ierr = 0 : no errors detected.
-c      ierr > 0 : error detected - see format statements below.
-c
-c scratch:
-c
-c    m(n,p+1), z(n,12) : internal working storage.
-c
-c note: mace uses an iterative procedure for solving the optimization
-c    problem. default starting transformations are ty(j,k)=y(j),
-c    tx(j,i,k)=x(i,j) : j=1,n, i=1,p, k=1,ns. other starting transformat
-c    can be specified (if desired) for either the response and/or any of
-c    the predictor variables. this is signaled by negating the
-c    corresponding l(i) value and storing the starting transformed
-c    values in the corresponding array (ty(j,k), tx(j,i,k)) before
-c    calling mace.
-c
-c------------------------------------------------------------------
-c
-      integer n,p,pp1,m(n,p+1),l(p+1)
-      integer ns,ierr,i,is,ism1,iter,j,js,k,nit,np,nt
-      double precision rsqi
-      double precision cmn, cmx
-      double precision y(n),x(p,n),w(n),ty(n,ns),tx(n,p,ns)
-      double precision z(n,12),ct(10),rsq(ns)
-      double precision delrsq
-      double precision sm,sv,sw,sw1
-      ierr=0
-      pp1=p+1
-      sm=0.0
-      sv=sm
-      sw=sv
-      sw1=sw
-      do 10 i=1,pp1
-      if (l(i).ge.-5.and.l(i).le.5) go to 10
-      ierr=6
- 10   continue
-      if (ierr.ne.0) return
-      if (l(pp1).ne.0) go to 20
-      ierr=4
-      return
- 20   np=0
-      do 30 i=1,p
-      if (l(i).ne.0) np=np+1
- 30   continue
-      if (np.gt.0) go to 40
-      ierr=5
-      return
- 40   do 50 j=1,n
-      sw=sw+w(j)
- 50   continue
-      if (sw.gt.0.0) go to 60
-      ierr=1
-      return
+  INTEGER :: n,p,pp1,m(n,p+1),l(p+1)
+  INTEGER :: ns,ierr,i,is,ism1,iter,j,js,k,nit,np,nt
+  DOUBLE PRECISION :: rsqi
+  DOUBLE PRECISION :: cmn, cmx
+  DOUBLE PRECISION :: y(n),x(p,n),w(n),ty(n,ns),tx(n,p,ns)
+  DOUBLE PRECISION :: z(n,12),ct(10),rsq(ns)
+  DOUBLE PRECISION :: delrsq
+  DOUBLE PRECISION :: sm,sv,sw,sw1
+  
+  ierr=0
+  pp1=p+1
+  sm=0.0
+  sv=sm
+  sw=sv
+  sw1=sw
+  
+  ! Check if any element in the array l is out of the range [-5, 5]
+  IF (any(l(1:pp1) < -5 .or. l(1:pp1) > 5)) THEN
+    ierr = 6
+    RETURN
+  END IF
+  
+  IF (l(pp1) == 0) THEN
+    ierr = 4
+    RETURN
+  END IF
+  
+  np = count(l /= 0)  ! Count the number of non-zero elements in l
+  
+  if (np <= 0) then
+    ierr = 5
+    return
+  end if
+  
+  sw = sum(w)  ! Sum all the elements of array w
+  
+  if (sw .le. 0.0) then
+    ierr = 1
+    return
+  end if
+      
  60   do 580 is=1,ns
       do 70 j=1,n
       if (l(pp1).gt.0) ty(j,is)=y(j)
