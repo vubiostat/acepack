@@ -166,10 +166,8 @@ SUBROUTINE mace (p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
       sm=0.0
       sw1=sm
     END IF
-
-    DO j=1,n
-      tx(j,i,is)=0.0
-    END DO
+    
+    tx(:,i,is) = 0.0
       
     DO j=1,n
       IF (ty(j,is) < big) THEN
@@ -233,100 +231,76 @@ SUBROUTINE mace (p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
     
     rsq(is)=0.0
     iter=0
-!      nterm=min0(nterm,10) ! FIXME Not allowed 
     nt=0
     
     DO i=1,min0(nterm,10)
       ct(i)=100.0
     END DO
     
-    cmx = delrsq+1.0
-    cmn = 0.0
-    DO WHILE (cmx-cmn > delrsq .or. iter < maxit)
+    DO ! Until convergence or maxit
       iter=iter+1
       nit=0
       
  340  rsqi=rsq(is)
       nit=nit+1
-      do 360 j=1,n
-      z(j,5)=ty(j,is)
-      do 350 i=1,p
-      if (l(i).ne.0) z(j,5)=z(j,5)-tx(j,i,is)
- 350  continue
- 360  continue
-      do 420 i=1,p
-      if (l(i).eq.0) go to 420
-      do 370 j=1,n
-      k=m(j,i)
-      z(j,1)=z(k,5)+tx(k,i,is)
-      z(j,2)=x(i,k)
-      z(j,4)=w(k)
- 370  continue
-      call smothr (iabs(l(i)),n,z(1,2),z,z(1,4),z(1,3),z(1,6))
-      sm=0.0
-      do 380 j=1,n
-      sm=sm+z(j,4)*z(j,3)
- 380  continue
-      sm=sm/sw
-      do 390 j=1,n
-      z(j,3)=z(j,3)-sm
- 390  continue
-      sv=0.0
-      do 400 j=1,n
-      sv=sv+z(j,4)*(z(j,1)-z(j,3))**2
- 400  continue
-      sv=1.0-sv/sw
-      if (sv.le.rsq(is)) go to 420
-      rsq(is)=sv
-      do 410 j=1,n
-      k=m(j,i)
-      tx(k,i,is)=z(j,3)
-      z(k,5)=z(j,1)-z(j,3)
- 410  continue
- 420  continue
+      DO j=1,n
+        z(j,5)=ty(j,is)
+        DO i=1,p
+          IF (l(i) /= 0) z(j,5)=z(j,5)-tx(j,i,is)
+        END DO
+      END DO
+ 
+      DO i=1,p
+        IF (l(i) == 0) CYCLE
+        DO j=1,n
+          k=m(j,i)
+          z(j,1)=z(k,5)+tx(k,i,is)
+          z(j,2)=x(i,k)
+          z(j,4)=w(k)
+        END DO
+        call smothr (iabs(l(i)),n,z(1,2),z,z(1,4),z(1,3),z(1,6))
+        sm = sum(z(:,4)*z(:,3))/sw
+        z(:,3)=z(:,3)-sm
+        sv=1.0-sum(z(:,4)*(z(:,1)-z(:,3))**2)/sw
+      
+        IF (sv > rsq(is)) THEN
+          rsq(is)=sv
+          DO j=1,n
+            k=m(j,i)
+            tx(k,i,is)=z(j,3)
+            z(k,5)=z(j,1)-z(j,3)
+          END DO
+        END IF
+      END DO
+      
       if (np.eq.1.or.rsq(is)-rsqi.le.delrsq.or.nit.ge.maxit) go to 430
       go to 340
- 430  do 450 j=1,n
-      k=m(j,pp1)
-      z(j,2)=y(k)
-      z(j,4)=w(k)
-      z(j,1)=0.0
-      do 440 i=1,p
-      if (l(i).ne.0) z(j,1)=z(j,1)+tx(k,i,is)
- 440  continue
- 450  continue
-      call smothr (iabs(l(pp1)),n,z(1,2),z,z(1,4),z(1,3),z(1,6))
-      if (is.le.1) go to 490
-      ism1=is-1
-      do 480 js=1,ism1
-      sm=0.0
-      do 460 j=1,n
-      k=m(j,pp1)
-      sm=sm+w(k)*z(j,3)*ty(k,js)
- 460  continue
-      sm=sm/sw
-      do 470 j=1,n
-      k=m(j,pp1)
-      z(j,3)=z(j,3)-sm*ty(k,js)
- 470  continue
- 480  continue
- 
- 490  sm=0.0
-      sv=sm
-      DO j=1,n
+      
+ 430  DO j=1,n
         k=m(j,pp1)
-        sm=sm+w(k)*z(j,3)
-        z(k,2)=z(j,1)
+        z(j,2)=y(k)
+        z(j,4)=w(k)
+        z(j,1)=0.0
+        DO i=1,p
+          IF (l(i) /= 0) z(j,1)=z(j,1)+tx(k,i,is)
+        END DO
       END DO
  
-      sm=sm/sw
+      call smothr (iabs(l(pp1)),n,z(1,2),z,z(1,4),z(1,3),z(1,6))
       
-      DO j=1,n
-        z(j,3)=z(j,3)-sm
-        sv=sv+z(j,4)*z(j,3)**2
-      END DO
+      IF (is > 1) THEN
+        ism1=is-1
+        DO js=1,ism1
+          sm = sum(w(k)*z(:,3)*ty(m(:,pp1),js))/sw
+          z(:,3) = z(:,3)-sm*ty(m(:,pp1),js)
+        END DO
+      END IF
+ 
+      sm = sum(w(m(:, pp1)) * z(:, 3))/sw
+      z(m(:, pp1), 2) = z(:, 1)       
       
-      sv=sv/sw
+      z(:, 3) = z(:, 3) - sm
+      sv = (sm + sum(z(:, 4) * z(:, 3) ** 2))/sw
       
       IF (sv <= 0.0) THEN
         ierr=3
@@ -334,23 +308,18 @@ SUBROUTINE mace (p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
       END IF
 
       sv=1.0/dsqrt(sv)
-      
-      DO j=1,n
-        k=m(j,pp1)
-        ty(k,is)=z(j,3)*sv
-      END DO
- 
+      ty(m(:, pp1), is) = z(:, 3) * sv
       sv = sum(w(:)*(ty(:,is)-z(:,2))**2)
+ 
       rsq(is)=1.0-sv/sw
       nt=mod(nt,nterm)+1
       ct(nt)=rsq(is)
-      DO i=1,nterm
-        cmn=min(100.0, ct(i))
-        cmx=max(-100.0,ct(i))
-      END DO
+      cmn = minval(ct)
+      cmx = maxval(ct)
+ 
+      IF (cmx-cmn <= delrsq .or. iter >= maxit) EXIT
     END DO
 
   END DO
   RETURN
 END SUBROUTINE mace
-
