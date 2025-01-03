@@ -2,7 +2,7 @@
  !
 ! This file is part of acepack.
 !
-! Copyright 2007 Jerome H. Friedman
+! Copyright 1985,2007 Jerome H. Friedman
 ! Copyright 2016,2025 Shawn Garbett, Vanderbilt University Medical Center
 !
 ! Permission to use, copy, modify, distribute, and sell this software and
