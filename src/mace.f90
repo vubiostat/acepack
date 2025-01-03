@@ -241,42 +241,46 @@ SUBROUTINE mace (p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
       iter=iter+1
       nit=0
       
- 340  rsqi=rsq(is)
-      nit=nit+1
-      DO j=1,n
-        z(j,5)=ty(j,is)
-        DO i=1,p
-          IF (l(i) /= 0) z(j,5)=z(j,5)-tx(j,i,is)
-        END DO
-      END DO
- 
-      DO i=1,p
-        IF (l(i) == 0) CYCLE
+      DO ! Until inner convergence or nit > maxit
+        rsqi=rsq(is)
+        nit=nit+1
         DO j=1,n
-          k=m(j,i)
-          z(j,1)=z(k,5)+tx(k,i,is)
-          z(j,2)=x(i,k)
-          z(j,4)=w(k)
+          z(j,5)=ty(j,is)
+          DO i=1,p
+            IF (l(i) /= 0) z(j,5)=z(j,5)-tx(j,i,is)
+          END DO
         END DO
-        call smothr (iabs(l(i)),n,z(1,2),z,z(1,4),z(1,3),z(1,6))
-        sm = sum(z(:,4)*z(:,3))/sw
-        z(:,3)=z(:,3)-sm
-        sv=1.0-sum(z(:,4)*(z(:,1)-z(:,3))**2)/sw
-      
-        IF (sv > rsq(is)) THEN
-          rsq(is)=sv
+   
+        DO i=1,p
+          IF (l(i) == 0) CYCLE
           DO j=1,n
             k=m(j,i)
-            tx(k,i,is)=z(j,3)
-            z(k,5)=z(j,1)-z(j,3)
+            z(j,1)=z(k,5)+tx(k,i,is)
+            z(j,2)=x(i,k)
+            z(j,4)=w(k)
           END DO
-        END IF
+          call smothr (iabs(l(i)),n,z(1,2),z,z(1,4),z(1,3),z(1,6))
+          sm = sum(z(:,4)*z(:,3))/sw
+          z(:,3)=z(:,3)-sm
+          sv=1.0-sum(z(:,4)*(z(:,1)-z(:,3))**2)/sw
+        
+          IF (sv > rsq(is)) THEN
+            rsq(is)=sv
+            DO j=1,n
+              k=m(j,i)
+              tx(k,i,is)=z(j,3)
+              z(k,5)=z(j,1)-z(j,3)
+            END DO
+          END IF
+        END DO
+        
+        if (np == 1                .or.
+            rsq(is)-rsqi <= delrsq .or.
+            nit >= maxit)          EXIT
+        
       END DO
       
-      if (np.eq.1.or.rsq(is)-rsqi.le.delrsq.or.nit.ge.maxit) go to 430
-      go to 340
-      
- 430  DO j=1,n
+      DO j=1,n
         k=m(j,pp1)
         z(j,2)=y(k)
         z(j,4)=w(k)
