@@ -76,13 +76,22 @@ SUBROUTINE mace (p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
   USE acedata
   IMPLICIT NONE
 
-  INTEGER :: n,p,pp1,m(n,p+1),l(p+1)
-  INTEGER :: ns,ierr,i,is,ism1,iter,j,js,k,nit,np,nt
+  INTEGER, INTENT(IN)           :: p, n
+  DOUBLE PRECISION, INTENT(IN)  :: x(p,n),y(n),w(n)
+  INTEGER, INTENT(IN)           :: l(p+1)
+  DOUBLE PRECISION, INTENT(IN)  :: delrsq
+  INTEGER, INTENT(IN)           :: ns
+  DOUBLE PRECISION, INTENT(OUT) :: tx(n,p,ns), ty(n,ns)
+  DOUBLE PRECISION, INTENT(OUT) :: rsq(ns)
+  INTEGER, INTENT(OUT)          :: ierr
+  INTEGER, INTENT(OUT)          :: m(n,p+1)
+  DOUBLE PRECISION, INTENT(OUT) :: z(n,12)
+  
+  ! Internal Variables
+  INTEGER          :: pp1, i,is,ism1,iter,j,js,k,nit,np,nt
   DOUBLE PRECISION :: rsqi
   DOUBLE PRECISION :: cmn, cmx
-  DOUBLE PRECISION :: y(n),x(p,n),w(n),ty(n,ns),tx(n,p,ns)
-  DOUBLE PRECISION :: z(n,12),ct(10),rsq(ns)
-  DOUBLE PRECISION :: delrsq
+  DOUBLE PRECISION :: ct(10)
   DOUBLE PRECISION :: sm,sv,sw,sw1
   
   ierr=0
@@ -143,9 +152,7 @@ SUBROUTINE mace (p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
       
       IF (sw1 > 0.0) EXIT
  
-      DO j=1,n
-        tx(j,i,is)=0.0
-      END DO
+      tx(:,i,is)=0.0
 
       sm=0.0
       sw1=sm
@@ -274,8 +281,8 @@ SUBROUTINE mace (p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
           END IF
         END DO
         
-        if (np == 1                .or.
-            rsq(is)-rsqi <= delrsq .or.
+        if (np == 1                .or. &
+            rsq(is)-rsqi <= delrsq .or. &
             nit >= maxit)          EXIT
         
       END DO
@@ -325,5 +332,5 @@ SUBROUTINE mace (p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
     END DO
 
   END DO
-  RETURN
+
 END SUBROUTINE mace
