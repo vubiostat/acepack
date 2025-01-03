@@ -35,7 +35,7 @@ module acedata
   ! Define parameters for clarity using double precision
   double precision, parameter :: alpha = 0.0d0
   double precision, parameter :: big   = 1.0d20
-  double precision, parameter :: span   = 0.0d0
+  double precision, parameter :: span  = 0.0d0
 
   integer, parameter :: maxit = 20
   integer, parameter :: nterm = 3

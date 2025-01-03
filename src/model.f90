@@ -41,9 +41,9 @@ SUBROUTINE model(p, n, y, w, l, tx, ty, f, t, m, z)
   IMPLICIT NONE
 
   ! Input/Output arguments
-  INTEGER, INTENT(IN) :: p, n
-  INTEGER, INTENT(INOUT) :: l(1), m(n, 1)
-  DOUBLE PRECISION, INTENT(IN) :: y(n), w(n), tx(n, p), ty(n)
+  INTEGER, INTENT(IN)           :: p, n
+  INTEGER, INTENT(INOUT)        :: l(1), m(n, 1)
+  DOUBLE PRECISION, INTENT(IN)  :: y(n), w(n), tx(n, p), ty(n)
   DOUBLE PRECISION, INTENT(OUT) :: f(n), t(n), z(n, 12)
 
   ! Local variables
@@ -53,7 +53,6 @@ SUBROUTINE model(p, n, y, w, l, tx, ty, f, t, m, z)
 
   pp1 = p + 1
 
-  ! Simplified if-else logic instead of go to
   IF (ABS(l(pp1)) == 5) THEN
     DO j = 1, n
       t(j) = ty(j)
@@ -70,7 +69,6 @@ SUBROUTINE model(p, n, y, w, l, tx, ty, f, t, m, z)
     END DO
   END IF
 
-  ! Sorting
   CALL sort(t, m(:, pp1), 1, n)
 
   ! Loop for populating z
