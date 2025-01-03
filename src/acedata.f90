@@ -33,11 +33,43 @@ MODULE acedata
   IMPLICIT NONE
 
   ! Define PARAMETERs for clarity using DOUBLE PRECISION
-  DOUBLE PRECISION, PARAMETER :: alpha = 0.0d0
-  DOUBLE PRECISION, PARAMETER :: big   = 1.0d20
-  DOUBLE PRECISION, PARAMETER :: span  = 0.0d0
+  DOUBLE PRECISION :: alpha = 0.0d0
+  DOUBLE PRECISION :: big   = 1.0d20
+  DOUBLE PRECISION :: span  = 0.0d0
 
-  INTEGER, PARAMETER :: maxit = 20
-  INTEGER, PARAMETER :: nterm = 3
+  INTEGER :: maxit = 20
+  INTEGER :: nterm = 3
 
+CONTAINS
+
+  SUBROUTINE set_alpha(a)
+    IMPLICIT NONE
+    DOUBLE PRECISION, INTENT(IN) :: a
+    alpha = a
+  END SUBROUTINE set_alpha
+  
+  SUBROUTINE set_big(b)
+    IMPLICIT NONE
+    DOUBLE PRECISION, INTENT(IN) :: b
+    big = b
+  END SUBROUTINE set_big
+  
+  SUBROUTINE set_span(s)
+    IMPLICIT NONE
+    DOUBLE PRECISION, INTENT(IN) :: s
+    span = s
+  END SUBROUTINE set_span
+  
+  SUBROUTINE set_maxit(m)
+    IMPLICIT NONE
+    INTEGER, INTENT(IN) :: m
+    maxit = m
+  END SUBROUTINE set_maxit
+  
+  SUBROUTINE set_nterm(n)
+    IMPLICIT NONE
+    INTEGER, INTENT(IN) :: n
+    nterm = n
+  END SUBROUTINE set_nterm
+  
 END MODULE acedata

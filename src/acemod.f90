@@ -40,12 +40,19 @@
 SUBROUTINE acemod(v, p, n, x, l, tx, f, t, m, yhat)
   USE acedata
   IMPLICIT NONE
-
-  INTEGER :: n, p
-  INTEGER :: m(n, 1), l(1), low, high, place
+  ! Inputs
+  DOUBLE PRECISION, INTENT(IN)  :: v(p)
+  INTEGER, INTENT(IN)           :: p, n
+  DOUBLE PRECISION, INTENT(IN)  :: x(p, n)
+  INTEGER, INTENT(IN)           :: l(1)
+  DOUBLE PRECISION, INTENT(IN)  :: tx(n, p), f(n), t(n)
+  INTEGER, INTENT(IN)           :: m(n, 1)
+  ! Outputs
+  DOUBLE PRECISION, INTENT(OUT) :: yhat
+  ! Internals
+  INTEGER :: low, high, place
   INTEGER :: i, jh, jl
   DOUBLE PRECISION :: th, vi, xt
-  DOUBLE PRECISION :: v(p), x(p, n), f(n), t(n), tx(n, p), yhat
 
   th = 0.0
   DO i = 1, p

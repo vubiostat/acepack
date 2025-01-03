@@ -75,15 +75,17 @@
 SUBROUTINE mace (p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
   USE acedata
   IMPLICIT NONE
-
+  ! Inputs
   INTEGER, INTENT(IN)           :: p, n
   DOUBLE PRECISION, INTENT(IN)  :: x(p,n),y(n),w(n)
   INTEGER, INTENT(IN)           :: l(p+1)
   DOUBLE PRECISION, INTENT(IN)  :: delrsq
   INTEGER, INTENT(IN)           :: ns
+  ! Outputs
   DOUBLE PRECISION, INTENT(OUT) :: tx(n,p,ns), ty(n,ns)
   DOUBLE PRECISION, INTENT(OUT) :: rsq(ns)
   INTEGER, INTENT(OUT)          :: ierr
+  ! Scratch provided
   INTEGER, INTENT(OUT)          :: m(n,p+1)
   DOUBLE PRECISION, INTENT(OUT) :: z(n,12)
   
