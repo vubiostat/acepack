@@ -1,7 +1,22 @@
-C     real -> double precision conversion for R use
-C     <TSL>
-c     mortran 2.0     (version of 6/24/75)
+  !----------------------------------------------------------------------------
+ !
+! This file is part of acepack.
+!
+! Copyright 2007 Jerome H. Friedman
+! Copyright 2016,2025 Shawn Garbett, Vanderbilt University Medical Center
+!
+! Permission to use, copy, modify, distribute, and sell this software and
+! its documentation for any purpose is hereby granted without fee,
+! provided that the above copyright notice appear in all copies and that
+! both that copyright notice and this permission notice appear in
+! supporting documentation. No representations are made about the
+! suitability of this software for any purpose.  It is provided "as is"
+! without express or implied warranty.
+!______________________________________________________________________________
+
+
       subroutine mace (p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
+      use acedata
       implicit none
 c
 c   subroutine mace(p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
@@ -83,13 +98,12 @@ c
 c------------------------------------------------------------------
 c
       integer n,p,pp1,m(n,p+1),l(p+1)
-      integer ns,ierr,i,is,ism1,iter,j,js,k,maxit,nit,np,nt,nterm
-      double precision rsqi,span
-      double precision alpha, big, cmn, cmx
+      integer ns,ierr,i,is,ism1,iter,j,js,k,nit,np,nt
+      double precision rsqi
+      double precision cmn, cmx
       double precision y(n),x(p,n),w(n),ty(n,ns),tx(n,p,ns)
       double precision z(n,12),ct(10),rsq(ns)
       double precision delrsq
-      common /prams/ alpha,big,span,maxit,nterm
       double precision sm,sv,sw,sw1
       ierr=0
       pp1=p+1
@@ -201,7 +215,7 @@ c
  310  call scail (p,n,w,sw,ty(1,is),tx(1,1,is),delrsq,p,z(1,5),z(1,6))
       rsq(is)=0.0
       iter=0
-      nterm=min0(nterm,10)
+!      nterm=min0(nterm,10)
       nt=0
       do 320 i=1,nterm
       ct(i)=100.0
@@ -315,6 +329,7 @@ c
       end
 
       subroutine model (p,n,y,w,l,tx,ty,f,t,m,z)
+      use acedata
       implicit none
 c
 c          subroutine model(p,n,y,w,l,tx,ty,f,t,m,z)
@@ -343,10 +358,10 @@ c
 c-------------------------------------------------------------------
 c
       integer n,p,pp1,m(n,1),l(1)
-      integer i,j,j1,j2,k,maxit,nterm
+      integer i,j,j1,j2,k
       double precision y(n),w(n),tx(n,p),ty(n),f(n),t(n),z(n,12)
-      double precision alpha, big, s, span
-      common /prams/ alpha,big,span,maxit,nterm
+      double precision s
+
       pp1=p+1
       if (iabs(l(pp1)).ne.5) go to 20
       do 10 j=1,n
@@ -402,6 +417,7 @@ c
       end
       
       subroutine acemod (v,p,n,x,l,tx,f,t,m,yhat)
+      use acedata
       implicit none
 c          subroutine acemod(v,p,n,x,l,tx,f,t,m,yhat)
 c--------------------------------------------------------------------
@@ -429,10 +445,11 @@ c
 c-------------------------------------------------------------------
 c
       integer n,p,m(n,1),l(1),low,high,place
-      integer maxit,nterm,i,jh,jl
-      double precision alpha, big, span, th, vi, xt
+      integer i,jh,jl
+      double precision th, vi, xt
       double precision  v(p),x(p,n),f(n),t(n),tx(n,p), yhat
-      common /prams/ alpha,big,span,maxit,nterm
+      
+
       th=0.0
       do 90 i=1,p
       if (l(i).eq.0) go to 90
@@ -495,24 +512,4 @@ c
  170  yhat=f(low)+(f(high)-f(low))*(th-t(low))/(t(high)-t(low))
  180  return
       end
-      
-c------------------------------------------------------------------
-c
-c these procedure parameters can be changed in the calling routine
-c by defining the above labeled common and resetting the values with
-c executable statements.
-c
-c maxit : maximum number of iterations.
-c nterm : number of consecutive iterations for which
-c         rsq must change less than delcor for convergence.
-c span, alpha : super smoother parameters (see below).
-c big : a large representable floating point number.
-c
-c------------------------------------------------------------------
-c
-block data acedata
-  implicit double precision (A-H,O-Z)
-  common /prams/ alpha,big,span,maxit,nterm
-  data maxit,nterm,span,alpha,big /20,3,0.0,0.0,1.0e20/
-end
-
+  

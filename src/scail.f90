@@ -1,8 +1,28 @@
+  !----------------------------------------------------------------------------
+ !
+! This file is part of acepack.
 !
-! 2016/10/7 Shawn Garbett Refactor to insure initialized variable h, and no division by zero
+! Copyright 2007 Jerome H. Friedman
+! Copyright 2016,2025 Shawn Garbett, Vanderbilt University Medical Center
 !
-! Note: The original function was named "scale", but this is now part of the Fortran 95 namespace
-!       So this was changed to "scail"
+! Permission to use, copy, modify, distribute, and sell this software and
+! its documentation for any purpose is hereby granted without fee,
+! provided that the above copyright notice appear in all copies and that
+! both that copyright notice and this permission notice appear in
+! supporting documentation. No representations are made about the
+! suitability of this software for any purpose.  It is provided "as is"
+! without express or implied warranty.
+!______________________________________________________________________________
+
+
+! 2025-01-02 Shawn Garbett
+!   Refactored with ChatGPT assistance. 
+!
+! 2016-10-07 Shawn Garbett
+!   Refactor to insure initialized variable h, and no division by zero.
+!
+! Note: The original function was named "scale", but this is now part of the
+!       Fortran 95 namespace. So this was changed to "scail"
 !
 SUBROUTINE scail(p, n, w, sw, ty, tx, eps, maxit, r, sc)
   IMPLICIT NONE
@@ -12,7 +32,7 @@ SUBROUTINE scail(p, n, w, sw, ty, tx, eps, maxit, r, sc)
   DOUBLE PRECISION, INTENT(OUT)   :: r(n), sc(p, 5)
 
   INTEGER          :: i, j, iter, nit
-  DOUBLE PRECISION :: s, h, t, u, gama, delta, v
+  DOUBLE PRECISION :: s, h, t, u, gamma, delta, v
   DOUBLE PRECISION :: residual, product
 
   ! Initialization
@@ -32,8 +52,8 @@ SUBROUTINE scail(p, n, w, sw, ty, tx, eps, maxit, r, sc)
 
       ! Compute residuals: r(j) = (ty(j) - sum(sc(:,1) * tx(j,:))) * w(j)
       DO j = 1, n
-          residual = ty(j) - DOT_PRODUCT(sc(:,1), tx(j,:))
-          r(j) = residual * w(j)
+        residual = ty(j) - DOT_PRODUCT(sc(:,1), tx(j,:))
+        r(j) = residual * w(j)
       END DO
 
       ! Update sc(:,2) with the computed values
@@ -51,8 +71,8 @@ SUBROUTINE scail(p, n, w, sw, ty, tx, eps, maxit, r, sc)
       IF (s <= 0.0) EXIT
 
       ! Update sc(:,3) based on gamma and previous values
-      gama = s / h
-      sc(:,3) = -sc(:,2) + gama * sc(:,4)
+      gamma = s / h
+      sc(:,3) = -sc(:,2) + gamma * sc(:,4)
 
       h = s
 

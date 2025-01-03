@@ -1,3 +1,20 @@
+  !----------------------------------------------------------------------------
+ !
+! This file is part of acepack.
+!
+! Copyright 2007 Jerome H. Friedman
+! Copyright 2016,2025 Shawn Garbett, Vanderbilt University Medical Center
+!
+! Permission to use, copy, modify, distribute, and sell this software and
+! its documentation for any purpose is hereby granted without fee,
+! provided that the above copyright notice appear in all copies and that
+! both that copyright notice and this permission notice appear in
+! supporting documentation. No representations are made about the
+! suitability of this software for any purpose.  It is provided "as is"
+! without express or implied warranty.
+!______________________________________________________________________________
+
+
 ! Cross-validation for span selection.
 ! It evaluates a range of predefined spans selecting the optimal one
 ! using residual sums of squares
