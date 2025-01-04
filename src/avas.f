@@ -147,21 +147,7 @@
       end
 
 
-      subroutine calcmu(n,p,l,z,tx)
-      implicit none
-      integer p, l(*),j,n
-      double precision z(n,17),tx(n,p)
-      integer i
-      do 23055 j=1,n
-         z(j,10)=0
-         do 23057 i=1,p
-            if(.not.(l(i) .gt. 0))goto 23059
-            z(j,10)=z(j,10)+tx(j,i)
-23059       continue
-23057    continue
-23055 continue
-      return
-      end
+
 
 
       subroutine bakfit(iter,delrsq,rsq,sw,l,z,m,x,ty,tx,w,n,p,np)
