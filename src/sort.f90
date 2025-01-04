@@ -20,7 +20,7 @@
 ! arrays iu(k) and il(k) permit sorting up to 2**(k+1)-1 elements.
 !     
 ! This is a modification of CACM algorithm #347 which is a modified
-! Hoare quicksort.
+! Hoare's quicksort.
 !
 ! Richard C. Singleton. (1969). Algorithm 347: an efficient algorithm for
 ! sorting with minimal storage [M1]. _Communications of the ACM_, 23(3), 185-7.
@@ -29,87 +29,127 @@
 SUBROUTINE sort (v,a,ii,jj)
   IMPLICIT NONE
   DOUBLE PRECISION, INTENT(INOUT) :: v(*)
-  INTEGER, INTENT(INOUT)          :: a(jj)
-  INTEGER, INTENT(IN)             :: ii, jj
+  INTEGER,          INTENT(INOUT) :: a(jj)
+  INTEGER,          INTENT(IN)    :: ii, jj
 
-!      dimension a(jj),v(*)
-      integer iu(20),il(20)
-      integer t,tt,ij,j,k,l
-      integer m,i
-      double precision vt,vtt
+  INTEGER           iu(20), il(20)
+  INTEGER           t,tt,ij,j,k,l
+  INTEGER           m,i
+  DOUBLE PRECISION  vt,vtt
       
-      m=1
-      i=ii
-      j=jj
- 10   if (i.ge.j) go to 80
- 20   k=i
+  m=1
+  i=ii
+  j=jj
+  
+  DO 
+    IF (i < j) THEN 
+      k=i
+ 
       ij=(j+i)/2
       t=a(ij)
       vt=v(ij)
-      if (v(i).le.vt) go to 30
-      a(ij)=a(i)
-      a(i)=t
-      t=a(ij)
-      v(ij)=v(i)
-      v(i)=vt
-      vt=v(ij)
- 30   l=j
-      if (v(j).ge.vt) go to 50
-      a(ij)=a(j)
-      a(j)=t
-      t=a(ij)
-      v(ij)=v(j)
-      v(j)=vt
-      vt=v(ij)
-      if (v(i).le.vt) go to 50
-      a(ij)=a(i)
-      a(i)=t
-      t=a(ij)
-      v(ij)=v(i)
-      v(i)=vt
-      vt=v(ij)
-      go to 50
- 40   a(l)=a(k)
-      a(k)=tt
-      v(l)=v(k)
-      v(k)=vtt
- 50   l=l-1
-      if (v(l).gt.vt) go to 50
-      tt=a(l)
-      vtt=v(l)
- 60   k=k+1
-      if (v(k).lt.vt) go to 60
-      if (k.le.l) go to 40
-      if (l-i.le.j-k) go to 70
-      il(m)=i
-      iu(m)=l
-      i=k
-      m=m+1
-      go to 90
- 70   il(m)=k
+  
+      IF (v(i) > vt) THEN
+        a(ij)=a(i)
+        a(i)=t
+        t=a(ij)
+        v(ij)=v(i)
+        v(i)=vt
+        vt=v(ij)
+      END IF
+  
+      l=j
+      
+      IF (v(j) < vt) THEN
+        a(ij)=a(j)
+        a(j)=t
+        t=a(ij)
+        v(ij)=v(j)
+        v(j)=vt
+        vt=v(ij)
+        
+        IF (v(i) > vt) THEN
+          a(ij)=a(i)
+          a(i)=t
+          t=a(ij)
+          v(ij)=v(i)
+          v(i)=vt
+          vt=v(ij)
+        END IF
+      END IF
+      
+      DO
+        DO 
+          l=l-1
+          IF (v(l) <= vt) EXIT
+        END DO
+        
+        tt=a(l)
+        vtt=v(l)
+        
+        DO
+          k=k+1
+          IF (v(k) >= vt) EXIT
+        END DO
+        
+        IF (k > l) EXIT
+        
+        a(l)=a(k)
+        a(k)=tt
+        v(l)=v(k)
+        v(k)=vtt
+        
+      END DO
+      
+      IF (l-i > j-k) THEN
+        il(m)=i
+        iu(m)=l
+        i=k
+        m=m+1
+        
+        if (j-i > 10) CYCLE
+        IF (i /= ii) EXIT
+        CYCLE
+      END IF
+      
+      il(m)=k
       iu(m)=j
       j=l
       m=m+1
-      go to 90
+
+      if (j-i > 10) CYCLE
+      IF (i /= ii) EXIT
+      CYCLE
+      
+    END IF
+      
  80   m=m-1
-      if (m.eq.0) return
-      i=il(m)
-      j=iu(m)
- 90   if (j-i.gt.10) go to 20
-      if (i.eq.ii) go to 10
-      i=i-1
- 100  i=i+1
-      if (i.eq.j) go to 80
-      t=a(i+1)
-      vt=v(i+1)
-      if (v(i).le.vt) go to 100
-      k=i
- 110  a(k+1)=a(k)
+    IF (m.eq.0) RETURN
+    i=il(m)
+    j=iu(m)
+      
+    IF (j-i > 10) CYCLE
+    IF (i /= ii) EXIT
+  END DO
+    
+  i=i-1
+      
+  DO
+    i=i+1
+    if (i.eq.j) go to 80 !?
+    t=a(i+1)
+    vt=v(i+1)
+    if (v(i).le.vt) CYCLE
+    k=i
+    DO
+      a(k+1)=a(k)
       v(k+1)=v(k)
       k=k-1
-      if (vt.lt.v(k)) go to 110
-      a(k+1)=t
-      v(k+1)=vt
-      go to 100
-      
+      IF (vt >= v(k)) EXIT
+    END DO
+    
+    a(k+1)=t
+    v(k+1)=vt
+  END DO
+        
 END SUBROUTINE sort

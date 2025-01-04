@@ -16,151 +16,248 @@
 
 ! Original: https://stacks.stanford.edu/file/druid:gw754yg8889/ORION%20003.pdf
 ! J Friedman, W Stuetzle. Smoothing of Scatterplots, Stanford Project Orion, July 1982
-SUBROUTINE SuperSmoother(x, y, w, span, dof, n, cross, smo, s0, rss, scratch)
+SUBROUTINE SuperSmoother(X,Y,W,SPAN,DOF,N,CROSS,SMO,S0,RSS,SCRAT)
   IMPLICIT NONE
-  DOUBLE PRECISION, INTENT(IN)  :: x(n)   ! Ordered abscissa values
-  DOUBLE PRECISION, INTENT(INOUT):: y(n)  ! Corresponding ordinate (response) values
-  DOUBLE PRECISION, INTENT(IN)  :: w(n)   ! (optional) Weight for each (x,y) observation
-  DOUBLE PRECISION, INTENT(IN)  :: span   ! Fractional span for residual smoothing
-  DOUBLE PRECISION, INTENT(OUT) :: dof    ! Degrees of freedom
-  INTEGER, INTENT(IN)           :: n      ! Number of observations (x,y)
-  INTEGER, INTENT(IN)           :: cross  ! Cross validation
-  DOUBLE PRECISION, INTENT(OUT) :: smo(n) ! Smoothed ordinate (response) variable
-  DOUBLE PRECISION, INTENT(OUT) :: s0     ! Intercept
-  DOUBLE PRECISION, INTENT(OUT) :: rss    ! Residual sum of squares
-  DOUBLE PRECISION, INTENT(INOUT)  :: scratch(n) 
   
-  INTEGER :: i, ibnew, ibold, is2, itnew, itold, j, jj, m0, ntie
-  DOUBLE PRECISION :: xin, yin, win, xout, yout
-  DOUBLE PRECISION :: wt, ispan
-  DOUBLE PRECISION :: sumw, xbar, ybar, cov, var, r
-  INTEGER :: fixeds, line
-
-  line = 1
-  fixeds = 1
-
-  ! Check for invalid span value
-  IF (span >= 1.0) THEN
-    line = 0
-  END IF
-
-  ! Initialize the first values
-  xbar = x(1)
-  ybar = y(1)
-  cov = 0.0
-  var = 0.0
-  sumw = w(1)
-
-  IF (line == 1) THEN
-    ! Main loop over the data
-    DO i = 2, n
-      CALL UpdateStats(x(i), y(i), w(i), xbar, ybar, cov, var, sumw, .FALSE.)
-    END DO
-  END IF
-
-  DO i = 1, n
-    IF (cross .EQ. 1) THEN
-      CALL UpdateStats(x(i), y(i), w(i), xbar, ybar, cov, var, sumw, .TRUE.)
-    END IF
-
-    IF (var <= 0.0) THEN
-      smo(i) = 0.0
-    ELSE
-      smo(i) = cov * (x(i) - xbar) / var
-    END IF
-  END DO
-
-  s0 = ybar
-  scratch(1) = cov / var
-  itold = 1
-  ibold = 1
-
-  IF (cross == 0) THEN
-    ! Initialize scratch
-    DO i = 1, n
-      scratch(i) = y(i)
-    END DO
-
-    ! Handle tied values
-    DO i = 1, (n-1)
-      m0 = i
-      IF (x(i + 1) > x(i)) THEN
-        EXIT
-      END IF
-    END DO
-
-    IF (i == m0) THEN
-      ntie = i - m0 + 1
-      r = 0.0
-      wt = 0.0
-
-      DO jj = m0, i
-        r = r + y(jj) * w(jj)
-        wt = wt + w(jj)
-      END DO
-
-      r = r / wt
-      DO jj = m0, i
-        y(jj) = r
-      END DO
-    END IF
-  END IF
-
-  ! Final smoothing result
-  ispan = n * span
-  IF (fixeds /= 1) THEN
-    is2 = INT(ispan / 2)
-    IF (is2 < 1) is2 = 1
-  END IF
-
-  ! Final loop to update smoothing
-  DO i = 1, n
-    itnew = MIN(i + is2, n)
-    ibnew = MAX(i - is2, 1)
-
-    IF (itold >= itnew) THEN
-      itold = itold + 1
-      CALL UpdateStats(x(itold), y(itold), w(itold), xbar, ybar, cov, var, sumw, .FALSE.)
-    END IF
-  END DO
-
-  ! Finalize
-  DO i = 1, n
-    y(i) = scratch(i)
-  END DO
-
-  ! Calculate the residual sum of squares (rss)
-  rss = 0.0
-  DO i = 1, n
-    rss = rss + (w(i) / sumw) * (y(i) - s0 - smo(i))**2
-  END DO
-
-  ! Calculate the final degrees of freedom (dof)
-  dof = dof + SUM(w) / sumw + SUM(w * (x - xbar)**2) / var
-
-  RETURN
+      integer I,IBNEW,IBOLD,IS2,ITNEW,ITOLD,J,JJ,M0,NTIE,N
+      double precision  X(N),Y(N),W(N),SMO(N),SCRAT(N),RSS,SPAN
+      double precision  XIN, YIN, WIN, XOUT, YOUT
+      double precision  WT, ISPAN, DOF
+      DOUBLE PRECISION SUMW,XBAR,YBAR,COV,VAR, S0, R
+      INTEGER FIXEDS,CROSS,LINE
+      LINE=1
+      FIXEDS=1
+      IF(SPAN .GE. 1.0)GOTO 10131
+      LINE=0
+10131 CONTINUE
+      XBAR=X(1)
+      YBAR=Y(1)
+      COV=0.
+      VAR=0.
+      SUMW=W(1)
+      IF(LINE .NE. 1)GOTO 10151
+      DO 10161 I=2,N
+      XIN=X(I)
+      YIN=Y(I)
+      WIN=W(I)
+      XBAR=(SUMW*XBAR+XIN*WIN)/(SUMW+WIN)
+      YBAR=(SUMW*YBAR+YIN*WIN)/(SUMW+WIN)
+      COV=COV+WIN*(XIN-XBAR)*(YIN-YBAR)*(SUMW+WIN)/SUMW
+      VAR=VAR+WIN*(XIN-XBAR)**2*(SUMW+WIN)/SUMW
+      SUMW=SUMW+WIN
+10161 CONTINUE
+      CONTINUE
+      I=1
+      GOTO 10173
+10171 I=I+1
+10173 IF((I).GT.(N))GOTO 10172
+      IF(.NOT.(CROSS.eq.1))GOTO 10191
+      XOUT=X(I)
+      YOUT=Y(I)
+      WIN=W(I)
+      COV=COV-WIN*(XOUT-XBAR)*(YOUT-YBAR)*SUMW/(SUMW-WIN)
+      VAR=VAR-WIN*(XOUT-XBAR)**2*SUMW/(SUMW-WIN)
+      XBAR=(SUMW*XBAR-WIN*XOUT)/(SUMW-WIN)
+      YBAR=(SUMW*YBAR-WIN*YOUT)/(SUMW-WIN)
+      SUMW=SUMW-WIN
+10191 CONTINUE
+      IF(VAR .LE. 0.)GOTO 10211
+      SMO(I)=COV*(X(I)-XBAR)/VAR
+      GOTO 10221
+10211 CONTINUE
+      SMO(I)=0
+10221 CONTINUE
+      CONTINUE
+      IF(.NOT.(CROSS.eq.1))GOTO 10241
+      XIN=X(I)
+      YIN=Y(I)
+      WIN=W(I)
+      XBAR=(SUMW*XBAR+XIN*WIN)/(SUMW+WIN)
+      YBAR=(SUMW*YBAR+YIN*WIN)/(SUMW+WIN)
+      COV=COV+WIN*(XIN-XBAR)*(YIN-YBAR)*(SUMW+WIN)/SUMW
+      VAR=VAR+WIN*(XIN-XBAR)**2*(SUMW+WIN)/SUMW
+      SUMW=SUMW+WIN
+10241 CONTINUE
+      GOTO 10171
+10172 CONTINUE
+      S0=YBAR
+      SCRAT(1)=COV/VAR
+      DOF=1.0
+      GOTO 10251
+10151 CONTINUE
+      ITOLD=1
+      IBOLD=1
+      DOF=-1.0
+      DO 10261 I=1,N
+      SCRAT(I)=Y(I)
+10261 CONTINUE
+      CONTINUE
+      IF(.NOT.(cross.eq.0))GOTO 10281
+      I=0
+10291 IF(I.GE.N-1) GOTO 10292
+      I=I+1
+      M0=I
+10301 IF(X(I+1).GT.X(I)) GOTO 10302
+      I=I+1
+      IF(I .LT. N)GOTO 10301
+10302 CONTINUE
+      IF(I.EQ.M0)GOTO 10291
+      NTIE=I-M0+1
+      R=0.
+      WT=0.
+      DO 10311 JJ=M0,I
+      J=JJ
+      R=R+Y(J)*W(J)
+      WT=WT+W(J)
+10311 CONTINUE
+      CONTINUE
+      R=R/WT
+      DO 10321 J=M0,I
+      Y(J)=R
+10321 CONTINUE
+      CONTINUE
+      GOTO 10291
+10292 CONTINUE
+10281 CONTINUE
+      ISPAN=N*SPAN
+      IF(.NOT.(FIXEDS.eq.1))GOTO 10341
+      IS2=INT(ISPAN/2)
+      IF(IS2 .GE. 1)GOTO 10361
+      IS2=1
+10361 CONTINUE
+10341 CONTINUE
+      DO 10371 I=1,N
+      ITNEW=MIN(I+IS2,N)
+      IBNEW=MAX(I-IS2,1)
+10381 IF(ITOLD .GE. ITNEW) GOTO 10382
+      ITOLD=ITOLD+1
+      XIN=X(ITOLD)
+      YIN=Y(ITOLD)
+      WIN=W(ITOLD)
+      XBAR=(SUMW*XBAR+XIN*WIN)/(SUMW+WIN)
+      YBAR=(SUMW*YBAR+YIN*WIN)/(SUMW+WIN)
+      COV=COV+WIN*(XIN-XBAR)*(YIN-YBAR)*(SUMW+WIN)/SUMW
+      VAR=VAR+WIN*(XIN-XBAR)**2*(SUMW+WIN)/SUMW
+      SUMW=SUMW+WIN
+      GOTO 10381
+10382 CONTINUE
+10391 IF(IBOLD .LE. IBNEW) GOTO 10392
+      IBOLD=IBOLD-1
+      XIN=X(IBOLD)
+      YIN=Y(IBOLD)
+      WIN=W(IBOLD)
+      XBAR=(SUMW*XBAR+XIN*WIN)/(SUMW+WIN)
+      YBAR=(SUMW*YBAR+YIN*WIN)/(SUMW+WIN)
+      COV=COV+WIN*(XIN-XBAR)*(YIN-YBAR)*(SUMW+WIN)/SUMW
+      VAR=VAR+WIN*(XIN-XBAR)**2*(SUMW+WIN)/SUMW
+      SUMW=SUMW+WIN
+      GOTO 10391
+10392 CONTINUE
+10401 IF(ITOLD .LE. ITNEW) GOTO 10402
+      XOUT=X(ITOLD)
+      YOUT=Y(ITOLD)
+      WIN=W(ITOLD)
+      COV=COV-WIN*(XOUT-XBAR)*(YOUT-YBAR)*SUMW/(SUMW-WIN)
+      VAR=VAR-WIN*(XOUT-XBAR)**2*SUMW/(SUMW-WIN)
+      XBAR=(SUMW*XBAR-WIN*XOUT)/(SUMW-WIN)
+      YBAR=(SUMW*YBAR-WIN*YOUT)/(SUMW-WIN)
+      SUMW=SUMW-WIN
+      ITOLD=ITOLD-1
+      GOTO 10401
+10402 CONTINUE
+10411 IF(IBOLD .GE. IBNEW) GOTO 10412
+      XOUT=X(IBOLD)
+      YOUT=Y(IBOLD)
+      WIN=W(IBOLD)
+      COV=COV-WIN*(XOUT-XBAR)*(YOUT-YBAR)*SUMW/(SUMW-WIN)
+      VAR=VAR-WIN*(XOUT-XBAR)**2*SUMW/(SUMW-WIN)
+      XBAR=(SUMW*XBAR-WIN*XOUT)/(SUMW-WIN)
+      YBAR=(SUMW*YBAR-WIN*YOUT)/(SUMW-WIN)
+      SUMW=SUMW-WIN
+      IBOLD=IBOLD+1
+      GOTO 10411
+10412 CONTINUE
+      IF(.NOT.(CROSS.eq.1))GOTO 10431
+      XOUT=X(I)
+      YOUT=Y(I)
+      WIN=W(I)
+      COV=COV-WIN*(XOUT-XBAR)*(YOUT-YBAR)*SUMW/(SUMW-WIN)
+      VAR=VAR-WIN*(XOUT-XBAR)**2*SUMW/(SUMW-WIN)
+      XBAR=(SUMW*XBAR-WIN*XOUT)/(SUMW-WIN)
+      YBAR=(SUMW*YBAR-WIN*YOUT)/(SUMW-WIN)
+      SUMW=SUMW-WIN
+10431 CONTINUE
+      IF(VAR .LE. 0.)GOTO 10451
+      SMO(I)=YBAR+COV*(X(I)-XBAR)/VAR
+      DOF=DOF+W(I)/SUMW+  (W(I)*(X(I)-XBAR)**2)/VAR
+      GOTO 10461
+10451 CONTINUE
+      SMO(I)=YBAR
+      DOF=DOF+W(I)/SUMW
+10461 CONTINUE
+      CONTINUE
+      IF(.NOT.(CROSS.eq.1))GOTO 10481
+      XIN=X(I)
+      YIN=Y(I)
+      WIN=W(I)
+      XBAR=(SUMW*XBAR+XIN*WIN)/(SUMW+WIN)
+      YBAR=(SUMW*YBAR+YIN*WIN)/(SUMW+WIN)
+      COV=COV+WIN*(XIN-XBAR)*(YIN-YBAR)*(SUMW+WIN)/SUMW
+      VAR=VAR+WIN*(XIN-XBAR)**2*(SUMW+WIN)/SUMW
+      SUMW=SUMW+WIN
+10481 CONTINUE
+10371 CONTINUE
+      CONTINUE
+      DO 10491 I=1,N
+      Y(I)=SCRAT(I)
+10491 CONTINUE
+      CONTINUE
+      IF(CROSS .NE. 0)GOTO 10511
+      I=0
+10521 IF(I.GE.N-1) GOTO 10522
+      I=I+1
+      M0=I
+10531 IF(X(I+1).GT.X(I)) GOTO 10532
+      I=I+1
+      IF(I .LT. N)GOTO 10531
+10532 CONTINUE
+      IF(I.EQ.M0)GOTO 10521
+      NTIE=I-M0+1
+      R=0.
+      WT=0.
+      DO 10541 JJ=M0,I
+      J=JJ
+      R=R+SMO(J)*W(J)
+      WT=WT+W(J)
+10541 CONTINUE
+      CONTINUE
+      R=R/WT
+      DO 10551 J=M0,I
+      SMO(J)=R
+10551 CONTINUE
+      CONTINUE
+      GOTO 10521
+10522 CONTINUE
+10511 CONTINUE
+      YBAR=0.0
+      SUMW=0.0
+      DO 10561 I=1,N
+      YBAR=YBAR+W(I)*Y(I)
+      SUMW=SUMW+W(I)
+10561 CONTINUE
+      CONTINUE
+      YBAR=YBAR/SUMW
+      DO 10571 I=1,N
+      SMO(I)=SMO(I)-YBAR
+10571 CONTINUE
+      CONTINUE
+      S0=YBAR
+10251 CONTINUE
+      CONTINUE
+      RSS=0.0
+      DO 10581 I=1,N
+      RSS=RSS+(W(I)/SUMW)*(Y(I)-S0-SMO(I))**2
+10581 CONTINUE
+      CONTINUE
+      
 END SUBROUTINE SuperSmoother
-
-
-SUBROUTINE UpdateStats(xin, yin, win, xbar, ybar, cov, var, sumw, is_remove)
-  IMPLICIT NONE
-  DOUBLE PRECISION, INTENT(IN)    :: xin, yin, win
-  DOUBLE PRECISION, INTENT(INOUT) :: xbar, ybar, cov, var, sumw
-  LOGICAL, INTENT(IN)             :: is_remove
-
-  IF (is_remove) THEN
-    ! If we are removing an element, subtract using (sumw - win)
-    cov = cov - win * (xin - xbar) * (yin - ybar) * sumw / (sumw - win)
-    var = var - win * (xin - xbar)**2 * sumw / (sumw - win)
-    xbar = (sumw * xbar - win * xin) / (sumw - win)
-    ybar = (sumw * ybar - win * yin) / (sumw - win)
-    sumw = sumw - win
-  ELSE
-    ! Normal addition logic for updating stats
-    xbar = (sumw * xbar + xin * win) / (sumw + win)
-    ybar = (sumw * ybar + yin * win) / (sumw + win)
-    cov = cov + win * (xin - xbar) * (yin - ybar) * (sumw + win) / sumw
-    var = var + win * (xin - xbar)**2 * (sumw + win) / sumw
-    sumw = sumw + win
-  END IF
-END SUBROUTINE UpdateStats
