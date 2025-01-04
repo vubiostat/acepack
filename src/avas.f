@@ -211,38 +211,6 @@
       end
 
 
-      subroutine ctsub(n,u,v,y,ty)
-      implicit none
-      double precision u(*),v(*),y(*),ty(*)
-      integer i,j,n
-      i=1
-23088 if(.not.(i.le.n))goto 23090
-      if(.not.(y(i).le.u(1)))goto 23091
-      ty(i)=(y(i)-u(1))*v(1)
-      goto 23092
-23091 continue
-      j=1
-      ty(i)=0
-23093 if(.not.((j.le.n) .and. (y(i).gt.u(j)) ))goto 23094
-      if(.not.(j .gt. 1))goto 23095
-      ty(i)=ty(i)+(u(j)-u(j-1))*(v(j)+v(j-1))/2
-23095 continue
-      j=j+1
-      goto 23093
-23094 continue
-      if(.not.(y(i).le.u(n)))goto 23097
-      ty(i)=ty(i)+.5*(y(i)-u(j-1))*(2*v(j-1)+(y(i)-u(j-1))*(v(j)-v(j-1))
-     1     /(u(j)-u(j-1)))
-      goto 23098
-23097 continue
-      ty(i)=ty(i)+(y(i)-u(n))*v(n)
-23098 continue
-23092 continue
-      i=i+1
-      goto 23088
-23090 continue
-      return
-      end
 
       block data avasdata
       integer itape, maxit, nterm
