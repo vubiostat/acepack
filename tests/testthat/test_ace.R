@@ -1,3 +1,4 @@
+context("ACE Transform")
 
 # D. Wang, Murphy M,. Estimating Optimal Transformations for Multiple
 # Regression Using the ACE Algorithm.
