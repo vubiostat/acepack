@@ -36,38 +36,21 @@ SUBROUTINE sort (v,a,ii,jj)
   INTEGER           t,tt,ij,j,k,l
   INTEGER           m,i
   DOUBLE PRECISION  vt,vtt
+  LOGICAL           continue
       
   m=1
   i=ii
   j=jj
   
   DO 
-    IF (i < j) THEN 
-      k=i
- 
-      ij=(j+i)/2
-      t=a(ij)
-      vt=v(ij)
-  
-      IF (v(i) > vt) THEN
-        a(ij)=a(i)
-        a(i)=t
+    DO 
+      IF (i < j) THEN 
+        k=i
+   
+        ij=(j+i)/2
         t=a(ij)
-        v(ij)=v(i)
-        v(i)=vt
         vt=v(ij)
-      END IF
-  
-      l=j
-      
-      IF (v(j) < vt) THEN
-        a(ij)=a(j)
-        a(j)=t
-        t=a(ij)
-        v(ij)=v(j)
-        v(j)=vt
-        vt=v(ij)
-        
+    
         IF (v(i) > vt) THEN
           a(ij)=a(i)
           a(i)=t
@@ -76,80 +59,108 @@ SUBROUTINE sort (v,a,ii,jj)
           v(i)=vt
           vt=v(ij)
         END IF
-      END IF
-      
-      DO
-        DO 
-          l=l-1
-          IF (v(l) <= vt) EXIT
-        END DO
+    
+        l=j
         
-        tt=a(l)
-        vtt=v(l)
+        IF (v(j) < vt) THEN
+          a(ij)=a(j)
+          a(j)=t
+          t=a(ij)
+          v(ij)=v(j)
+          v(j)=vt
+          vt=v(ij)
+          
+          IF (v(i) > vt) THEN
+            a(ij)=a(i)
+            a(i)=t
+            t=a(ij)
+            v(ij)=v(i)
+            v(i)=vt
+            vt=v(ij)
+          END IF
+        END IF
         
         DO
-          k=k+1
-          IF (v(k) >= vt) EXIT
+          DO 
+            l=l-1
+            IF (v(l) <= vt) EXIT
+          END DO
+          
+          tt=a(l)
+          vtt=v(l)
+          
+          DO
+            k=k+1
+            IF (v(k) >= vt) EXIT
+          END DO
+          
+          IF (k > l) EXIT
+          
+          a(l)=a(k)
+          a(k)=tt
+          v(l)=v(k)
+          v(k)=vtt
+          
         END DO
         
-        IF (k > l) EXIT
+        IF (l-i > j-k) THEN
+          il(m)=i
+          iu(m)=l
+          i=k
+          m=m+1
+          
+          if (j-i > 10) CYCLE
+          IF (i /= ii) EXIT
+          CYCLE
+        END IF
         
-        a(l)=a(k)
-        a(k)=tt
-        v(l)=v(k)
-        v(k)=vtt
-        
-      END DO
-      
-      IF (l-i > j-k) THEN
-        il(m)=i
-        iu(m)=l
-        i=k
+        il(m)=k
+        iu(m)=j
+        j=l
         m=m+1
-        
+  
         if (j-i > 10) CYCLE
         IF (i /= ii) EXIT
         CYCLE
+        
       END IF
-      
-      il(m)=k
-      iu(m)=j
-      j=l
-      m=m+1
-
-      if (j-i > 10) CYCLE
+        
+      m=m-1
+      IF (m.eq.0) RETURN
+      i=il(m)
+      j=iu(m)
+        
+      IF (j-i > 10) CYCLE
       IF (i /= ii) EXIT
-      CYCLE
+    END DO
       
-    END IF
-      
- 80   m=m-1
-    IF (m.eq.0) RETURN
-    i=il(m)
-    j=iu(m)
-      
-    IF (j-i > 10) CYCLE
-    IF (i /= ii) EXIT
-  END DO
+    i=i-1
     
-  i=i-1
-      
-  DO
-    i=i+1
-    if (i.eq.j) go to 80 !?
-    t=a(i+1)
-    vt=v(i+1)
-    if (v(i).le.vt) CYCLE
-    k=i
+    continue = .FALSE.
     DO
-      a(k+1)=a(k)
-      v(k+1)=v(k)
-      k=k-1
-      IF (vt >= v(k)) EXIT
+      i=i+1
+      IF (i == j) THEN
+        continue = .TRUE.
+        EXIT
+      END IF
+  
+      t=a(i+1)
+      vt=v(i+1)
+      if (v(i).le.vt) CYCLE
+      k=i
+      DO
+        a(k+1)=a(k)
+        v(k+1)=v(k)
+        k=k-1
+        IF (vt >= v(k)) EXIT
+      END DO
+      
+      a(k+1)=t
+      v(k+1)=vt
     END DO
     
-    a(k+1)=t
-    v(k+1)=vt
+    IF (.not. continue) EXIT
+    
   END DO
         
 END SUBROUTINE sort
