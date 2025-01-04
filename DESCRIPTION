@@ -1,6 +1,6 @@
 Package: acepack
 Maintainer: Shawn Garbett <shawn.garbett@vumc.org>
-Version: 1.4.2
+Version: 1.4.3
 Author: Phil Spector, Jerome Friedman, Robert Tibshirani, Thomas Lumley, Shawn Garbett, Jonathan Baron
 Description: Two nonparametric methods for multiple regression transform selection are provided.
   The first, Alternative Conditional Expectations (ACE), 
