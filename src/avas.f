@@ -351,6 +351,7 @@ c-----------------------------------------------------------------
  70   continue
       go to 250
  80   call supsmu (n,x,y,w,l,span,alpha,smo,scr)
+! SuperSmoother(x,y,w,span,dof,n,cross,smo,s0,rss,scratch)
       if (l.ne.3) go to 250
       do 90 j=1,n
          scr(j,1)=smo(j)
@@ -413,48 +414,6 @@ c-----------------------------------------------------------------
       end
 
 
-      subroutine montne (x,n)
-      double precision x(n)
-      double precision pmn
-      integer bb,eb,br,er,bl,el
-      bb=0
-      eb=bb
- 10   if (eb.ge.n) go to 110
-      bb=eb+1
-      eb=bb
- 20   if (eb.ge.n) go to 30
-      if (x(bb).ne.x(eb+1)) go to 30
-      eb=eb+1
-      go to 20
- 30   if (eb.ge.n) go to 70
-      if (x(eb).le.x(eb+1)) go to 70
-      br=eb+1
-      er=br
- 40   if (er.ge.n) go to 50
-      if (x(er+1).ne.x(br)) go to 50
-      er=er+1
-      go to 40
- 50   pmn=(x(bb)*(eb-bb+1)+x(br)*(er-br+1))/(er-bb+1)
-      eb=er
-      do 60 i=bb,eb
-         x(i)=pmn
- 60   continue
- 70   if (bb.le.1) go to 10
-      if (x(bb-1).le.x(bb)) go to 10
-      bl=bb-1
-      el=bl
- 80   if (bl.le.1) go to 90
-      if (x(bl-1).ne.x(el)) go to 90
-      bl=bl-1
-      go to 80
- 90   pmn=(x(bb)*(eb-bb+1)+x(bl)*(el-bl+1))/(eb-bl+1)
-      bb=bl
-      do 100 i=bb,eb
-         x(i)=pmn
- 100  continue
-      go to 30
- 110  return
-      end
 
 
       subroutine supsmu (n,x,y,w,iper,span,alpha,smo,sc)
