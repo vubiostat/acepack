@@ -59,7 +59,7 @@ SUBROUTINE smothr (l, n, x, y, w, smo, scratch)
     RETURN
   END IF
       
-  CALL supsmu (n,x,y,w,l,span,alpha,smo,scratch)
+  CALL supsmu (n,x,y,w,l,smo,scratch)
   
   IF (l /= 3) RETURN
   
