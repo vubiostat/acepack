@@ -1,6 +1,11 @@
 # *News*
 
-## 03-29-2018
+## 01-05-2025 (v1.5.0)
+
+* Complete refactor into F90 assisted by ChatGPT.
+* Merged all globals to a single parameter set to control routines and provided calls to set them in the FORTRAN.
+
+## 03-29-2018 (v1.4.2)
   
 * Updated email address of maintainer.
 

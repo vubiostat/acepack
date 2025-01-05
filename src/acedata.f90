@@ -40,7 +40,7 @@
 !           * spans(1) : tweeter span.  Default is 0.05.
 !           * spans(2) : midrange span. Default is 0.2.
 !           * spans(3) : woofer span.   Default is 0.5.
-!         Warning: These span values should be changed only with care.
+!         Warning: These span values should be changed only with great care.
 !
 ! alpha : double(1); AVAS; Controls high frequency (small span) penality
 !         used with automatic span selection (base tone control). An
@@ -49,10 +49,10 @@
 ! big   : double(1); ACE and AVAS; a large representable floating point number.
 !         Default is 1.0e20.
 !
-! sml   : double(1); AVAS; a small number. should be set so that (sml)**(10.0)
+! sml   : double(1); AVAS; A small number. Should be set so that (sml)**(10.0)
 !         does not cause floating point underflow Default is 1e-4.
 !
-! eps   : double(1); AVAS used to numerically stabilize slope calculations
+! eps   : double(1); AVAS; Used to numerically stabilize slope calculations
 !         for running linear fits.
 !
 ! References
@@ -68,9 +68,9 @@ MODULE acedata
   IMPLICIT NONE
 
   DOUBLE PRECISION :: alpha = 5.0
-  DOUBLE PRECISION :: big   = 1.0e20
+  DOUBLE PRECISION :: big   = 1.0e20  ! For R this should be 1.0e30
   DOUBLE PRECISION :: span  = 0.0
-  DOUBLE PRECISION :: sml   = 1e-4
+  DOUBLE PRECISION :: sml   = 1e-4    ! For R this should be 1.0e-30
   DOUBLE PRECISION :: eps   = 1e-3
   DOUBLE PRECISION :: spans(3) = (/0.05, 0.2, 0.5/)
 
