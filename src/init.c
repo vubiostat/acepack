@@ -9,7 +9,7 @@ extern void F77_NAME(mace)(void *, void *, void *, void *, void *, void *, void 
 static const R_FortranMethodDef FortranEntries[] =
 {
   {"favas", (DL_FUNC) &F77_NAME(favas), 16},
-  {"mace",  (DL_FUNC) &F77_NAME(mace), 14},
+  {"mace",  (DL_FUNC) &F77_NAME(mace),  14},
   {NULL, NULL, 0}
 };
 
