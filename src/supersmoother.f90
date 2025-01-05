@@ -179,34 +179,26 @@ SUBROUTINE SuperSmoother(x,y,w,span,dof,n,cross,smo,s0,rss,scratch)
 
   y(:) = scratch(:)
 
-      IF(CROSS .NE. 0)GOTO 10511
-      I=0
-10521 IF(I.GE.N-1) GOTO 10522
-      I=I+1
-      M0=I
-10531 IF(X(I+1).GT.X(I)) GOTO 10532
-      I=I+1
-      IF(I .LT. N)GOTO 10531
-10532 CONTINUE
-      IF(I.EQ.M0)GOTO 10521
-      NTIE=I-M0+1
-      R=0.
-      WT=0.
-      DO 10541 JJ=M0,I
-      J=JJ
-      R=R+SMO(J)*W(J)
-      WT=WT+W(J)
-10541 CONTINUE
-      CONTINUE
-      R=R/WT
-      DO 10551 J=M0,I
-      SMO(J)=R
-10551 CONTINUE
-      CONTINUE
-      GOTO 10521
-10522 CONTINUE
-10511 CONTINUE
+  IF (cross == 0) THEN
+    i = 0
+    
+    DO WHILE (i < n-1)
+      i  = i + 1
+      m0 = i  
+    
+      DO WHILE (x(i+1) <= x(i) .and. i < n-1)
+        i = i + 1
+      END DO
 
+      IF (i /= m0) THEN
+        ntie = i - m0 + 1
+        wt = SUM(w(m0:i))
+        r = SUM(smo(m0:i) * w(m0:i))/wt
+        smo(m0:i) = r
+      END IF
+    END DO
+  END IF
+  
   ybar   = sum(w(:)*y(:))
   sumw   = sum(w(:))
   ybar   = ybar / sumw
