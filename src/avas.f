@@ -47,115 +47,6 @@ c-----------------------------------------------------------------
       data spans,big,sml,eps /0.05,0.2,0.5,1.0e20,1.0e-4,1.0e-3/
       end
 
-      subroutine smothr (l,n,x,y,w,smo,scr)
-      implicit none
-      integer n
-      double precision x(n),y(n),w(n),smo(n),scr(n,7)
-      common /parms/ span,alpha,itape,maxit,nterm
-      double precision alpha,span
-      integer itape,maxit,nterm
-      double precision sm,sw,a,b,d
-      integer i,j,j0,l
-      if (l.lt.5) go to 50
-      j=1
- 10   j0=j
-      sm=w(j)*y(j)
-      sw=w(j)
-      if (j.ge.n) go to 30
- 20   if (x(j+1).gt.x(j)) go to 30
-      j=j+1
-      sm=sm+w(j)*y(j)
-      sw=sw+w(j)
-      if (j.ge.n) go to 30
-      go to 20
- 30   sm=sm/sw
-      do 40 i=j0,j
-         smo(i)=sm
- 40   continue
-      j=j+1
-      if (j.gt.n) go to 250
-      go to 10
- 50   if (l.ne.4) go to 80
-      sm=0.0
-      sw=sm
-      b=sw
-      d=b
-      do 60 j=1,n
-         sm=sm+w(j)*x(j)*y(j)
-         sw=sw+w(j)*x(j)**2
-         b=b+w(j)*x(j)
-         d=d+w(j)
- 60   continue
-      a=sm/(sw-(b**2)/d)
-      b=b/d
-      do 70 j=1,n
-         smo(j)=a*(x(j)-b)
- 70   continue
-      go to 250
- 80   call supsmu (n,x,y,w,l,span,alpha,smo,scr)
-! SuperSmoother(x,y,w,span,dof,n,cross,smo,s0,rss,scratch)
-      if (l.ne.3) go to 250
-      do 90 j=1,n
-         scr(j,1)=smo(j)
-         scr(n-j+1,2)=scr(j,1)
- 90   continue
-      call montne (scr,n)
-      call montne (scr(1,2),n)
-      sm=0.0
-      sw=sm
-      do 100 j=1,n
-         sm=sm+(smo(j)-scr(j,1))**2
-         sw=sw+(smo(j)-scr(n-j+1,2))**2
- 100  continue
-      if (sm.ge.sw) go to 120
-      do 110 j=1,n
-         smo(j)=scr(j,1)
- 110  continue
-      go to 140
- 120  do 130 j=1,n
-         smo(j)=scr(n-j+1,2)
- 130  continue
- 140  j=1
- 150  j0=j
-      if (j.ge.n) go to 170
- 160  if (smo(j+1).ne.smo(j)) go to 170
-      j=j+1
-      if (j.ge.n) go to 170
-      go to 160
- 170  if (j.le.j0) go to 190
-      a=0.0
-      if (j0.gt.1) a=0.5*(smo(j0)-smo(j0-1))
-      b=0.0
-      if (j.lt.n) b=0.5*(smo(j+1)-smo(j))
-      d=(a+b)/(j-j0)
-      if (a.eq.0.0.or.b.eq.0.0) d=2.0*d
-      if (a.eq.0.0) a=b
-      do 180 i=j0,j
-         smo(i)=smo(i)-a+d*(i-j0)
- 180  continue
- 190  j=j+1
-      if (j.gt.n) go to 200
-      go to 150
- 200  j=1
- 210  j0=j
-      sm=smo(j)
-      if (j.ge.n) go to 230
- 220  if (x(j+1).gt.x(j)) go to 230
-      j=j+1
-      sm=sm+smo(j)
-      if (j.ge.n) go to 230
-      go to 220
- 230  sm=sm/(j-j0+1)
-      do 240 i=j0,j
-         smo(i)=sm
- 240  continue
-      j=j+1
-      if (j.gt.n) go to 250
-      go to 210
- 250  return
-      end
-
-
 
 
       subroutine supsmu (n,x,y,w,iper,span,alpha,smo,sc)
@@ -264,6 +155,8 @@ c------------------------------------------------------------------
       call smooth (n,x,sc(1,4),w,spans(1),-jper,vsmlsq,smo,h)
       return
       end
+      
+! SuperSmoother(x,y,w,span,dof,n,cross,smo,s0,rss,scratch)
 
       subroutine smooth (n,x,y,w,span,iper,vsmlsq,smo,acvr)
       implicit none

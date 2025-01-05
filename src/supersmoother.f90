@@ -40,6 +40,7 @@ END SUBROUTINE SubtractPoint
 
 ! Original: https://stacks.stanford.edu/file/druid:gw754yg8889/ORiOn%20003.pdf
 ! J Friedman, w Stuetzle. Smoothing of Scatterplots, Stanford Project Orion, July 1982
+! This is the smoother used by ACE.
 SUBROUTINE SuperSmoother(x,y,w,span,dof,n,cross,smo,s0,rss,scratch)
   IMPLICIT NONE
   DOUBLE PRECISION, INTENT(IN)  :: x(n)   ! Ordered abscissa values
