@@ -327,9 +327,8 @@ SUBROUTINE mace (p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
       rsq(is)=1.0-sv/sw
       nt=mod(nt,nterm)+1
       ct(nt)=rsq(is)
-      cmn = minval(ct)
-      cmx = maxval(ct)
- 
+      cmn = MINVAL(ct(1:min0(nterm,10)))
+      cmx = MAXVAL(ct(1:min0(nterm,10)))
       IF (cmx-cmn <= delrsq .or. iter >= maxit) EXIT
     END DO
 
