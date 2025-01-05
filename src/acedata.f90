@@ -33,9 +33,9 @@ MODULE acedata
   IMPLICIT NONE
 
   ! Define PARAMETERs for clarity using DOUBLE PRECISION
-  DOUBLE PRECISION :: alpha = 0.0d0
-  DOUBLE PRECISION :: big   = 1.0d20
-  DOUBLE PRECISION :: span  = 0.0d0
+  DOUBLE PRECISION :: alpha = 5.0
+  DOUBLE PRECISION :: big   = 1.0e20
+  DOUBLE PRECISION :: span  = 0.0
 
   INTEGER :: maxit = 20
   INTEGER :: nterm = 3
