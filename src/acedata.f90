@@ -76,52 +76,59 @@ MODULE acedata
 
   INTEGER :: maxit = 20
   INTEGER :: nterm = 3
+  
+  PUBLIC :: set_alpha
+  PUBLIC :: set_big
+  PUBLIC :: set_span
+  PUBLIC :: set_sml
+  PUBLIC :: set_eps
+  PUBLIC :: set_spans
 
 CONTAINS
 
-  SUBROUTINE set_alpha(a)
+  SUBROUTINE set_alpha(a)   BIND(C, name="set_alpha_")
     IMPLICIT NONE
     DOUBLE PRECISION, INTENT(IN) :: a
     alpha = a
   END SUBROUTINE set_alpha
   
-  SUBROUTINE set_big(b)
+  SUBROUTINE set_big(b)     BIND(C, name="set_big_")
     IMPLICIT NONE
     DOUBLE PRECISION, INTENT(IN) :: b
     big = b
   END SUBROUTINE set_big
   
-  SUBROUTINE set_sml(s)
+  SUBROUTINE set_sml(s)     BIND(C, name="set_sml_")
     IMPLICIT NONE
     DOUBLE PRECISION, INTENT(IN) :: s
     sml = s
   END SUBROUTINE set_sml
   
-  SUBROUTINE set_eps(e)
+  SUBROUTINE set_eps(e)     BIND(C, name="set_eps_")
     IMPLICIT NONE
     DOUBLE PRECISION, INTENT(IN) :: e
     eps = e
   END SUBROUTINE set_eps
   
-  SUBROUTINE set_spans(sps)
+  SUBROUTINE set_spans(sps) BIND(C, name="set_spans_")
     IMPLICIT NONE
     DOUBLE PRECISION, INTENT(IN) :: sps(3)
     spans = sps
   END SUBROUTINE set_spans
   
-  SUBROUTINE set_span(s)
+  SUBROUTINE set_span(s)    BIND(C, name="set_span_")
     IMPLICIT NONE
     DOUBLE PRECISION, INTENT(IN) :: s
     span = s
   END SUBROUTINE set_span
   
-  SUBROUTINE set_maxit(m)
+  SUBROUTINE set_maxit(m)   BIND(C, name="set_maxit_")
     IMPLICIT NONE
     INTEGER, INTENT(IN) :: m
     maxit = m
   END SUBROUTINE set_maxit
   
-  SUBROUTINE set_nterm(n)
+  SUBROUTINE set_nterm(n)   BIND(C, name="set_nterm_")
     IMPLICIT NONE
     INTEGER, INTENT(IN) :: n
     nterm = n
