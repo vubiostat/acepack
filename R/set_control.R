@@ -58,42 +58,42 @@ set_control <- function(alpha=NULL, big  =NULL, span =NULL, sml  =NULL,
     if(alpha < 0.0 || alpha > 10.0)
       warning("Alpha outside of {0,10} skips use of parameter.")
     mode(alpha) <- "double"
-    .Fortran("set_alpha", a=alpha)
+    .Fortran("set_alpha", a=alpha, PACKAGE = "acepack")
   }
   if(!is.null(big))
   {
     if(!inherits(big, "numeric") || length(big) != 1)
       stop("Misspecified big. Must be numeric(1)")
     mode(big) <- "double"
-    .Fortran("set_big",b=big)
+    .Fortran("set_big",b=big, PACKAGE = "acepack")
   }
   if(!is.null(span))
   {
     if(!inherits(span, "numeric") || length(span) != 1)
       stop("Misspecified span. Must be numeric(1)")
     mode(span) <- "double"
-    .Fortran("set_span",s=span)
+    .Fortran("set_span",s=span, PACKAGE = "acepack")
   }
   if(!is.null(sml))
   {
     if(!inherits(sml, "numeric") || length(sml) != 1)
       stop("Misspecified sml. Must be numeric(1)")
     mode(sml) <- "double"
-    .Fortran("set_sml",s=sml)
+    .Fortran("set_sml",s=sml, PACKAGE = "acepack")
   }
   if(!is.null(eps))
   {
     if(!inherits(eps, "numeric") || length(eps) != 1)
       stop("Misspecified eps. Must be numeric(1)")
     mode(eps) <- "double"
-    .Fortran("set_eps",e=eps)
+    .Fortran("set_eps",e=eps, PACKAGE = "acepack")
   }
   if(!is.null(spans))
   {
     if(!inherits(spans, "numeric") || length(spans) != 3)
       stop("Misspecified spans. Must be numeric(3)")
     mode(spans) <- "double"
-    .Fortran("set_spans",sps=spans)
+    .Fortran("set_spans",sps=spans, PACKAGE = "acepack")
   }
   if(!is.null(maxit))
   {
@@ -101,7 +101,7 @@ set_control <- function(alpha=NULL, big  =NULL, span =NULL, sml  =NULL,
       stop("Misspecified maxit. Must be numeric(1)")
     if(maxit <= 0)
       stop("Misspecified maxit. Must be larger than 0")
-    .Fortran("set_maxit",m=as.integer(maxit))
+    .Fortran("set_maxit",m=as.integer(maxit), PACKAGE = "acepack")
   }
   if(!is.null(nterm))
   {
@@ -109,7 +109,7 @@ set_control <- function(alpha=NULL, big  =NULL, span =NULL, sml  =NULL,
       stop("Misspecified nterm. Must be numeric(1)")
     if(nterm <= 0)
       stop("Misspecified nterm. Must be larger than 0")
-    .Fortran("set_nterm",m=as.integer(nterm))
+    .Fortran("set_nterm",m=as.integer(nterm), PACKAGE = "acepack")
   }
   
   invisible(NULL)
