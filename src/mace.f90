@@ -64,8 +64,8 @@
 !    m(n,p+1), z(n,12) : internal working storage.
 !
 ! Note: mace uses an iterative procedure for solving the optimization
-!    problem. defa<starting transformations are ty(j,k)=y(j),
-!    tx(j,i,k)=x(i,j) : j=1,n, i=1,p, k=1,ns. other starting transformat
+!    problem. default starting transformations are ty(j,k)=y(j),
+!    tx(j,i,k)=x(i,j) : j=1,n, i=1,p, k=1,ns. other starting transformations
 !    can be specified (if desired) for either the response and/or any of
 !    the predictor variables. This is signaled by negating the
 !    corresponding l(i) value and storing the starting transformed

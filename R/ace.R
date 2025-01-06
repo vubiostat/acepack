@@ -35,7 +35,7 @@
 #'
 #' @description
 #'    Uses the alternating conditional expectations algorithm to find the
-#'    transformations of y and x that maximise the proportion of variation
+#'    transformations of y and x that maximize the proportion of variation
 #'    in y explained by x. When x is a matrix, it is transformed so that
 #'   its columns are equally weighted when predicting y.
 #'

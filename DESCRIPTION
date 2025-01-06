@@ -1,7 +1,23 @@
 Package: acepack
-Maintainer: Shawn Garbett <shawn.garbett@vumc.org>
 Version: 1.5.0
-Author: Phil Spector, Jerome Friedman, Robert Tibshirani, Thomas Lumley, Shawn Garbett, Jonathan Baron
+Authors@R: c(person(given = "Phil",
+                      family = "Spector",
+                      role = "aut"),
+               person(given = "Jerome",
+                      family = "Friedman",
+                      role = "aut"),
+               person(given = "Robert",
+                      family = "Tibshirani",
+                      role = "aut"),
+               person(given = "Thomas",
+                      family = "Lumley",
+                      role = "aut"),
+               person("Shawn", "Garbett", email = "shawn.garbett@vumc.org",
+                      comment = c(ORCID="0000-0003-4079-5621"),
+                      role = c("cre","aut")),
+               person(given = "Jonathan",
+                      family = "Baron",
+                      role = "aut"))
 Description: Two nonparametric methods for multiple regression transform selection are provided.
   The first, Alternative Conditional Expectations (ACE), 
   is an algorithm to find the fixed point of maximal

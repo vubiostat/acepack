@@ -20,7 +20,7 @@ Journal of the American Statistical Association. 83:394-405.
 
 A good introduction to these two methods is in chapter 16 of
 [Frank Harrell's](https://www.vumc.org/biostatistics/person/frank-e-harrell-jr)
-["Regression Modeling Strategies"](https://www.amazon.com/Regression-Modeling-Strategies-Applications-Statistics/dp/331933039X/) in the Springer Series in Statistics.
+"Regression Modeling Strategies" in the Springer Series in Statistics.
 
 History
 ===============
