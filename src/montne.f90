@@ -16,9 +16,9 @@
 
 SUBROUTINE montne (x,n)
   IMPLICIT NONE
-  DOUBLE PRECISION, INTENT(INOUT) :: x(n)
   INTEGER, INTENT(IN) :: n
-  
+  DOUBLE PRECISION, INTENT(INOUT) :: x(n)
+
   DOUBLE PRECISION :: pmn
   INTEGER :: i,bb,eb,br,er,bl,el
   
