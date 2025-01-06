@@ -30,25 +30,25 @@ SUBROUTINE smothr (l, n, x, y, w, smo, scratch)
   DOUBLE PRECISION :: sm, sw, a, b, d
   INTEGER          :: i, j, j0
       
-  IF (l >= 5) THEN
+  IF (l >= 5) THEN 
     j=1
     DO
+      j0=j
       sm=w(j)*y(j)
       sw=w(j)
-      DO WHILE (j < n .and. x(j+1) < x(j))
+      DO WHILE (j < n .and. x(j+1) <= x(j))
         j=j+1
         sm=sm+w(j)*y(j)
         sw=sw+w(j)
-        IF (j < n) sm = sm/sw
       END DO
-   
-      smo(:) = sm
+      sm=sm/sw
+      smo(j0:j) = sm
       j=j+1
-      if (j > n) RETURN
+      IF (j > n) RETURN
     END DO
-  END IF
-  
-  IF (l == 4) THEN
+  END IF   
+      
+   IF (l == 4) THEN
     sm = sum(w(:)*x(:)*y(:))
     sw = sum(w(:)*x(:)**2)
     b  = sum(w(:)*x(:))
@@ -65,7 +65,6 @@ SUBROUTINE smothr (l, n, x, y, w, smo, scratch)
   
   scratch(:,     1) = smo 
   scratch(n:-1:1,2) = smo
-
   CALL montne (scratch,n)
   CALL montne (scratch(1,2),n)
   
@@ -77,7 +76,6 @@ SUBROUTINE smothr (l, n, x, y, w, smo, scratch)
   ELSE
     smo(:) = scratch(n:-1:1,2)
   END IF
-
   j=1
   DO
     j0=j
@@ -115,5 +113,6 @@ SUBROUTINE smothr (l, n, x, y, w, smo, scratch)
     j=j+1
     if (j.gt.n) RETURN
   END DO
+
 
 END SUBROUTINE smothr
