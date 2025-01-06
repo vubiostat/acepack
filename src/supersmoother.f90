@@ -43,12 +43,12 @@ END SUBROUTINE SubtractPoint
 ! This is the smoother used by ACE.
 SUBROUTINE SuperSmoother(x,y,w,span,dof,n,cross,smo,s0,rss,scratch)
   IMPLICIT NONE
+  INTEGER, INTENT(IN)           :: n      ! Number of observations (x,y)
   DOUBLE PRECISION, INTENT(IN)  :: x(n)   ! Ordered abscissa values
   DOUBLE PRECISION, INTENT(INOUT):: y(n)  ! Corresponding ordinate (response) values
   DOUBLE PRECISION, INTENT(IN)  :: w(n)   ! (optional) Weight for each (x,y) observation
   DOUBLE PRECISION, INTENT(IN)  :: span   ! Fractional span for residual smoothing
   DOUBLE PRECISION, INTENT(OUT) :: dof    ! Degrees of freedom
-  INTEGER, INTENT(IN)           :: n      ! Number of observations (x,y)
   INTEGER, INTENT(IN)           :: cross  ! Cross validation
   DOUBLE PRECISION, INTENT(OUT) :: smo(n) ! Smoothed ordinate (response) variable
   DOUBLE PRECISION, INTENT(OUT) :: s0     ! Intercept

@@ -17,7 +17,7 @@
 SUBROUTINE bakfit(iter,delrsq,rsq,sw,l,z,m,x,ty,tx,w,n,p,np)
   USE acedata
   IMPLICIT NONE
-
+  INTEGER,          INTENT(IN)    :: n,p,np
   INTEGER,          INTENT(IN)    :: iter
   DOUBLE PRECISION, INTENT(IN)    :: delrsq
   DOUBLE PRECISION, INTENT(INOUT) :: rsq
@@ -29,7 +29,6 @@ SUBROUTINE bakfit(iter,delrsq,rsq,sw,l,z,m,x,ty,tx,w,n,p,np)
   DOUBLE PRECISION, INTENT(OUT)   :: ty(n)
   DOUBLE PRECISION, INTENT(INOUT) :: tx(n,p)
   DOUBLE PRECISION, INTENT(IN)    :: w(n)
-  INTEGER,          INTENT(IN)    :: n,p,np
   
   DOUBLE PRECISION :: sv, sm, rsqi
   INTEGER          :: nit, i, j, k

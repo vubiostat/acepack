@@ -41,8 +41,8 @@ SUBROUTINE acemod(v, p, n, x, l, tx, f, t, m, yhat)
   USE acedata
   IMPLICIT NONE
   ! Inputs
-  DOUBLE PRECISION, INTENT(IN)  :: v(p)
   INTEGER, INTENT(IN)           :: p, n
+  DOUBLE PRECISION, INTENT(IN)  :: v(p)
   DOUBLE PRECISION, INTENT(IN)  :: x(p, n)
   INTEGER, INTENT(IN)           :: l(1)
   DOUBLE PRECISION, INTENT(IN)  :: tx(n, p), f(n), t(n)

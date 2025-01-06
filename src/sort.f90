@@ -28,9 +28,9 @@
   
 SUBROUTINE sort (v,a,ii,jj)
   IMPLICIT NONE
+  INTEGER,          INTENT(IN)    :: ii, jj
   DOUBLE PRECISION, INTENT(INOUT) :: v(*)
   INTEGER,          INTENT(INOUT) :: a(jj)
-  INTEGER,          INTENT(IN)    :: ii, jj
 
   INTEGER           iu(20), il(20)
   INTEGER           t,tt,ij,j,k,l

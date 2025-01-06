@@ -23,12 +23,12 @@
 ! using residual sums of squares
 SUBROUTINE rlsmo(x, y, w, span, dof, n, smo, rss, scratch)
   IMPLICIT NONE
+  INTEGER,          INTENT(IN)    :: n
   DOUBLE PRECISION, INTENT(IN)    :: x(n)
   DOUBLE PRECISION, INTENT(IN)    :: w(n)
   DOUBLE PRECISION, INTENT(INOUT) :: y(n) ! FIXME: Why is this an INOUT ?
   DOUBLE PRECISION, INTENT(INOUT) :: span
   DOUBLE PRECISION, INTENT(OUT)   :: dof
-  INTEGER,          INTENT(IN)    :: n
   DOUBLE PRECISION, INTENT(OUT)   :: smo(n), rss
   DOUBLE PRECISION, INTENT(OUT)   :: scratch(n)
   
