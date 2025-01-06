@@ -12,7 +12,8 @@ ace(
   mon = NULL,
   lin = NULL,
   circ = NULL,
-  delrsq = 0.01
+  delrsq = 0.01,
+  control = NULL
 )
 }
 \arguments{
@@ -44,6 +45,9 @@ columns of the \code{x} matrix and zero to the response variable.}
 \item{delrsq}{numeric(1); termination threshold. Iteration stops when
 R-squared changes by less than \code{delrsq} in 3 consecutive iterations
 (default 0.01).}
+
+\item{control}{named list; control parameters to set. Documented at 
+\code{\link{set_control}}.}
 }
 \value{
 A structure with the following components:

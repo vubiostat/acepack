@@ -2,4 +2,5 @@
 
 export(ace)
 export(avas)
+export(set_control)
 useDynLib(acepack, .registration=TRUE)

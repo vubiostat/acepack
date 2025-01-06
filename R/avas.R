@@ -30,6 +30,8 @@
 #' @param yspan yspan Optional window size parameter for smoothing the
 #'   variance.  Range is \eqn{[0,1]}.  Default is 0 (cross validated
 #'   choice). .5 is a reasonable alternative to try.
+#' @param control named list; control parameters to set. Documented at 
+#' \code{\link{set_control}}.
 #' @return
 #'   A structure with the following components:
 #'     \item{x}{the input x matrix.}
@@ -98,8 +100,10 @@
 #' 
 #' @export
 avas <- function (x, y, wt = rep(1, nrow(x)), cat = NULL, mon = NULL, 
-    lin = NULL, circ = NULL, delrsq = 0.01, yspan = 0) 
+    lin = NULL, circ = NULL, delrsq = 0.01, yspan = 0, control = NULL) 
 {
+  if(!is.null(control)) do.call(set_control, control)
+
     x <- as.matrix(x);
     if (delrsq <= 0) {
         cat("delrsq must be positive")

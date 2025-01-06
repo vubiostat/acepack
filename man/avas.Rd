@@ -13,7 +13,8 @@ avas(
   lin = NULL,
   circ = NULL,
   delrsq = 0.01,
-  yspan = 0
+  yspan = 0,
+  control = NULL
 )
 }
 \arguments{
@@ -51,6 +52,9 @@ R-squared changes by less than \code{delrsq} in 3 consecutive iterations
 \item{yspan}{yspan Optional window size parameter for smoothing the
 variance.  Range is \eqn{[0,1]}.  Default is 0 (cross validated
 choice). .5 is a reasonable alternative to try.}
+
+\item{control}{named list; control parameters to set. Documented at 
+\code{\link{set_control}}.}
 }
 \value{
 A structure with the following components:

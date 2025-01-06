@@ -47,10 +47,10 @@
 !         alpha < 0.0 or alpha > 10.0 results in no effect. Default is 5.0.
 !
 ! big   : double(1); ACE and AVAS; a large representable floating point number.
-!         Default is 1.0e20.
+!         Default is 1.0e30.
 !
 ! sml   : double(1); AVAS; A small number. Should be set so that (sml)**(10.0)
-!         does not cause floating point underflow Default is 1e-4.
+!         does not cause floating point underflow Default is 1e-30.
 !
 ! eps   : double(1); AVAS; Used to numerically stabilize slope calculations
 !         for running linear fits.
@@ -68,9 +68,9 @@ MODULE acedata
   IMPLICIT NONE
 
   DOUBLE PRECISION :: alpha = 5.0
-  DOUBLE PRECISION :: big   = 1.0e20  ! For R this should be 1.0e30
+  DOUBLE PRECISION :: big   = 1.0e30
   DOUBLE PRECISION :: span  = 0.0
-  DOUBLE PRECISION :: sml   = 1e-4    ! For R this should be 1.0e-30
+  DOUBLE PRECISION :: sml   = 1.0e-30  
   DOUBLE PRECISION :: eps   = 1e-3
   DOUBLE PRECISION :: spans(3) = (/0.05, 0.2, 0.5/)
 

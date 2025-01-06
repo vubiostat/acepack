@@ -22,6 +22,8 @@
 #' @param delrsq numeric(1); termination threshold. Iteration stops when
 #'   R-squared changes by less than \code{delrsq} in 3 consecutive iterations
 #'   (default 0.01).
+#' @param control named list; control parameters to set. Documented at 
+#' \code{\link{set_control}}.
 #' @return
 #'   A structure with the following components:
 #'    \item{x}{the input x matrix.}
@@ -105,107 +107,95 @@
 #' @export
 #' @useDynLib acepack, .registration=TRUE
 ace <- function(x, y, wt = rep(1, nrow(x)), cat = NULL, mon = NULL, 
-    lin = NULL, circ = NULL, delrsq = 0.01) 
+    lin = NULL, circ = NULL, delrsq = 0.01, control = NULL) 
 {
-    x <- as.matrix(x)
-    if (delrsq <= 0) {
-        cat("delrsq must be positive")
-        return()
+  if(!is.null(control)) do.call(set_control, control)
+  
+  x  <- as.matrix(x)
+  
+  if (delrsq <= 0) stop("delrsq must be positive")
+
+  iy <- ncol(x) + 1
+  l  <- matrix(1, ncol = iy)
+  
+  if (!is.null(circ))
+  {
+    for (i in 1:length(circ))
+    {
+      if (circ[i] < 0 || circ[i] > ncol(x)) stop("bad circ= specification")
+
+      nncol <- if (circ[i] == 0) iy else circ[i]
+
+      if (l[nncol] != 2 & l[nncol] != 1) 
+        stop("conflicting transformation specifications")
+
+      l[nncol] <- 2
     }
-    iy <- ncol(x) + 1
-    l <- matrix(1, ncol = iy)
-    if (!is.null(circ)) {
-        for (i in 1:length(circ)) {
-            if (circ[i] < 0 || circ[i] > ncol(x)) {
-                cat("bad circ= specification")
-                return()
-            }
-            if (circ[i] == 0) {
-                nncol <- iy
-            }
-            else {
-                nncol <- circ[i]
-            }
-            if (l[nncol] != 2 & l[nncol] != 1) {
-               cat("conflicting transformation specifications")
-               return()
-            }
-            l[nncol] <- 2
-        }
+  }
+    
+  if (length(mon) > 0)
+  {
+    for (i in 1:length(mon))
+    {
+      if (mon[i] < 0 || mon[i] > ncol(x)) stop("bad mon= specification")
+
+      nncol <-  if (mon[i] == 0) iy else mon[i]
+
+      if (l[nncol] != 3 && l[nncol] != 1) 
+        stop("conflicting transformation specifications")
+
+      l[nncol] <- 3
     }
-    if (length(mon)) {
-        for (i in 1:length(mon)) {
-            if (mon[i] < 0 || mon[i] > ncol(x)) {
-                cat("bad mon= specification")
-                return()
-            }
-            if (mon[i] == 0) {
-                nncol <- iy
-            }
-            else {
-                nncol <- mon[i]
-            }
-            if (l[nncol] != 3 && l[nncol] != 1) {
-              cat("conflicting transformation specifications")
-              return()
-            }
-            l[nncol] <- 3
-        }
+  }
+  
+  if (length(lin)>0)
+  {
+    for (i in 1:length(lin))
+    {
+      if (lin[i] < 0 || lin[i] > ncol(x)) 
+        stop("bad lin= specification")
+
+      nncol <- if (lin[i] == 0) iy else lin[i]
+
+      if (l[nncol] != 4 && l[nncol] != 1)
+        stop("conflicting transformation specifications")
+      
+      l[nncol] <- 4
     }
-    if (length(lin)) {
-        for (i in 1:length(lin)) {
-            if (lin[i] < 0 || lin[i] > ncol(x)) {
-                cat("bad lin= specification")
-                return()
-            }
-            if (lin[i] == 0) {
-                nncol <- iy
-            }
-            else {
-                nncol <- lin[i]
-            }
-            if (l[nncol] != 4 && l[nncol] != 1) {
-                cat("conflicting transformation specifications")
-                return()
-            }
-            l[nncol] <- 4
-        }
+  }
+  
+  if (length(cat))
+  {
+    for (i in 1:length(cat))
+    {
+      if (cat[i] < 0 || cat[i] > ncol(x)) stop("bad cat= specification")
+
+      nncol <- if (cat[i] == 0) iy else cat[i]
+
+      if (l[nncol] != 5 && l[nncol] != 1) 
+        stop("conflicting transformation specifications")
+
+      l[nncol] <- 5
     }
-    if (length(cat)) {
-        for (i in 1:length(cat)) {
-            if (cat[i] < 0 || cat[i] > ncol(x)) {
-                cat("bad cat= specification")
-                return()
-            }
-            if (cat[i] == 0) {
-                nncol <- iy
-            }
-            else {
-                nncol <- cat[i]
-            }
-            if (l[nncol] != 5 && l[nncol] != 1) {
-              cat("conflicting transformation specifications")
-              return()
-            }
-            l[nncol] <- 5
-        }
-    }
-    tx <- x
-    ty <- y
-    m <- matrix(0, nrow = nrow(x), ncol = iy)
-    z <- matrix(0, nrow = nrow(x), ncol = 12)
-    z <- as.matrix(z)
-    ns <- 1
-    mode(x) <- "double"
-    mode(y) <- "double"
-    mode(tx) <- "double"
-    mode(ty) <- "double"
-    mode(wt) <- "double"
-    mode(delrsq) <- "double"
-    mode(z) <- "double"
-    .Fortran("mace", p = as.integer(ncol(x)), n = as.integer(nrow(x)), 
-        x = t(x), y = y, w = as.double(wt), l = as.integer(l), 
-        delrsq = delrsq, ns = as.integer(ns), tx = tx, ty = ty, 
-        rsq = double(1), ierr = integer(1), m = as.integer(m), 
-        z = z, PACKAGE = "acepack")
+  }
+  
+  tx <- x
+  ty <- y
+  m  <- matrix(0, nrow = nrow(x), ncol = iy)
+  z  <- matrix(0, nrow = nrow(x), ncol = 12)
+
+  ns <- 1
+  mode(x)      <- "double"
+  mode(y)      <- "double"
+  mode(tx)     <- "double"
+  mode(ty)     <- "double"
+  mode(wt)     <- "double"
+  mode(delrsq) <- "double"
+  mode(z)      <- "double"
+  
+  .Fortran("mace", p = as.integer(ncol(x)), n = as.integer(nrow(x)), 
+    x = t(x), y = y, w = as.double(wt), l = as.integer(l), 
+    delrsq = delrsq, ns = as.integer(ns), tx = tx, ty = ty, 
+    rsq = double(1), ierr = integer(1), m = as.integer(m), 
+    z = z, PACKAGE = "acepack")
 }
