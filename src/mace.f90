@@ -99,167 +99,151 @@ SUBROUTINE mace (p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
   ierr=0
   pp1=p+1
   sm=0.0
-  sv=sm
-  sw=sv
-  sw1=sw
+  sv=0.0
+  sw=0.0
+  sw1=0.0
   
-  ! Check if any element in the array l is out of the range [-5, 5]
-  IF (any(l(1:pp1) < -5 .or. l(1:pp1) > 5)) THEN
-    ierr = 6
-    RETURN
-  END IF
+  DO i=1,pp1
+    IF (l(i) < -5 .or. l(i) > 5) THEN
+      ierr=6
+      RETURN
+    END IF
+  END DO
   
   IF (l(pp1) == 0) THEN
-    ierr = 4
+    ierr=4
+    RETURN
+  END IF
+
+  np=0
+  DO i=1,p
+    IF (l(i) /= 0) np=np+1
+  END DO
+
+  IF (np <= 0) THEN
+    ierr=5
     RETURN
   END IF
   
-  np = count(l /= 0)  ! Count the number of non-zero elements in l
-  
-  if (np <= 0) then
-    ierr = 5
-    return
-  end if
-  
-  sw = sum(w)  ! Sum all the elements of array w
-  
-  if (sw .le. 0.0) then
-    ierr = 1
-    return
-  end if
-  
-  ! Main Loop
-  DO is=1,ns
-  
-    IF (l(pp1) > 0) THEN
-      ty(1:n, is) = y(1:n)
-    END IF
-  
-    DO i=1,p
-
-      IF (l(i) == 0) EXIT
+  sw = sum(w(:))
+  IF (sw <= 0.0) THEN
+    ierr=1
+    RETURN
+  END IF
       
-      IF (l(i) >= 0) THEN
-        DO j=1,n
-          tx(j,i,is)=x(i,j)
-        END DO
+  DO is=1,ns
+    DO j=1,n
+      IF (l(pp1) > 0) ty(j,is)=y(j)
+    END DO
+
+    DO i=1,p
+      IF (l(i) == 0) THEN
+        tx(:, i, is)=0.0
+        CYCLE
+      END IF
+      
+      IF (l(i) > 0) THEN
+        tx(:,i,is)=x(i,:)
       END IF
  
       DO j=1,n
         IF (tx(j,i,is) < big) THEN
-          sm  = sm  + w(j)*tx(j,i,is)
-          sw1 = sw1 + w(j)
+          sm=sm+w(j)*tx(j,i,is)
+          sw1=sw1+w(j)
         END IF
       END DO
-      
-      IF (sw1 > 0.0) EXIT
  
-      tx(:,i,is)=0.0
-
-      sm=0.0
-      sw1=sm
+      IF (sw1 <= 0.0) THEN
+        tx(:,i,is) = 0.0
+        sm=0.0
+        sw1=sm
+        CYCLE
+      END IF
       
-    END DO
-    
-    IF (l(i) /= 0) THEN 
       sm=sm/sw1
-   
+      
       DO j=1,n
-        IF (tx(j,i,is) >= big) THEN
-          tx(j,i,is) = 0.0
-        ELSE 
-          tx(j,i,is) = tx(j,i,is)-sm
+        IF (tx(j,i,is) < big) THEN 
+          tx(j,i,is)=tx(j,i,is)-sm
+        ELSE
+          tx(j,i,is)=0.0
         END IF
       END DO
-   
+ 
       sm=0.0
       sw1=sm
-    END IF
-    
-    tx(:,i,is) = 0.0
-      
+    END DO
+ 
     DO j=1,n
       IF (ty(j,is) < big) THEN
         sm=sm+w(j)*ty(j,is)
         sw1=sw1+w(j)
       END IF
     END DO
-
+ 
     IF (sw1 <= 0.0) THEN
       ierr=1
       RETURN
     END IF
     
-    sm = sm/sw1
+    sm=sm/sw1
     
     DO j=1,n
-      IF (ty(j,is) >= big) THEN
-        ty(j,is) = 0.0
-      ELSE
-        ty(j,is) = ty(j,is)-sm
+      IF (ty(j,is) < big) THEN
+        ty(j,is)=ty(j,is)-sm
+      ELSE 
+        ty(j,is)=0.0
       END IF
     END DO
     
-    sv = (sv + sum(w*ty(:,is)**2))/sw
-    
-    IF (sv > 0.0) THEN
-      sv = 1.0/dsqrt(sv)
-    ELSE
-      IF (l(pp1) <=0) THEN
-        ierr = 3
-      ELSE 
-        ierr = 2
-      ENDIF 
+    sv = (sv + sum(w(:)*ty(:,is)**2))/sw
+
+    IF (sv <= 0.0) THEN
+      IF (l(pp1) <= 0) THEN
+        ierr=3
+      ELSE
+        ierr=2
+      END IF
       RETURN
-    ENDIF
+    END IF
     
+    sv = 1.0/dsqrt(sv)
     ty(:,is) = ty(:,is)*sv
- 
-    IF (is == 1) THEN
-    
-      DO j=1,n
-        m(j,pp1)=j
-        z(j,2)=y(j)
-      END DO
- 
-      call sort (z(1,2),m(1,pp1),1,n)
-      
+
+    IF (IS == 1) THEN
+      m(1:n, pp1) = reshape([(i, i=1,n)], shape=[n]) ! 1:n
+      z(:, 2) = y(:)
+      CALL sort (z(1,2),m(1,pp1),1,n)
       DO i=1,p
-        IF (l(i) /=0) THEN
-          DO j=1,n
-            m(j,i)=j
-            z(j,2)=x(i,j)
-          END DO
-          call sort (z(1,2),m(1,i),1,n)
+        IF (l(i) /= 0) THEN
+          m(1:n,i) = reshape([(i, i=1,n)], shape=[n]) ! 1:n
+          z(:,2) = x(i,:)
+          CALL sort (z(1,2),m(1,i),1,n)
         END IF
       END DO
-  
     END IF
- 
-    call scail (p,n,w,sw,ty(1,is),tx(1,1,is),delrsq,p,z(1,5),z(1,6))
     
+    CALL scail (p,n,w,sw,ty(1,is),tx(1,1,is),delrsq,p,z(1,5),z(1,6))
     rsq(is)=0.0
     iter=0
     nt=0
     
-    DO i=1,min0(nterm,10)
-      ct(i)=100.0
-    END DO
+    ct(1:min0(nterm,10)) = 100.0
     
-    DO ! Until convergence or maxit
+    DO
       iter=iter+1
       nit=0
       
-      DO ! Until inner convergence or nit > maxit
+      DO
         rsqi=rsq(is)
         nit=nit+1
         DO j=1,n
           z(j,5)=ty(j,is)
           DO i=1,p
-            IF (l(i) /= 0) z(j,5)=z(j,5)-tx(j,i,is)
+            if (l(i).ne.0) z(j,5)=z(j,5)-tx(j,i,is)
           END DO
         END DO
-   
+        
         DO i=1,p
           IF (l(i) == 0) CYCLE
           DO j=1,n
@@ -268,11 +252,11 @@ SUBROUTINE mace (p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
             z(j,2)=x(i,k)
             z(j,4)=w(k)
           END DO
-          call smothr (iabs(l(i)),n,z(1,2),z,z(1,4),z(1,3),z(1,6))
+          CALL smothr (iabs(l(i)),n,z(1,2),z,z(1,4),z(1,3),z(1,6))
           sm = sum(z(:,4)*z(:,3))/sw
-          z(:,3)=z(:,3)-sm
-          sv=1.0-sum(z(:,4)*(z(:,1)-z(:,3))**2)/sw
-        
+          z(:,3) = z(:,3)-sm
+          sv = sum(z(:,4)*(z(:,1)-z(:,3))**2)
+          sv=1.0-sv/sw
           IF (sv > rsq(is)) THEN
             rsq(is)=sv
             DO j=1,n
@@ -282,56 +266,46 @@ SUBROUTINE mace (p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
             END DO
           END IF
         END DO
-        
-        if (np == 1                .or. &
-            rsq(is)-rsqi <= delrsq .or. &
-            nit >= maxit)          EXIT
-        
+        IF (np==1 .or. rsq(is)-rsqi <= delrsq .or. nit >= maxit) EXIT
       END DO
-      
+ 
       DO j=1,n
         k=m(j,pp1)
         z(j,2)=y(k)
         z(j,4)=w(k)
         z(j,1)=0.0
         DO i=1,p
-          IF (l(i) /= 0) z(j,1)=z(j,1)+tx(k,i,is)
+          if (l(i) /=0) z(j,1)=z(j,1)+tx(k,i,is)
         END DO
       END DO
  
-      call smothr (iabs(l(pp1)),n,z(1,2),z,z(1,4),z(1,3),z(1,6))
-      
+      CALL smothr (iabs(l(pp1)),n,z(1,2),z,z(1,4),z(1,3),z(1,6))
       IF (is > 1) THEN
         ism1=is-1
         DO js=1,ism1
-          sm = sum(w(k)*z(:,3)*ty(m(:,pp1),js))/sw
-          z(:,3) = z(:,3)-sm*ty(m(:,pp1),js)
+          sm=sum(w(m(:,pp1))*z(:,3)*ty(m(:,pp1),js))/sw
+          z(:,3)=z(:,3)-sm*ty(m(:,pp1),js)
         END DO
       END IF
- 
-      sm = sum(w(m(:, pp1)) * z(:, 3))/sw
-      z(m(:, pp1), 2) = z(:, 1)       
-      
-      z(:, 3) = z(:, 3) - sm
-      sv = (sm + sum(z(:, 4) * z(:, 3) ** 2))/sw
-      
+
+      sm=sum(w(m(:,pp1))*z(:,3))
+      z(m(:,pp1),2)=z(:,1)
+      sm=sm/sw
+      z(:,3)=z(:,3)-sm
+      sv=sum(z(:,4)*z(:,3)**2) / sw
       IF (sv <= 0.0) THEN
         ierr=3
         RETURN
       END IF
-
       sv=1.0/dsqrt(sv)
-      ty(m(:, pp1), is) = z(:, 3) * sv
-      sv = sum(w(:)*(ty(:,is)-z(:,2))**2)
- 
+      ty(m(:,pp1),is)=z(:,3)*sv
+      sv=sum(w(:)*(ty(:,is)-z(:,2))**2)
       rsq(is)=1.0-sv/sw
-      nt=mod(nt,nterm)+1
+      nt=mod(nt,min0(nterm,10))+1
       ct(nt)=rsq(is)
-      cmn = MINVAL(ct(1:min0(nterm,10)))
-      cmx = MAXVAL(ct(1:min0(nterm,10)))
+      cmn = minval(ct(1:min0(nterm, 10)))
+      cmx = maxval(ct(1:min0(nterm, 10)))
       IF (cmx-cmn <= delrsq .or. iter >= maxit) EXIT
     END DO
-
   END DO
-
 END SUBROUTINE mace
