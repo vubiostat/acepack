@@ -103,22 +103,17 @@ SUBROUTINE mace (p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
   sw=0.0
   sw1=0.0
   
-  DO i=1,pp1
-    IF (l(i) < -5 .or. l(i) > 5) THEN
-      ierr=6
-      RETURN
-    END IF
-  END DO
+  IF (any(l(1:pp1) < -5 .or. l(1:pp1) > 5)) THEN
+    ierr = 6
+    RETURN
+  END IF
   
   IF (l(pp1) == 0) THEN
     ierr=4
     RETURN
   END IF
 
-  np=0
-  DO i=1,p
-    IF (l(i) /= 0) np=np+1
-  END DO
+  np = count( l /= 0)
 
   IF (np <= 0) THEN
     ierr=5
@@ -132,9 +127,7 @@ SUBROUTINE mace (p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
   END IF
       
   DO is=1,ns
-    DO j=1,n
-      IF (l(pp1) > 0) ty(j,is)=y(j)
-    END DO
+    IF (l(pp1) > 0) ty(:,is)=y(:)
 
     DO i=1,p
       IF (l(i) == 0) THEN
@@ -230,11 +223,11 @@ SUBROUTINE mace (p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
     
     ct(1:min0(nterm,10)) = 100.0
     
-    DO
+    DO ! Until maxit or convergence
       iter=iter+1
       nit=0
       
-      DO
+      DO 
         rsqi=rsq(is)
         nit=nit+1
         DO j=1,n
@@ -275,22 +268,21 @@ SUBROUTINE mace (p,n,x,y,w,l,delrsq,ns,tx,ty,rsq,ierr,m,z)
         z(j,4)=w(k)
         z(j,1)=0.0
         DO i=1,p
-          if (l(i) /=0) z(j,1)=z(j,1)+tx(k,i,is)
+          if (l(i) /= 0) z(j,1)=z(j,1)+tx(k,i,is)
         END DO
       END DO
  
       CALL smothr (iabs(l(pp1)),n,z(1,2),z,z(1,4),z(1,3),z(1,6))
       IF (is > 1) THEN
-        ism1=is-1
+        ism1 = is-1
         DO js=1,ism1
-          sm=sum(w(m(:,pp1))*z(:,3)*ty(m(:,pp1),js))/sw
-          z(:,3)=z(:,3)-sm*ty(m(:,pp1),js)
+          sm = sum(w(m(:,pp1))*z(:,3)*ty(m(:,pp1),js))/sw
+          z(:,3) = z(:,3)-sm*ty(m(:,pp1),js)
         END DO
       END IF
 
-      sm=sum(w(m(:,pp1))*z(:,3))
+      sm=sum(w(m(:,pp1))*z(:,3)) / sw
       z(m(:,pp1),2)=z(:,1)
-      sm=sm/sw
       z(:,3)=z(:,3)-sm
       sv=sum(z(:,4)*z(:,3)**2) / sw
       IF (sv <= 0.0) THEN
