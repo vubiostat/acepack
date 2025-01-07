@@ -47,9 +47,8 @@ SUBROUTINE model(p, n, y, w, l, tx, ty, f, t, m, z)
   DOUBLE PRECISION, INTENT(OUT) :: f(n), t(n), z(n, 12)
 
   ! Local variables
-  INTEGER :: i, j, k, j1, j2
+  INTEGER          :: i, j, k, j1, j2, pp1
   DOUBLE PRECISION :: s
-  INTEGER :: pp1
 
   pp1 = p + 1
 
@@ -60,10 +59,7 @@ SUBROUTINE model(p, n, y, w, l, tx, ty, f, t, m, z)
     END DO
   ELSE
     DO j = 1, n
-      s = 0.0D0
-      DO i = 1, p
-        s = s + tx(j, i)
-      END DO
+      s = sum(tx(j, :))
       t(j) = s
       m(j, pp1) = j
     END DO
@@ -109,9 +105,7 @@ SUBROUTINE model(p, n, y, w, l, tx, ty, f, t, m, z)
 
   ! Smoothness check
   IF (ABS(l(pp1)) == 5) THEN
-    DO j = 1, n
-      f(j) = z(j, 1)
-    END DO
+    f(:) = z(:, 1)
   ELSE
     CALL smothr(1, n, t, z, z(:, 2), f, z(:, 6))
   END IF
