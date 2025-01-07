@@ -31,7 +31,7 @@ SUBROUTINE bakfit(iter,delrsq,rsq,sw,l,z,m,x,ty,tx,w,n,p,np)
   DOUBLE PRECISION, INTENT(IN)    :: w(n)
   
   DOUBLE PRECISION :: sv, sm, rsqi
-  INTEGER          :: nit, i, j, k
+  INTEGER          :: nit, i
 
   CALL calcmu(n,p,l,z,tx)
   
@@ -40,38 +40,20 @@ SUBROUTINE bakfit(iter,delrsq,rsq,sw,l,z,m,x,ty,tx,w,n,p,np)
   nit=0
   DO
     rsqi = rsq
-    nit = nit+1
+    nit  = nit+1
     
     DO i = 1,p
-      IF (l(i).gt.0) THEN
-        DO j = 1,n
-          k = m(j,i)
-          z(j,1) = ty(k)+tx(k,i)
-          z(j,2) = x(k,i)
-          z(j,7) = w(k)
-        END DO
-        
+      IF (l(i) > 0) THEN
+        z(:,1) = ty(m(:,i))+tx(m(:,i),i)
+        z(:,2) = x(m(:,i),i)
+        z(:,7) = w(m(:,i))
         CALL smothr(l(i),n,z(1,2),z,z(1,7),z(1,6),z(1,11))
-        
-        sm = 0.0
-        DO j = 1,n
-          sm = sm+z(j,7)*z(j,6)
-        END DO
-        sm = sm/sw
-        DO j = 1,n
-          z(j,6) = z(j,6)-sm
-        END DO
-        sv = 0.0
-        DO j = 1,n
-          sv = sv+z(j,7)*(z(j,1)-z(j,6))**2
-        END DO
-        sv = 1.0-sv/sw
+        sm = sum(z(:,7)*z(:,6))/sw
+        z(:,6) = z(:,6) - sm
+        sv = 1.0-sum(z(:,7)*(z(:,1)-z(:,6))**2)/sw
         rsq = sv
-        DO j = 1,n
-          k = m(j,i)
-          tx(k,i) = z(j,6)
-          ty(k) = z(j,1)-z(j,6)
-        END DO
+        tx(m(:,i), i) = z(:,6)
+        ty(m(:,i))    = z(:,1) - z(:,6)
       END IF
     END DO
     
