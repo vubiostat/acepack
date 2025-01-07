@@ -40,32 +40,24 @@
 SUBROUTINE acemod(v, p, n, x, l, tx, f, t, m, yhat)
   USE acedata
   IMPLICIT NONE
-  ! Inputs
-  INTEGER, INTENT(IN)           :: p, n
+  INTEGER,          INTENT(IN)  :: p, n
   DOUBLE PRECISION, INTENT(IN)  :: v(p)
   DOUBLE PRECISION, INTENT(IN)  :: x(p, n)
-  INTEGER, INTENT(IN)           :: l(1)
+  INTEGER,          INTENT(IN)  :: l(1)
   DOUBLE PRECISION, INTENT(IN)  :: tx(n, p), f(n), t(n)
-  INTEGER, INTENT(IN)           :: m(n, 1)
-  ! Outputs
+  INTEGER,          INTENT(IN)  :: m(n, 1)
   DOUBLE PRECISION, INTENT(OUT) :: yhat
-  ! Internals
-  INTEGER :: low, high, place
-  INTEGER :: i, jh, jl
+
+  INTEGER          :: low, high, place
+  INTEGER          :: i, jh, jl
   DOUBLE PRECISION :: th, vi, xt
 
   th = 0.0
   DO i = 1, p
-    IF (l(i) .EQ. 0) THEN
-      EXIT
-    END IF
+    IF (l(i) == 0) EXIT
     vi = v(i)
-    IF (vi .LT. big) THEN
-      CYCLE
-    END IF
-    IF (x(i, m(n, i)) .GE. big) THEN
-      th = th + tx(m(n, i), i)
-    END IF
+    IF (vi < big) CYCLE
+    IF (x(i, m(n, i)) >= big) th = th + tx(m(n, i), i)
   END DO
 
   IF (vi > x(i, m(1, i))) THEN
@@ -81,23 +73,20 @@ SUBROUTINE acemod(v, p, n, x, l, tx, f, t, m, yhat)
       IF (vi == xt) THEN
         EXIT
       ELSEIF (vi >= xt) THEN
-        low = place
+        low  = place
       ELSE
         high = place
       END IF
     END DO
   END IF
 
-  IF (IABS(l(i)) == 5) THEN
-    RETURN
-  END IF
+  IF (IABS(l(i)) == 5) RETURN
 
   jl = m(low, i)
   jh = m(high, i)
-  IF (x(i, jh) < big) THEN
-    th = th + tx(jl, i)
-  ELSE
-    th = th + tx(jl, i) + (tx(jh, i) - tx(jl, i)) * (vi - x(i, jl)) / (x(i, jh) - x(i, jl))
+  th = th + tx(jl, i)
+  IF (x(i, jh) >= big) THEN
+    th = th + (tx(jh, i) - tx(jl, i)) * (vi - x(i, jl)) / (x(i, jh) - x(i, jl))
   END IF
 
   IF (th > t(1)) THEN
@@ -133,5 +122,4 @@ SUBROUTINE acemod(v, p, n, x, l, tx, f, t, m, yhat)
     END IF
   END IF
 
-  RETURN
 END SUBROUTINE acemod
