@@ -1,7 +1,23 @@
 Package: acepack
-Maintainer: Shawn Garbett <shawn.garbett@vumc.org>
-Version: 1.4.3
-Author: Phil Spector, Jerome Friedman, Robert Tibshirani, Thomas Lumley, Shawn Garbett, Jonathan Baron
+Version: 1.5.0
+Authors@R: c(person(given = "Phil",
+                      family = "Spector",
+                      role = "aut"),
+               person(given = "Jerome",
+                      family = "Friedman",
+                      role = "aut"),
+               person(given = "Robert",
+                      family = "Tibshirani",
+                      role = "aut"),
+               person(given = "Thomas",
+                      family = "Lumley",
+                      role = "aut"),
+               person("Shawn", "Garbett", email = "shawn.garbett@vumc.org",
+                      comment = c(ORCID="0000-0003-4079-5621"),
+                      role = c("cre","aut")),
+               person(given = "Jonathan",
+                      family = "Baron",
+                      role = "aut"))
 Description: Two nonparametric methods for multiple regression transform selection are provided.
   The first, Alternative Conditional Expectations (ACE), 
   is an algorithm to find the fixed point of maximal
@@ -16,8 +32,8 @@ Description: Two nonparametric methods for multiple regression transform selecti
   Frank Harrel's "Regression Modeling Strategies" in the Springer Series in Statistics.
 Title: ACE and AVAS for Selecting Multiple Regression Transformations
 License: MIT + file LICENSE
-Suggests: testthat
-Packaged: 2016-10-27 16:24:58 UTC; garbetsp
+Suggests: testthat, roxygen2
 Repository: CRAN
-Date/Publication: 2014-11-24 12:48:55
 NeedsCompilation: yes
+RoxygenNote: 7.3.2
+Encoding: UTF-8
