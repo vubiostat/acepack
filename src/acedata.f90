@@ -86,51 +86,59 @@ MODULE acedata
 
 CONTAINS
 
-  SUBROUTINE set_alpha(a)   BIND(C, name="set_alpha_")
+  SUBROUTINE set_alpha(a)   BIND(C, name="set_alpha_") 
+    USE, INTRINSIC :: iso_c_binding
     IMPLICIT NONE
-    DOUBLE PRECISION, INTENT(IN) :: a
+    REAL(c_double), INTENT(IN) :: a
     alpha = a
   END SUBROUTINE set_alpha
   
   SUBROUTINE set_big(b)     BIND(C, name="set_big_")
+    USE, INTRINSIC :: iso_c_binding
     IMPLICIT NONE
-    DOUBLE PRECISION, INTENT(IN) :: b
+    REAL(c_double), INTENT(IN) :: b
     big = b
   END SUBROUTINE set_big
   
   SUBROUTINE set_sml(s)     BIND(C, name="set_sml_")
+    USE, INTRINSIC :: iso_c_binding
     IMPLICIT NONE
-    DOUBLE PRECISION, INTENT(IN) :: s
+    REAL(c_double), INTENT(IN) :: s
     sml = s
   END SUBROUTINE set_sml
   
   SUBROUTINE set_eps(e)     BIND(C, name="set_eps_")
+    USE, INTRINSIC :: iso_c_binding
     IMPLICIT NONE
-    DOUBLE PRECISION, INTENT(IN) :: e
+    REAL(c_double), INTENT(IN) :: e
     eps = e
   END SUBROUTINE set_eps
   
   SUBROUTINE set_spans(sps) BIND(C, name="set_spans_")
+    USE, INTRINSIC :: iso_c_binding  
     IMPLICIT NONE
-    DOUBLE PRECISION, INTENT(IN) :: sps(3)
+    REAL(c_double), INTENT(IN) :: sps(3)
     spans = sps
   END SUBROUTINE set_spans
   
   SUBROUTINE set_span(s)    BIND(C, name="set_span_")
+    USE, INTRINSIC :: iso_c_binding
     IMPLICIT NONE
-    DOUBLE PRECISION, INTENT(IN) :: s
+    REAL(c_double), INTENT(IN) :: s
     span = s
   END SUBROUTINE set_span
   
   SUBROUTINE set_maxit(m)   BIND(C, name="set_maxit_")
+    USE, INTRINSIC :: iso_c_binding
     IMPLICIT NONE
-    INTEGER, INTENT(IN) :: m
+    INTEGER(c_int), INTENT(IN) :: m
     maxit = m
   END SUBROUTINE set_maxit
   
   SUBROUTINE set_nterm(n)   BIND(C, name="set_nterm_")
+    USE, INTRINSIC :: iso_c_binding
     IMPLICIT NONE
-    INTEGER, INTENT(IN) :: n
+    INTEGER(c_int), INTENT(IN) :: n
     nterm = n
   END SUBROUTINE set_nterm
   

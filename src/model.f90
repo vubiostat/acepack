@@ -47,7 +47,7 @@ SUBROUTINE model(p, n, y, w, l, tx, ty, f, t, m, z)
   DOUBLE PRECISION, INTENT(OUT) :: f(n), t(n), z(n, 12)
 
   ! Local variables
-  INTEGER          :: i, j, k, j1, j2, pp1
+  INTEGER          :: j, k, j1, j2, pp1
   DOUBLE PRECISION :: s
 
   pp1 = p + 1

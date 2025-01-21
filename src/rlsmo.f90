@@ -33,7 +33,7 @@ SUBROUTINE rlsmo(x, y, w, span, dof, n, smo, rss, scratch)
   DOUBLE PRECISION, INTENT(OUT)   :: scratch(n)
   
   DOUBLE PRECISION                :: cvspan(6), cvrss(6), cvmin, penal, s0
-  INTEGER                         :: k, idmin, i
+  INTEGER                         :: k, idmin
 
   cvspan = (/0.3, 0.4, 0.5, 0.6, 0.7, 1.0/)
   penal = 0.01

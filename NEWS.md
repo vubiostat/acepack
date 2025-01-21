@@ -1,5 +1,10 @@
 # *News*
 
+## 1.5.1
+
+* Date: 01-21-2025
+* Fixing errors detected by Ripley in future version of R.
+
 ## 1.5.0
 
 * Date: 01-05-2025

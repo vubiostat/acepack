@@ -56,7 +56,6 @@ SUBROUTINE SuperSmoother(x,y,w,span,dof,n,cross,smo,s0,rss,scratch)
   DOUBLE PRECISION, INTENT(INOUT)  :: scratch(n) 
   
   INTEGER :: i, ibnew, ibold, is2, itnew, itold, j, jj, m0, ntie
-  DOUBLE PRECISION :: xin, yin, win, xout, yout
   DOUBLE PRECISION :: wt, ispan
   DOUBLE PRECISION :: sumw, xbar, ybar, cov, var, r
   INTEGER :: fixeds
