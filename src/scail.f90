@@ -32,7 +32,7 @@ SUBROUTINE scail(p, n, w, sw, ty, tx, eps, maxit, r, sc)
   DOUBLE PRECISION, INTENT(OUT)   :: r(n), sc(p, 5)
 
   INTEGER          :: i, j, iter, nit
-  DOUBLE PRECISION :: s, h, t, u, gamma, delta, v
+  DOUBLE PRECISION :: s, h, t, gamma, delta, v
   DOUBLE PRECISION :: residual, product
 
   ! Initialization

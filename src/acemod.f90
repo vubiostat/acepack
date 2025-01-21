@@ -51,43 +51,58 @@ SUBROUTINE acemod(v, p, n, x, l, tx, f, t, m, yhat)
   INTEGER          :: low, high, place
   INTEGER          :: i, jh, jl
   DOUBLE PRECISION :: th, vi, xt
-
-  th = 0.0
-  DO i = 1, p
+  
+  th  = 0.0
+  
+  DO i=1,p
     IF (l(i) == 0) EXIT
-    vi = v(i)
-    IF (vi < big) CYCLE
-    IF (x(i, m(n, i)) >= big) th = th + tx(m(n, i), i)
-  END DO
+    vi=v(i)
+    
+    IF (vi >= big) THEN
+      IF (x(i,m(n,i)) >= big) th=th+tx(m(n,i),i)
+      CYCLE
+    END IF
+    
+    IF (vi <= x(i, m(1,i))) THEN
+      place=1
+      th=th+tx(m(place,i),i)
+      CYCLE
+    END IF
+    
+    IF (vi >= x(i, m(n,i))) THEN
+      place=n
+      th=th+tx(m(place,i),i)
+      CYCLE
+    END IF
+ 
+    low=0
+    high=n+1
 
-  IF (vi > x(i, m(1, i))) THEN
-    place = 1
-  ELSEIF (vi < x(i, m(n, i))) THEN
-    place = n
-  ELSE
-    low = 0
-    high = n + 1
-    DO WHILE (low + 1 < high)
-      place = (low + high) / 2
-      xt = x(i, m(place, i))
+    DO WHILE (low+1 < high)    
+      place=(low+high)/2
+      xt=x(i,m(place,i))
       IF (vi == xt) THEN
-        EXIT
-      ELSEIF (vi >= xt) THEN
-        low  = place
-      ELSE
+        th=th+tx(m(place,i),i)
+        CYCLE
+      END IF
+      IF (vi < xt) THEN 
         high = place
+      ELSE 
+        low = place
       END IF
     END DO
-  END IF
 
-  IF (IABS(l(i)) == 5) RETURN
-
-  jl = m(low, i)
-  jh = m(high, i)
-  th = th + tx(jl, i)
-  IF (x(i, jh) >= big) THEN
-    th = th + (tx(jh, i) - tx(jl, i)) * (vi - x(i, jl)) / (x(i, jh) - x(i, jl))
-  END IF
+    IF (iabs(l(i)) == 5) CYCLE
+    jl=m(low,i)
+    jh=m(high,i)
+    
+    IF (x(i,jh) >= big) THEN
+      th=th+tx(jl,i)
+    ELSE 
+      th=th+tx(jl,i)+(tx(jh,i)-tx(jl,i))*(vi-x(i,jl))/(x(i,jh)-x(i,jl))
+    END IF
+    
+  END DO
 
   IF (th > t(1)) THEN
     yhat = f(1)
