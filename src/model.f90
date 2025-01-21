@@ -48,19 +48,15 @@ SUBROUTINE model(p, n, y, w, l, tx, ty, f, t, m, z)
 
   ! Local variables
   INTEGER          :: j, k, j1, j2, pp1
-  DOUBLE PRECISION :: s
 
   pp1 = p + 1
 
   IF (ABS(l(pp1)) == 5) THEN
-    DO j = 1, n
-      t(j) = ty(j)
-      m(j, pp1) = j
-    END DO
+    t(:) = ty(:)
+    m(:, pp1) = reshape([(j, j=1,n)], shape=[n]) ! 1:n
   ELSE
     DO j = 1, n
-      s = sum(tx(j, :))
-      t(j) = s
+      t(j) = sum(tx(j, :))
       m(j, pp1) = j
     END DO
   END IF
@@ -71,33 +67,31 @@ SUBROUTINE model(p, n, y, w, l, tx, ty, f, t, m, z)
   DO j = 1, n
     k = m(j, pp1)
     z(j, 2) = w(k)
-    IF (y(k) >= big) THEN
-      ! Skip updating z(j, 1)
-      CYCLE
-    END IF
+    IF (y(k) >= big) CYCLE ! Skip updating z(j, 1)
     z(j, 1) = y(k)
   END DO
+  
+  j1=j
+  j2=j1
+  
+  DO WHILE (y(m(j1,pp1)) >= big)
+    j1 = j1 - 1
+    IF (j1 < 1) EXIT
+  END DO
+  
+  DO WHILE (y(m(j2,pp1)) >= big)
+    j2 = j2 + 1
+    IF (j2 > n) EXIT
+  END DO
 
-  ! Logic to find j1 and j2 (find indices based on condition)
-  IF (y(m(j1, pp1)) >= big) THEN
-    j1 = j
-    j2 = j1
-    DO WHILE (y(m(j1, pp1)) >= big .AND. j1 > 1)
-      j1 = j1 - 1
-    END DO
-    DO WHILE (y(m(j2, pp1)) >= big .AND. j2 < n)
-      j2 = j2 + 1
-    END DO
-
-    IF (j1 >= 1) THEN
-      k = j2
-    ELSE IF (j2 <= n) THEN
-      k = j1
-    ELSE IF (t(j) - t(j1) >= t(j2) - t(j)) THEN
-      k = j1
-    ELSE
-      k = j2
-    END IF
+  IF (j1 < 1) THEN
+    k=j2
+  ELSE IF (j2 > n) THEN
+    k=j1
+  ELSE IF (t(j)-t(j1).ge.t(j2)-t(j)) THEN
+    k=j2
+  ELSE
+    k=j1
   END IF
 
   z(j, 1) = y(m(k, pp1))
