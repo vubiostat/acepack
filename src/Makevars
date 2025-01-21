@@ -1,2 +1,0 @@
-PKG_FFLAGS=-O2 -mtune=native -Wall -pedantic
-PKG_FCLAGS=-O2 -mtune=native -Wall -pedantic
