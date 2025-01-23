@@ -64,7 +64,7 @@ SUBROUTINE supsmu (n,x,y,w,iper,smo,scratch)
   IF (iper==2 .and. (x(1) < 0.0 .or. x(n) > 1.0)) jper=1
   IF (jper < 1 .or. jper > 2) jper=1
   IF (span > 0.0) THEN
-    CALL smooth (n,x,y,w,span,jper,vsmlsq,smo,scratch)
+    CALL smooth (n,x,y,w,span,jper,vsmlsq,smo,scratch(1,1))
     RETURN
   END IF
   DO i=1,3

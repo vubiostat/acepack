@@ -65,7 +65,7 @@ SUBROUTINE smothr (l, n, x, y, w, smo, scratch)
   
   scratch(:,     1) = smo 
   scratch(n:-1:1,2) = smo
-  CALL montne (scratch,n)
+  CALL montne (scratch(1,1),n)
   CALL montne (scratch(1,2),n)
   
   sm = sum((smo(:)-scratch(:,1))**2)
