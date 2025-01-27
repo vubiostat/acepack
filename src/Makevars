@@ -1,0 +1,18 @@
+all : acedata.o acemod.o bakfit.o calcmu.o ctsub.o favas.o mace.o model.o montne.o rlsmo.o scail.o smooth.o smothr.o sort.o supersmoother.o supsmu.o init.o
+acedata.o : acedata.f90 
+acemod.o : acemod.f90 acedata.o 
+bakfit.o : bakfit.f90 acedata.o 
+calcmu.o : calcmu.f90 
+ctsub.o : ctsub.f90 
+favas.o : favas.f90 acedata.o 
+mace.o : mace.f90 acedata.o 
+model.o : model.f90 acedata.o 
+montne.o : montne.f90 
+rlsmo.o : rlsmo.f90 
+scail.o : scail.f90 
+smooth.o : smooth.f90 
+smothr.o : smothr.f90 acedata.o 
+sort.o : sort.f90 
+supersmoother.o : supersmoother.f90 
+supsmu.o : supsmu.f90 acedata.o
+init.o : init.c
