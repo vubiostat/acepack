@@ -1,5 +1,10 @@
 # *News*
 
+## 1.5.2
+
+* Date: 01-27-2025
+* Fixing parallel make build issue and type checking on scratch memory
+
 ## 1.5.1
 
 * Date: 01-21-2025
