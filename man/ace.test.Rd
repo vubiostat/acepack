@@ -34,6 +34,7 @@ nu <- 2
 y <- x / sqrt(rchisq(n, nu)/nu) #multivariate t
 cor.test(y[,1], y[,2], method = "spearman")
 ace.test(y)
+
 }
 \references{
 Holzmann, H., Klar, B. 2025. "Lancaster correlation - a new dependence measure

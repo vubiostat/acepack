@@ -27,6 +27,7 @@
 #'   \item{\code{ace}}{ The value of the test statistic.}
 #'   \item{\code{pval}}{ The *p*-value of the test.}
 #' }
+#' @export
 #' @references
 #' Holzmann, H., Klar, B. 2025. "Lancaster correlation - a new dependence measure
 #' linked to maximum correlation". Scandinavian Journal of Statistics.
@@ -42,6 +43,7 @@
 #' y <- x / sqrt(rchisq(n, nu)/nu) #multivariate t
 #' cor.test(y[,1], y[,2], method = "spearman")
 #' ace.test(y)
+#' 
 ace.test <- function(x, y = NULL, nperm = 999)
 { 
   if (is.data.frame(x))
@@ -54,7 +56,7 @@ ace.test <- function(x, y = NULL, nperm = 999)
     y = x[,2]
     x = x[,1]
   }
-  a       <- acepack::ace(x, y)
+  a       <- ace(x, y)
   ace.cor <- as.vector( cor(a$tx, a$ty) )
   n       <- length(x)
 
@@ -63,9 +65,11 @@ ace.test <- function(x, y = NULL, nperm = 999)
   {
     nperm <- npermutations(n) #use all permutations
     perm  <- permutations(x)
+    exact <- TRUE
   } else
   {
     perm  <- permutations(x, nsample = nperm)
+    exact <- FALSE
   }
   tp <- rep(0, nperm)
   for (i in 1:nperm)
@@ -76,6 +80,47 @@ ace.test <- function(x, y = NULL, nperm = 999)
   pval <- (sum(tp > ts) + 1) / (nperm + 1)
   
   structure(
-    list(ace = ace.cor, pval = pval),
-    class=c("permutation.test", "list"))
+    list(ace = ace.cor, pval = pval, exact=exact, n=nperm),
+    class=c("ace.test", "list"))
 }
+
+#' @name summary.ace.test
+#' @title ACE permutation test summary
+#' @description A S3 function to produce a summary 
+#'   of the results of an ace.test.
+#' @param object the test to summarize
+#' @param ... additional arguments (ignored)
+#' @param digits Number of significant digits to round too.
+#' @return a rounded ace.test object
+#' @export
+summary.ace.test <- function(object, ..., digits)
+{
+  object$ace  <- signif(object$ace,  digits)
+  object$pval <- signif(object$pval, digits)
+  
+  object
+}
+
+#' @name summary.ace.test
+#' @title ACE permutation test summary
+#' @description A S3 function to produce a summary 
+#'   of the results of an ace.test.
+#' @param x the ace.test object to print
+#' @param ... additional arguments to send to cat
+#' @return NULL only outputs to CAT
+#' @export
+print.ace.test <- function(x, ...)
+{
+  if(x$exact)
+  {
+    cat("\nACE Exact Permutation Test of Independence\n", ...)
+  } else {
+    cat("\nACE Approximate Permutation Test of Independence\n", ...)
+  }
+  cat("\nalternative hypothesis: x and y are dependent\n", ...)
+  cat("Ace correlation = ", x$ace, "\n", ...)
+  pval <- format(x$pval, scientific=if(x$pval < 0.001) TRUE else FALSE)
+  cat("p-value = ", pval, "\n", ...)
+  cat("\n", ...)
+}
+
