@@ -107,7 +107,7 @@ summary.ace.test <- function(object, ..., digits)
 #'   of the results of an ace.test.
 #' @param x the ace.test object to print
 #' @param ... additional arguments to send to cat
-#' @return NULL only outputs to CAT
+#' @return original object
 #' @export
 print.ace.test <- function(x, ...)
 {
@@ -122,5 +122,6 @@ print.ace.test <- function(x, ...)
   pval <- format(x$pval, scientific=if(x$pval < 0.001) TRUE else FALSE)
   cat("p-value = ", pval, "\n", ...)
   cat("\n", ...)
+  invisible(x)
 }
 
