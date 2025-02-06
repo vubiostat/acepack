@@ -3,4 +3,6 @@
 export(ace)
 export(avas)
 export(set_control)
+importFrom(arrangements,npermutations)
+importFrom(arrangements,permutations)
 useDynLib(acepack, .registration=TRUE)
