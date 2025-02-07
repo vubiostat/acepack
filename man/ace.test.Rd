@@ -4,7 +4,7 @@
 \alias{ace.test}
 \title{ACE permutation test of independence}
 \usage{
-ace.test(x, y = NULL, nperm = 999)
+ace.test(x, y = NULL, nperm = 999, ...)
 }
 \arguments{
 \item{x}{a numeric vector, or a matrix or data frame with two columns.}
@@ -12,12 +12,14 @@ ace.test(x, y = NULL, nperm = 999)
 \item{y}{a vector with same length as x. Default is NULL.}
 
 \item{nperm}{number of permutations. Default is 999.}
+
+\item{...}{additional arguments to pass to \code{cor}.}
 }
 \value{
 a list containing the following:
 \itemize{
-  \item{\code{ace}}{ The value of the test statistic.}
-  \item{\code{pval}}{ The *p*-value of the test.}
+  \item{\code{ace}} The value of the test statistic.
+  \item{\code{pval}} The *p*-value of the test.
 }
 }
 \description{
@@ -40,4 +42,7 @@ ace.test(y)
 Holzmann, H., Klar, B. 2025. "Lancaster correlation - a new dependence measure
 linked to maximum correlation". Scandinavian Journal of Statistics.
 52(1):145-169 <doi:10.1111/sjos.12733>
+}
+\seealso{
+\code{\link{cor}}
 }

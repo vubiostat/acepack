@@ -23,11 +23,11 @@
 #' @param y a vector with same length as x. Default is NULL.
 #' @param nperm number of permutations. Default is 999.
 #' @param ... additional arguments to pass to \code{cor}.
-#' @seealso [cor()]
+#' @seealso \code{\link{cor}}
 #' @return a list containing the following:
 #' \itemize{
-#'   \item{\code{ace}}{ The value of the test statistic.}
-#'   \item{\code{pval}}{ The *p*-value of the test.}
+#'   \item{\code{ace}} The value of the test statistic.
+#'   \item{\code{pval}} The *p*-value of the test.
 #' }
 #' @export
 #' @references
@@ -35,6 +35,7 @@
 #' linked to maximum correlation". Scandinavian Journal of Statistics.
 #' 52(1):145-169 <doi:10.1111/sjos.12733>
 #' @importFrom arrangements permutations
+#' @importFrom stats cor
 #' 
 #' @examples
 #' 
@@ -119,7 +120,7 @@ print.ace.test <- function(x, ...)
     cat("\nACE Approximate Permutation Test of Independence\n", ...)
   }
   cat("\nalternative hypothesis: x and y are dependent\n", ...)
-  cat("Ace correlation = ", x$ace, "\n", ...)
+  cat("Ace correlation \u03c1 = ", x$ace, "\n", ...)
   pval <- format(x$pval, scientific=if(x$pval < 0.001) TRUE else FALSE)
   cat("p-value = ", pval, "\n", ...)
   cat("\n", ...)
