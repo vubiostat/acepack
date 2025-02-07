@@ -21,7 +21,7 @@
 \value{
 a rounded ace.test object
 
-NULL only outputs to CAT
+original object
 }
 \description{
 A S3 function to produce a summary 

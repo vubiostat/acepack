@@ -22,6 +22,8 @@
 #' @param x a numeric vector, or a matrix or data frame with two columns.
 #' @param y a vector with same length as x. Default is NULL.
 #' @param nperm number of permutations. Default is 999.
+#' @param ... additional arguments to pass to \code{cor}.
+#' @seealso [cor()]
 #' @return a list containing the following:
 #' \itemize{
 #'   \item{\code{ace}}{ The value of the test statistic.}
@@ -32,7 +34,6 @@
 #' Holzmann, H., Klar, B. 2025. "Lancaster correlation - a new dependence measure
 #' linked to maximum correlation". Scandinavian Journal of Statistics.
 #' 52(1):145-169 <doi:10.1111/sjos.12733>
-#' @importFrom arrangements npermutations
 #' @importFrom arrangements permutations
 #' 
 #' @examples
@@ -44,7 +45,7 @@
 #' cor.test(y[,1], y[,2], method = "spearman")
 #' ace.test(y)
 #' 
-ace.test <- function(x, y = NULL, nperm = 999)
+ace.test <- function(x, y = NULL, nperm = 999, ...)
 { 
   if (is.data.frame(x))
     x <- as.matrix(x)
@@ -57,16 +58,16 @@ ace.test <- function(x, y = NULL, nperm = 999)
     x = x[,1]
   }
   a       <- ace(x, y)
-  ace.cor <- as.vector( cor(a$tx, a$ty) )
-  n       <- length(x)
+  ace.cor <- as.vector( cor(a$tx, a$ty, ...) )
+  n       <- factorial(length(x))
 
   ts <- ace.cor
-  if (n <= 6)
+  if (n <= nperm) #use all permutations
   {
-    nperm <- npermutations(n) #use all permutations
+    nperm <- n
     perm  <- permutations(x)
     exact <- TRUE
-  } else
+  } else # Only do a bootstrap approximation
   {
     perm  <- permutations(x, nsample = nperm)
     exact <- FALSE
@@ -75,7 +76,7 @@ ace.test <- function(x, y = NULL, nperm = 999)
   for (i in 1:nperm)
   {
     a     <- ace(perm[i,], y)
-    tp[i] <- as.vector( cor(a$tx, a$ty) )
+    tp[i] <- as.vector( cor(a$tx, a$ty, ...) )
   }
   pval <- (sum(tp > ts) + 1) / (nperm + 1)
   
