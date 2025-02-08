@@ -3,6 +3,7 @@
 # This file is part of acepack.
 #
 # Copyright 2024,2025 Hajo Holzmann, Bernhard Klar
+# Copyright 2025 Shawn Garbett (edits and extensions)
 #
 # Permission to use, copy, modify, distribute, and sell this software and
 # its documentation for any purpose is hereby granted without fee,
@@ -18,7 +19,7 @@
 #' @description Performs a permutation test of independence or association. The
 #'   alternative hypothesis is that there is a x and y are dependent. 
 #'   
-#' Code authored by Hajo Holzmann, Bernhard Klar.
+#' Code authored by Hajo Holzmann, Bernhard Klar, Shawn Garbett.
 #' @param x a numeric vector, or a matrix or data frame with two columns.
 #' @param y a vector with same length as x. Default is NULL.
 #' @param nperm number of permutations. Default is 999.
@@ -48,14 +49,26 @@
 #' 
 ace.test <- function(x, y = NULL, nperm = 999, ...)
 { 
-  xname <- substitute(x)
-  yname <- substitute(y)
+  if(is.data.frame(x)) x <- as.matrix(x)
   
-  if (is.data.frame(x))
-    x <- as.matrix(x)
-  if (!is.matrix(x) && is.null(y))
-    stop("supply both 'x' and 'y' or a 2 column matrix 'x'")
+  # Check user supplied parameters
+  if (is.matrix(x) )
+  {
+    if (dim(x)[2] != 2) stop("Matrix 'x' must be 2 columns.")
+    if (!is.null(y))    stop("Cannot have a matrix for 'x' and provide 'y'.")
+  } else # x is not a matrix
+  { 
+    if (is.null(y))     stop("Must supply both 'x' and 'y' or a 2 column matrix 'x'.")
+  } 
+  if (!is.numeric(nperm) || nperm[1] <= 0 || length(nperm) != 1)
+     stop("'nperm' must be a positive integer.")
+
+  if (!is.null(y) && length(x) != length(y))
+    stop("Length of 'x' and 'y' must be the same.")
   
+  # Extract variable names
+  xname <- as.character(substitute(x))
+  yname <- as.character(substitute(y))
   if (is.matrix(x))
   {
     nm <- colnames(x)
@@ -68,6 +81,8 @@ ace.test <- function(x, y = NULL, nperm = 999, ...)
     }
   }
   if(is.null(yname)) yname <- 'y'
+  
+  # Do the alternative hypothesis estimate
   a       <- ace(x, y)
   ace.cor <- as.vector( cor(a$tx, a$ty, ...) )
   n       <- factorial(length(x))
@@ -87,7 +102,6 @@ ace.test <- function(x, y = NULL, nperm = 999, ...)
       numeric(1))
   } else # Only do a bootstrap approximation
   {
-    perm  <- permutations(x, nsample = nperm)
     exact <- FALSE
     tp    <- sapply(1:nperm, function(i) {
       a <- ace(sample(x),y)
@@ -99,7 +113,7 @@ ace.test <- function(x, y = NULL, nperm = 999, ...)
   structure(
     list(ace = ace.cor, pval = pval, exact=exact, n=nperm,
          tp  = tp, xname=xname, yname=yname),
-    class=c("ace.test"))
+    class=c("ace.test", "list"))
 }
 
 #' @name summary.ace.test
@@ -135,15 +149,15 @@ print.ace.test <- function(x, ...)
   } else {
     cat("\nACE Approximate Permutation Test of Independence\n", ...)
   }
-  cat("\nalternative hypothesis: x and y are dependent\n", ...)
+  cat("\nalternative hypothesis:',x$xname,'and', x$yname, ' are dependent\n", ...)
   cat("Ace correlation \u03c1 =", x$ace, "\n", ...)
   pval <- format(x$pval, scientific=if(x$pval < 0.0001) TRUE else FALSE)
   if(1/(x$n+1) == x$pval)
   {
-    cat("p-value < ", pval, "\n", ...)
+    cat("p-value <", pval, "\n", ...)
   } else
   {
-    cat("p-value = ", pval, "\n", ...)
+    cat("p-value =", pval, "\n", ...)
   }
   cat("\n", ...)
   invisible(x)
@@ -165,6 +179,14 @@ print.ace.test <- function(x, ...)
 #' @importFrom graphics hist
 #' @importFrom graphics abline
 #' @export
+#' @examples
+#' 
+#' n <- 200
+#' x <- matrix(rnorm(n*2), n)
+#' nu <- 2
+#' y <- x / sqrt(rchisq(n, nu)/nu) #multivariate t
+#' plot(ace.test(y))
+#' 
 plot.ace.test <- function(
     x, 
     acol='blue',
