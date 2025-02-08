@@ -27,6 +27,6 @@ original object
 A S3 function to produce a summary 
   of the results of an ace.test.
 
-A S3 function to produce a summary 
+An S3 function to produce a summary 
   of the results of an ace.test.
 }

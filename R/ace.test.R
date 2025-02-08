@@ -48,42 +48,58 @@
 #' 
 ace.test <- function(x, y = NULL, nperm = 999, ...)
 { 
+  xname <- substitute(x)
+  yname <- substitute(y)
+  
   if (is.data.frame(x))
     x <- as.matrix(x)
   if (!is.matrix(x) && is.null(y))
-    stop("supply both 'x' and 'y' or a matrix-like 'x'")
+    stop("supply both 'x' and 'y' or a 2 column matrix 'x'")
   
   if (is.matrix(x))
   {
+    nm <- colnames(x)
     y = x[,2]
     x = x[,1]
+    if(!is.null(nm))
+    {
+      xname <- nm[1]
+      yname <- nm[2]
+    }
   }
+  if(is.null(yname)) yname <- 'y'
   a       <- ace(x, y)
   ace.cor <- as.vector( cor(a$tx, a$ty, ...) )
   n       <- factorial(length(x))
 
-  ts <- ace.cor
   if (n <= nperm) #use all permutations
   {
     nperm <- n
     perm  <- permutations(x)
     exact <- TRUE
+    tp    <- vapply(
+      1:nperm,
+      function(i)
+      {
+        a <- ace(perm[i,],y)
+        cor(a$tx[,1], a$ty, ...)
+      },
+      numeric(1))
   } else # Only do a bootstrap approximation
   {
     perm  <- permutations(x, nsample = nperm)
     exact <- FALSE
+    tp    <- sapply(1:nperm, function(i) {
+      a <- ace(sample(x),y)
+      cor(a$tx[,1], a$ty, ...)
+    })
   }
-  tp <- rep(0, nperm)
-  for (i in 1:nperm)
-  {
-    a     <- ace(perm[i,], y)
-    tp[i] <- as.vector( cor(a$tx, a$ty, ...) )
-  }
-  pval <- (sum(tp > ts) + 1) / (nperm + 1)
+  pval <- (sum(tp > ace.cor) + 1) / (nperm + 1)
   
   structure(
-    list(ace = ace.cor, pval = pval, exact=exact, n=nperm),
-    class=c("ace.test", "list"))
+    list(ace = ace.cor, pval = pval, exact=exact, n=nperm,
+         tp  = tp, xname=xname, yname=yname),
+    class=c("ace.test"))
 }
 
 #' @name summary.ace.test
@@ -105,7 +121,7 @@ summary.ace.test <- function(object, ..., digits)
 
 #' @name summary.ace.test
 #' @title ACE permutation test summary
-#' @description A S3 function to produce a summary 
+#' @description An S3 function to produce a summary 
 #'   of the results of an ace.test.
 #' @param x the ace.test object to print
 #' @param ... additional arguments to send to cat
@@ -120,10 +136,47 @@ print.ace.test <- function(x, ...)
     cat("\nACE Approximate Permutation Test of Independence\n", ...)
   }
   cat("\nalternative hypothesis: x and y are dependent\n", ...)
-  cat("Ace correlation \u03c1 = ", x$ace, "\n", ...)
-  pval <- format(x$pval, scientific=if(x$pval < 0.001) TRUE else FALSE)
-  cat("p-value = ", pval, "\n", ...)
+  cat("Ace correlation \u03c1 =", x$ace, "\n", ...)
+  pval <- format(x$pval, scientific=if(x$pval < 0.0001) TRUE else FALSE)
+  if(1/(x$n+1) == x$pval)
+  {
+    cat("p-value < ", pval, "\n", ...)
+  } else
+  {
+    cat("p-value = ", pval, "\n", ...)
+  }
   cat("\n", ...)
   invisible(x)
 }
 
+#' @name plot.ace.test
+#' @title ACE permutation histogram
+#' @description An S3 function to produce a summary 
+#'   plot of the results of an ace.test.
+#' @param x the ace.test object to print
+#' @param acol color of the point estimate of correlation
+#' @param xlim xlimit of histogram
+#' @param col color of histogram bars
+#' @param breaks number of breaks. default to 100
+#' @param main main title of plot
+#' @param xlab x-axis label
+#' @param lwd line width of point estimate
+#' @param ... additional arguments to send to hist
+#' @importFrom graphics hist
+#' @importFrom graphics abline
+#' @export
+plot.ace.test <- function(
+    x, 
+    acol='blue',
+    xlim=c(min(x$tp),max(c(x$tp, ceiling(x$ace*10)/10))),
+    col='black',
+    breaks=100,
+    main='ACE Correlation Permutations',
+    xlab=paste('\u03c1(',x$xname,',',x$yname,')'),
+    lwd=2,
+    ...)
+{
+  hist(x$tp, xlim=xlim, col=col, breaks=breaks, main=main, xlab=xlab, ...)
+  abline(v=x$ace, col=acol, lwd=lwd)
+  invisible()
+}
