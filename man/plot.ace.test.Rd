@@ -11,7 +11,7 @@
   col = "black",
   breaks = 100,
   main = "ACE Correlation Permutations",
-  xlab = paste("ρ(", x$xname, ",", x$yname, ")"),
+  xlab = bquote(rho(.(x$xname), .(x$yname))),
   lwd = 2,
   ...
 )

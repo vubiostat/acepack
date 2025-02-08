@@ -80,7 +80,8 @@ ace.test <- function(x, y = NULL, nperm = 999, ...)
       yname <- nm[2]
     }
   }
-  if(is.null(yname)) yname <- 'y'
+
+  if(is.null(yname) || identical(yname, character(0)) || yname == '') yname <- 'y'
   
   # Do the alternative hypothesis estimate
   a       <- ace(x, y)
@@ -194,7 +195,7 @@ plot.ace.test <- function(
     col='black',
     breaks=100,
     main='ACE Correlation Permutations',
-    xlab=paste('\u03c1(',x$xname,',',x$yname,')'),
+    xlab=bquote(rho(.(x$xname),.(x$yname))),
     lwd=2,
     ...)
 {
