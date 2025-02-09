@@ -22,16 +22,10 @@ ace(...)
 
 \method{ace}{formula}(
   formula,
-  data,
-  subset,
-  na.action,
-  wt = rep(1, nrow(x)),
-  cat = NULL,
-  mon = NULL,
-  lin = NULL,
-  circ = NULL,
-  delrsq = 0.01,
-  control = NULL
+  data = NULL,
+  subset = NULL,
+  na.action = getOption("na.action"),
+  ...
 )
 }
 \arguments{
