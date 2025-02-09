@@ -26,31 +26,33 @@
 )
 }
 \arguments{
-\item{x}{the ace.test object to print}
+\item{x}{a numeric vector, or a matrix or data frame with two columns. The
+first column is the 'y' and the second column is the 'x' when
+calling \code{\link{ace}}.}
 
 \item{y}{a vector with same length as x. Default is NULL.}
 
 \item{nperm}{number of permutations. Default is 999.}
 
-\item{...}{additional arguments to send to hist}
+\item{...}{additional arguments to pass to \code{cor}.}
 
-\item{object}{the test to summarize}
+\item{object}{S3 object of test results to dispatch.}
 
-\item{digits}{Number of significant digits to round too.}
+\item{digits}{Number of significant digits to round for summary.}
 
-\item{acol}{color of the point estimate of correlation}
+\item{acol}{for plot; color of the point estimate of correlation}
 
-\item{xlim}{xlimit of histogram}
+\item{xlim}{for plot;xlimit of histogram}
 
-\item{col}{color of histogram bars}
+\item{col}{for plot;color of histogram bars}
 
-\item{breaks}{number of breaks. default to 100}
+\item{breaks}{for plot;number of breaks. Default to 100.}
 
-\item{main}{main title of plot}
+\item{main}{for plot; main title of plot}
 
-\item{xlab}{x-axis label}
+\item{xlab}{for plot; x-axis label}
 
-\item{lwd}{line width of point estimate}
+\item{lwd}{for plot; line width of point estimate}
 }
 \value{
 a list containing the following:
@@ -58,42 +60,22 @@ a list containing the following:
   \item{\code{ace}} The value of the test statistic.
   \item{\code{pval}} The *p*-value of the test.
 }
-
-a rounded ace.test object
-
-original object
 }
 \description{
 Performs a permutation test of independence or association. The
   alternative hypothesis is that there is a x and y are dependent. 
   
 Code authored by Hajo Holzmann, Bernhard Klar, Shawn Garbett.
-
-A S3 function to produce a summary 
-  of the results of an ace.test.
-
-An S3 function to produce a summary 
-  of the results of an ace.test.
-
-An S3 function to produce a summary 
-  plot of the results of an ace.test.
 }
 \examples{
 
 n <- 200
 z <- matrix(rnorm(2*n), n) / sqrt(rchisq(n, 2)/2)
-x <- z[,1]; y <- z[,2]
+x <- z[,2]; y <- z[,1]
 cor.test(x, y, method="spearman")
 ace.test(x, y)
 
-ace.test(z)
-
-n <- 200
-x <- matrix(rnorm(n*2), n)
-nu <- 2
-y <- x / sqrt(rchisq(n, nu)/nu) #multivariate t
-plot(ace.test(y))
-
+plot(ace.test(z))
 }
 \references{
 Holzmann, H., Klar, B. 2025. "Lancaster correlation - a new dependence measure

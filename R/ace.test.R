@@ -20,9 +20,20 @@
 #'   alternative hypothesis is that there is a x and y are dependent. 
 #'   
 #' Code authored by Hajo Holzmann, Bernhard Klar, Shawn Garbett.
-#' @param x a numeric vector, or a matrix or data frame with two columns.
+#' @param x a numeric vector, or a matrix or data frame with two columns. The
+#'   first column is the 'y' and the second column is the 'x' when
+#'   calling \code{\link{ace}}.
 #' @param y a vector with same length as x. Default is NULL.
 #' @param nperm number of permutations. Default is 999.
+#' @param object S3 object of test results to dispatch.
+#' @param digits Number of significant digits to round for summary.
+#' @param acol for plot; color of the point estimate of correlation
+#' @param xlim for plot;xlimit of histogram
+#' @param col for plot;color of histogram bars
+#' @param breaks for plot;number of breaks. Default to 100.
+#' @param main for plot; main title of plot
+#' @param xlab for plot; x-axis label
+#' @param lwd for plot; line width of point estimate
 #' @param ... additional arguments to pass to \code{cor}.
 #' @seealso \code{\link{cor}}
 #' @return a list containing the following:
@@ -42,11 +53,11 @@
 #' 
 #' n <- 200
 #' z <- matrix(rnorm(2*n), n) / sqrt(rchisq(n, 2)/2)
-#' x <- z[,1]; y <- z[,2]
+#' x <- z[,2]; y <- z[,1]
 #' cor.test(x, y, method="spearman")
 #' ace.test(x, y)
 #' 
-#' ace.test(z)
+#' plot(ace.test(z))
 ace.test <- function(x, y = NULL, nperm = 999, ...)
 { 
   if(is.data.frame(x)) x <- as.matrix(x)
@@ -117,14 +128,6 @@ ace.test <- function(x, y = NULL, nperm = 999, ...)
     class=c("acetest", "list"))
 }
 
-#' @name summary.acetest
-#' @title ACE permutation test summary
-#' @description A S3 function to produce a summary 
-#'   of the results of an ace.test.
-#' @param object the test to summarize
-#' @param ... additional arguments (ignored)
-#' @param digits Number of significant digits to round too.
-#' @return a rounded ace.test object
 #' @rdname ace.test
 #' @export
 summary.acetest <- function(object, ..., digits)
@@ -135,13 +138,6 @@ summary.acetest <- function(object, ..., digits)
   object
 }
 
-#' @name print.acetest
-#' @title ACE permutation test summary
-#' @description An S3 function to produce a summary 
-#'   of the results of an ace.test.
-#' @param x the ace.test object to print
-#' @param ... additional arguments to send to cat
-#' @return original object
 #' @rdname ace.test
 #' @export
 print.acetest <- function(x, ...)
@@ -152,7 +148,7 @@ print.acetest <- function(x, ...)
   } else {
     cat("\nACE Approximate Permutation Test of Independence\n", ...)
   }
-  cat("\nalternative hypothesis:',x$xname,'and', x$yname, ' are dependent\n", ...)
+  cat('\nalternative hypothesis:',x$xname,'and', x$yname, 'are dependent\n', ...)
   cat("Ace correlation \u03c1 =", x$ace, "\n", ...)
   pval <- format(x$pval, scientific=if(x$pval < 0.0001) TRUE else FALSE)
   if(1/(x$n+1) == x$pval)
@@ -166,31 +162,10 @@ print.acetest <- function(x, ...)
   invisible(x)
 }
 
-#' @name plot.acetest
-#' @title ACE permutation histogram
-#' @description An S3 function to produce a summary 
-#'   plot of the results of an ace.test.
-#' @param x the ace.test object to print
-#' @param acol color of the point estimate of correlation
-#' @param xlim xlimit of histogram
-#' @param col color of histogram bars
-#' @param breaks number of breaks. default to 100
-#' @param main main title of plot
-#' @param xlab x-axis label
-#' @param lwd line width of point estimate
-#' @param ... additional arguments to send to hist
 #' @importFrom graphics hist
 #' @importFrom graphics abline
 #' @export
 #' @rdname ace.test
-#' @examples
-#' 
-#' n <- 200
-#' x <- matrix(rnorm(n*2), n)
-#' nu <- 2
-#' y <- x / sqrt(rchisq(n, nu)/nu) #multivariate t
-#' plot(ace.test(y))
-#' 
 plot.acetest <- function(
     x, 
     acol='blue',
