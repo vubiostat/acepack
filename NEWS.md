@@ -1,6 +1,6 @@
 # *News*
 
-## 1.5.3
+## 1.6.0
 
 * Date: 02-05-2025
 * [Added independence test using ACE as provided by Holzmann & Klar.](https://github.com/vubiostat/acepack/issues/11)
