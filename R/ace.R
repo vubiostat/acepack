@@ -120,10 +120,24 @@
 #' plot(Y,a1$ty)
 #' plot(exp(Y),a1$ty)
 #' 
+#' @rdname ace
 #' @export
 #' @useDynLib acepack, .registration=TRUE
-ace <- function(x, y, wt = rep(1, nrow(x)), cat = NULL, mon = NULL, 
-    lin = NULL, circ = NULL, delrsq = 0.01, control = NULL) 
+#' 
+ace <- function(...) UseMethod("ace")
+
+#' @rdname ace
+#' @export
+ace.default  <- function(
+  x,
+  y,
+  wt      = rep(1, nrow(x)),
+  cat     = NULL, 
+  mon     = NULL, 
+  lin     = NULL,
+  circ    = NULL,
+  delrsq  = 0.01,
+  control = NULL) 
 {
   if(!is.null(control)) do.call(set_control, control)
   
@@ -199,8 +213,8 @@ ace <- function(x, y, wt = rep(1, nrow(x)), cat = NULL, mon = NULL,
   ty <- y
   m  <- matrix(0, nrow = nrow(x), ncol = iy)
   z  <- matrix(0, nrow = nrow(x), ncol = 12)
-
   ns <- 1
+  
   mode(x)      <- "double"
   mode(y)      <- "double"
   mode(tx)     <- "double"
@@ -209,9 +223,42 @@ ace <- function(x, y, wt = rep(1, nrow(x)), cat = NULL, mon = NULL,
   mode(delrsq) <- "double"
   mode(z)      <- "double"
   
-  .Fortran("mace", p = as.integer(ncol(x)), n = as.integer(nrow(x)), 
-    x = t(x), y = y, w = as.double(wt), l = as.integer(l), 
-    delrsq = delrsq, ns = as.integer(ns), tx = tx, ty = ty, 
-    rsq = double(1), ierr = integer(1), m = as.integer(m), 
-    z = z, PACKAGE = "acepack")
+  .Fortran("mace",
+    p       = as.integer(ncol(x)),
+    n       = as.integer(nrow(x)), 
+    x       = t(x),
+    y       = y,
+    w       = as.double(wt),
+    l       = as.integer(l), 
+    delrsq  = delrsq,
+    ns      = as.integer(ns),
+    tx      = tx,
+    ty      = ty, 
+    rsq     = double(1),
+    ierr    = integer(1),
+    m       = as.integer(m), 
+    z       = z,
+    PACKAGE = "acepack")
+}
+
+#' @rdname ace
+#' @importFrom stats model.frame
+#' @export
+ace.formula  <- function(
+  formula,
+  data      = NULL,
+  subset    = NULL,
+  na.action = getOption('na.action'),
+  ...)
+{
+  # Copied from lm()
+  cl <- match.call()
+  mf <- match.call(expand.dots = FALSE)
+  m  <- match(c("formula", "data", "subset", "na.action"), names(mf), 0L)
+  mf <- mf[c(1L, m)]
+  mf$drop.unused.levels <- TRUE
+  mf[[1L]] <- quote(stats::model.frame)
+  mf <- eval(mf, parent.frame())
+
+  ace(mf[,2:ncol(mf)],mf[,1],...)
 }

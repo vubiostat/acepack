@@ -2,11 +2,29 @@
 % Please edit documentation in R/ace.R
 \name{ace}
 \alias{ace}
+\alias{ace.default}
+\alias{ace.formula}
 \title{Alternating Conditional Expectations}
 \usage{
-ace(
+ace(...)
+
+\method{ace}{default}(
   x,
   y,
+  wt = rep(1, nrow(x)),
+  cat = NULL,
+  mon = NULL,
+  lin = NULL,
+  circ = NULL,
+  delrsq = 0.01,
+  control = NULL
+)
+
+\method{ace}{formula}(
+  formula,
+  data,
+  subset,
+  na.action,
   wt = rep(1, nrow(x)),
   cat = NULL,
   mon = NULL,
