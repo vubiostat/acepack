@@ -37,6 +37,7 @@
 #' @importFrom arrangements permutations
 #' @importFrom stats cor
 #' @export ace.test
+#' @rdname ace.test
 #' @examples
 #' 
 #' n <- 200
@@ -124,6 +125,7 @@ ace.test <- function(x, y = NULL, nperm = 999, ...)
 #' @param ... additional arguments (ignored)
 #' @param digits Number of significant digits to round too.
 #' @return a rounded ace.test object
+#' @rdname ace.test
 #' @export
 summary.acetest <- function(object, ..., digits)
 {
@@ -140,6 +142,7 @@ summary.acetest <- function(object, ..., digits)
 #' @param x the ace.test object to print
 #' @param ... additional arguments to send to cat
 #' @return original object
+#' @rdname ace.test
 #' @export
 print.acetest <- function(x, ...)
 {
@@ -179,6 +182,7 @@ print.acetest <- function(x, ...)
 #' @importFrom graphics hist
 #' @importFrom graphics abline
 #' @export
+#' @rdname ace.test
 #' @examples
 #' 
 #' n <- 200

@@ -17,7 +17,8 @@ ace(...)
   lin = NULL,
   circ = NULL,
   delrsq = 0.01,
-  control = NULL
+  control = NULL,
+  ...
 )
 
 \method{ace}{formula}(
@@ -29,6 +30,9 @@ ace(...)
 )
 }
 \arguments{
+\item{...}{additional arguments which go ignored. Included for S3 dispatch
+consistency.}
+
 \item{x}{matrix; A matrix containing the independent variables.}
 
 \item{y}{numeric; A vector containing the response variable.}
@@ -60,6 +64,25 @@ R-squared changes by less than \code{delrsq} in 3 consecutive iterations
 
 \item{control}{named list; control parameters to set. Documented at 
 \code{\link{set_control}}.}
+
+\item{formula}{formula; an object of class "\code{\link{formula}}": a
+symbolic description of the model to be smoothed.}
+
+\item{data}{an optional data frame, list or environment (or object coercible
+by \code{\link{as.data.frame}} to a data frame) containing the variables in
+the model. If not found in data, the variables are taken from
+\code{environment(formula)}, typically the environment from which
+\code{ace} is called.}
+
+\item{subset}{an optional vector specifying a subset of observations to be
+used in the fitting process. Only used when a \code{formula}
+is specified.}
+
+\item{na.action}{a function which indicates what should happen when the data
+contain NAs. The default is set by the \code{na.action} setting of
+\code{\link{options}}, and is \code{\link{na.fail}} if that is unset.
+The ‘factory-fresh’ default is \code{\link{na.omit}}. Another possible
+value is NULL, no action. Value \code{\link{na.exclude}} can be useful.}
 }
 \value{
 A structure with the following components:

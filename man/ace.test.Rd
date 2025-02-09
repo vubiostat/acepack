@@ -2,18 +2,55 @@
 % Please edit documentation in R/ace.test.R
 \name{ace.test}
 \alias{ace.test}
+\alias{summary.acetest}
+\alias{print.acetest}
+\alias{plot.acetest}
 \title{ACE permutation test of independence}
 \usage{
 \method{ace}{test}(x, y = NULL, nperm = 999, ...)
+
+\method{summary}{acetest}(object, ..., digits)
+
+\method{print}{acetest}(x, ...)
+
+\method{plot}{acetest}(
+  x,
+  acol = "blue",
+  xlim = c(min(x$tp), max(c(x$tp, ceiling(x$ace * 10)/10))),
+  col = "black",
+  breaks = 100,
+  main = "ACE Correlation Permutations",
+  xlab = bquote(rho(.(x$xname), .(x$yname))),
+  lwd = 2,
+  ...
+)
 }
 \arguments{
-\item{x}{a numeric vector, or a matrix or data frame with two columns.}
+\item{x}{the ace.test object to print}
 
 \item{y}{a vector with same length as x. Default is NULL.}
 
 \item{nperm}{number of permutations. Default is 999.}
 
-\item{...}{additional arguments to pass to \code{cor}.}
+\item{...}{additional arguments to send to hist}
+
+\item{object}{the test to summarize}
+
+\item{digits}{Number of significant digits to round too.}
+
+\item{acol}{color of the point estimate of correlation}
+
+\item{xlim}{xlimit of histogram}
+
+\item{col}{color of histogram bars}
+
+\item{breaks}{number of breaks. default to 100}
+
+\item{main}{main title of plot}
+
+\item{xlab}{x-axis label}
+
+\item{lwd}{line width of point estimate}
 }
 \value{
 a list containing the following:
@@ -21,12 +58,25 @@ a list containing the following:
   \item{\code{ace}} The value of the test statistic.
   \item{\code{pval}} The *p*-value of the test.
 }
+
+a rounded ace.test object
+
+original object
 }
 \description{
 Performs a permutation test of independence or association. The
   alternative hypothesis is that there is a x and y are dependent. 
   
 Code authored by Hajo Holzmann, Bernhard Klar, Shawn Garbett.
+
+A S3 function to produce a summary 
+  of the results of an ace.test.
+
+An S3 function to produce a summary 
+  of the results of an ace.test.
+
+An S3 function to produce a summary 
+  plot of the results of an ace.test.
 }
 \examples{
 
@@ -37,6 +87,13 @@ cor.test(x, y, method="spearman")
 ace.test(x, y)
 
 ace.test(z)
+
+n <- 200
+x <- matrix(rnorm(n*2), n)
+nu <- 2
+y <- x / sqrt(rchisq(n, nu)/nu) #multivariate t
+plot(ace.test(y))
+
 }
 \references{
 Holzmann, H., Klar, B. 2025. "Lancaster correlation - a new dependence measure
