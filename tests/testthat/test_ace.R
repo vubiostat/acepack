@@ -36,12 +36,6 @@ test_that("Estimates Multiple Transformations Specified via Formula",
   expect_true(max(x[,4]^3      - model$tx[,4] - 0.039418) < 0.12)
   expect_true(max(x[,5]        - model$tx[,5] - 0.008231) < 0.1)
   
-  
-  x1 <- x[,1]
-  x2 <- x[,2]
-  x3 <- x[,3]
-  x4 <- x[,4]
-  x5 <- x[,5]
   expect_no_error(
     model <- ace(y~x1+x2+x3+x4+x5, 
                  data.frame(x1=x[,1],
