@@ -30,23 +30,22 @@
 #'   \item{\code{ace}} The value of the test statistic.
 #'   \item{\code{pval}} The *p*-value of the test.
 #' }
-#' @export
 #' @references
 #' Holzmann, H., Klar, B. 2025. "Lancaster correlation - a new dependence measure
 #' linked to maximum correlation". Scandinavian Journal of Statistics.
 #' 52(1):145-169 <doi:10.1111/sjos.12733>
 #' @importFrom arrangements permutations
 #' @importFrom stats cor
-#' 
+#' @export ace.test
 #' @examples
 #' 
 #' n <- 200
-#' x <- matrix(rnorm(n*2), n)
-#' nu <- 2
-#' y <- x / sqrt(rchisq(n, nu)/nu) #multivariate t
-#' cor.test(y[,1], y[,2], method = "spearman")
-#' ace.test(y)
+#' z <- matrix(rnorm(2*n), n) / sqrt(rchisq(n, 2)/2)
+#' x <- z[,1]; y <- z[,2]
+#' cor.test(x, y, method="spearman")
+#' ace.test(x, y)
 #' 
+#' ace.test(z)
 ace.test <- function(x, y = NULL, nperm = 999, ...)
 { 
   if(is.data.frame(x)) x <- as.matrix(x)
@@ -88,7 +87,7 @@ ace.test <- function(x, y = NULL, nperm = 999, ...)
   ace.cor <- as.vector( cor(a$tx, a$ty, ...) )
   n       <- factorial(length(x))
 
-  if (n <= nperm) #use all permutations
+  if (n <= nperm) # Use all permutations
   {
     nperm <- n
     perm  <- permutations(x)
@@ -114,10 +113,10 @@ ace.test <- function(x, y = NULL, nperm = 999, ...)
   structure(
     list(ace = ace.cor, pval = pval, exact=exact, n=nperm,
          tp  = tp, xname=xname, yname=yname),
-    class=c("ace.test", "list"))
+    class=c("acetest", "list"))
 }
 
-#' @name summary.ace.test
+#' @name summary.acetest
 #' @title ACE permutation test summary
 #' @description A S3 function to produce a summary 
 #'   of the results of an ace.test.
@@ -126,7 +125,7 @@ ace.test <- function(x, y = NULL, nperm = 999, ...)
 #' @param digits Number of significant digits to round too.
 #' @return a rounded ace.test object
 #' @export
-summary.ace.test <- function(object, ..., digits)
+summary.acetest <- function(object, ..., digits)
 {
   object$ace  <- signif(object$ace,  digits)
   object$pval <- signif(object$pval, digits)
@@ -134,7 +133,7 @@ summary.ace.test <- function(object, ..., digits)
   object
 }
 
-#' @name summary.ace.test
+#' @name print.acetest
 #' @title ACE permutation test summary
 #' @description An S3 function to produce a summary 
 #'   of the results of an ace.test.
@@ -142,7 +141,7 @@ summary.ace.test <- function(object, ..., digits)
 #' @param ... additional arguments to send to cat
 #' @return original object
 #' @export
-print.ace.test <- function(x, ...)
+print.acetest <- function(x, ...)
 {
   if(x$exact)
   {
@@ -164,7 +163,7 @@ print.ace.test <- function(x, ...)
   invisible(x)
 }
 
-#' @name plot.ace.test
+#' @name plot.acetest
 #' @title ACE permutation histogram
 #' @description An S3 function to produce a summary 
 #'   plot of the results of an ace.test.
@@ -188,7 +187,7 @@ print.ace.test <- function(x, ...)
 #' y <- x / sqrt(rchisq(n, nu)/nu) #multivariate t
 #' plot(ace.test(y))
 #' 
-plot.ace.test <- function(
+plot.acetest <- function(
     x, 
     acol='blue',
     xlim=c(min(x$tp),max(c(x$tp, ceiling(x$ace*10)/10))),

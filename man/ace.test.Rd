@@ -31,12 +31,12 @@ Code authored by Hajo Holzmann, Bernhard Klar, Shawn Garbett.
 \examples{
 
 n <- 200
-x <- matrix(rnorm(n*2), n)
-nu <- 2
-y <- x / sqrt(rchisq(n, nu)/nu) #multivariate t
-cor.test(y[,1], y[,2], method = "spearman")
-ace.test(y)
+z <- matrix(rnorm(2*n), n) / sqrt(rchisq(n, 2)/2)
+x <- z[,1]; y <- z[,2]
+cor.test(x, y, method="spearman")
+ace.test(x, y)
 
+ace.test(z)
 }
 \references{
 Holzmann, H., Klar, B. 2025. "Lancaster correlation - a new dependence measure
