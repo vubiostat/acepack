@@ -2,8 +2,11 @@
 
 S3method(ace,default)
 S3method(ace,formula)
+S3method(plot,ace)
 S3method(plot,acetest)
+S3method(print,ace)
 S3method(print,acetest)
+S3method(summary,ace)
 S3method(summary,acetest)
 export(ace)
 export(ace.test)

@@ -284,3 +284,53 @@ ace.formula  <- function(
 
   ace(mf[,2:ncol(mf)],mf[,1],...)
 }
+
+#' @rdname ace
+#' @export
+summary.ace <- function(object, ...)
+{
+  object$print_summary <- TRUE
+  object
+}
+
+#' @rdname ace
+#' @export
+print.ace <- function(x, ..., digits=4)
+{
+  # Find original R^2
+  x$orig_rsq <-
+    round(
+      summary(
+        lm(y~., data=data.frame(y=x$y, x=t(x$x)))
+      )$r.squared,
+      digits
+    )
+  x$rsq <- round(x$rsq, digits)
+  
+  cat('\nAlternating Conditional Expections\n\n', ...)
+
+  cat('p =', x$p, ', N =', x$n, '\n\n', ...)
+  cat('Raw Multiple R-squared:', x$orig_rsq, '\n', ...)
+  cat('Transformed Multiple R-squared:', x$rsq, '\n', ...)
+  
+  cat('\n', ...)
+  
+  if(!is.null(x$print_summary) && x$print_summary)
+  {
+    cat('Original Y\n', ...)
+    print(summary(x$y))
+    cat('\nTransformed Y\n', ...)
+    print(summary(x$ty))
+    cat('\nOriginal X\n', ...)
+    print(summary(t(x$x)))
+    cat('\nTransformed X\n', ...)
+    print(summary(x$tx))
+  }
+}
+
+#' @rdname ace
+#' @export
+plot.ace <- function(x, ...)
+{
+  object
+}

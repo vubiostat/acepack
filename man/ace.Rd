@@ -4,6 +4,9 @@
 \alias{ace}
 \alias{ace.default}
 \alias{ace.formula}
+\alias{summary.ace}
+\alias{print.ace}
+\alias{plot.ace}
 \title{Alternating Conditional Expectations}
 \usage{
 ace(...)
@@ -28,6 +31,12 @@ ace(...)
   na.action = getOption("na.action"),
   ...
 )
+
+\method{summary}{ace}(object, ...)
+
+\method{print}{ace}(x, ...)
+
+\method{plot}{ace}(x, ...)
 }
 \arguments{
 \item{...}{additional arguments which go ignored. Included for S3 dispatch
