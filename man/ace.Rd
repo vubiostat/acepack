@@ -40,8 +40,8 @@ ace(...)
   x,
   ...,
   which = 1:(x$p + 1),
-  caption = c(list("Response Y Transformation"), as.list(paste("Carrier", rownames(x$x),
-    "Transformation"))),
+  caption = c(list("Response Y ACE Transformation"), as.list(paste("Carrier",
+    rownames(x$x), "ACE Transformation"))),
   xlab = "Original",
   ylab = "Transformed",
   ask = prod(par("mfcol")) < length(which) && dev.interactive()

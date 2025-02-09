@@ -72,9 +72,7 @@
 #' x <- runif(200,0,TWOPI)
 #' y <- exp(sin(x)+rnorm(200)/2)
 #' a <- avas(x,y)
-#' par(mfrow=c(3,1))
-#' plot(a$y,a$ty)  # view the response transformation
-#' plot(a$x,a$tx)  # view the carrier transformation
+#' plot(a) # View response and carrier transformations
 #' plot(a$tx,a$ty) # examine the linearity of the fitted model
 #' 
 #' # From D. Wang and M. Murphy (2005), Identifying nonlinear relationships
@@ -86,7 +84,7 @@
 #' X4 <- runif(100)*2-1
 #' 
 #' # Original equation of Y:
-#' Y <- log(4 + sin(3*X1) + abs(X2) + X3^2 + X4 + .1*rnorm(100))
+#' Y <- log(4 + sin(3\*X1) + abs(X2) + X3^2 + X4 + .1\*rnorm(100))
 #' 
 #' # Transformed version so that Y, after transformation, is a
 #' # linear function of transforms of the X variables:
@@ -115,8 +113,23 @@
 #' plot(exp(Y),a1$ty)
 #' 
 #' @export
-avas <- function (x, y, wt = rep(1, nrow(x)), cat = NULL, mon = NULL, 
-    lin = NULL, circ = NULL, delrsq = 0.01, yspan = 0, control = NULL) 
+#' @rdname avas
+avas <- function(...) UseMethod("avas")
+
+#' @rdname avas
+#' @export
+avas.default <- function(
+  x, 
+  y,
+  wt      = rep(1, nrow(x)),
+  cat     = NULL,
+  mon     = NULL, 
+  lin     = NULL,
+  circ    = NULL,
+  delrsq  = 0.01,
+  yspan   = 0,
+  control = NULL,
+  ...) 
 {
   if(!is.null(control)) do.call(set_control, control)
 
@@ -208,6 +221,124 @@ avas <- function (x, y, wt = rep(1, nrow(x)), cat = NULL, mon = NULL,
     iters = iters, PACKAGE = "acepack")
   junk$iters <- junk$iters[1:junk$niter, ]
   
-  list(x = t(x), y = y, tx = junk$tx, ty = junk$ty, rsq = junk$rsq, 
-        l=l, m, yspan = junk$yspan, iters = junk$iters, niters = junk$niter)
+  structure(
+    list(x = t(x), y = y, tx = junk$tx, ty = junk$ty, rsq = junk$rsq, 
+        l=l, m, yspan = junk$yspan, iters = junk$iters, niters = junk$niter,
+        p=ncol(x)),
+    class=c("avas", "list")
+  )
+}
+
+#' @rdname avas
+#' @importFrom stats model.frame
+#' @export
+avas.formula  <- function(
+  formula,
+  data      = NULL,
+  subset    = NULL,
+  na.action = getOption('na.action'),
+  ...)
+{
+  # Copied from lm()
+  cl <- match.call()
+  mf <- match.call(expand.dots = FALSE)
+  m  <- match(c("formula", "data", "subset", "na.action"), names(mf), 0L)
+  mf <- mf[c(1L, m)]
+  
+  mf$drop.unused.levels <- TRUE
+  mf[[1L]] <- quote(stats::model.frame)
+  
+  mf <- eval(mf, parent.frame())
+
+  avas(mf[,2:ncol(mf)],mf[,1],...)
+}
+
+#' @rdname avas
+#' @export
+summary.avas <- function(object, ...)
+{
+  object$print_summary <- TRUE
+  object
+}
+
+#' @rdname avas
+#' @importFrom stats lm
+#' @export
+print.avas <- function(x, ..., digits=4)
+{
+  # Find original R^2
+  x$orig_rsq <-
+    round(
+      summary(lm(x$y ~ t(x$x))
+      )$r.squared,
+      digits
+    )
+  x$rsq <- round(x$rsq, digits)
+  
+  cat('\nAdditivity and Variance Stabilization\n\n', ...)
+  
+  cat('p =', x$p, ', N =', dim(x$x)[2], '\n\n', ...)
+  cat('Raw Multiple R-squared:', x$orig_rsq, '\n', ...)
+  cat('Transformed Multiple R-squared:', x$rsq, '\n', ...)
+  
+  cat('\n', ...)
+  
+  if(!is.null(x$print_summary) && x$print_summary)
+  {
+    cat('Original Y\n', ...)
+    print(summary(x$y))
+    cat('\nTransformed Y\n', ...)
+    print(summary(x$ty))
+    cat('\nOriginal X\n', ...)
+    print(summary(t(x$x)))
+    cat('\nTransformed X\n', ...)
+    print(summary(x$tx))
+  }
+}
+
+#' @rdname avas
+#' @importFrom graphics par
+#' @importFrom grDevices as.graphicsAnnot
+#' @importFrom grDevices dev.flush
+#' @importFrom grDevices dev.hold
+#' @importFrom grDevices dev.interactive
+#' @importFrom grDevices devAskNewPage
+#' @export
+plot.avas <- function(
+  x, 
+  ...,
+  which=1:(x$p+1),
+  caption=c(list("Response Y AVAS Transformation"),
+    as.list(paste("Carrier", rownames(x$x), "AVAS Transformation"))),
+  xlab = "Original",
+  ylab = "Transformed",
+  ask = prod(par("mfcol")) < length(which) && dev.interactive()
+)
+{
+  show <- rep(FALSE, x$p+1)
+  show[which] <- TRUE
+  
+  getCaption <- function(k) # allow caption = "" , plotmath etc
+    if(length(caption) < k) NA_character_ else as.graphicsAnnot(caption[[k]])
+  
+  if (ask)
+  {
+  	oask <- devAskNewPage(TRUE)
+  	on.exit(devAskNewPage(oask))
+  }
+  
+  if(show[1L])
+  {
+    dev.hold()
+    plot(x$y, x$ty, main=getCaption(1), xlab=xlab, ylab=ylab, ...)
+    dev.flush()
+  }
+  
+  for(i in 1L:(x$p))
+    if(show[i+1])
+    {
+      dev.hold()
+      plot(x$x[i,], x$tx[,i], main=getCaption(i+1), xlab=xlab, ylab=ylab, ...)
+      dev.flush()
+    }
 }

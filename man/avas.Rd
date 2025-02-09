@@ -2,9 +2,16 @@
 % Please edit documentation in R/avas.R
 \name{avas}
 \alias{avas}
+\alias{avas.default}
+\alias{avas.formula}
+\alias{summary.avas}
+\alias{print.avas}
+\alias{plot.avas}
 \title{Additivity and variance stabilization for regression}
 \usage{
-avas(
+avas(...)
+
+\method{avas}{default}(
   x,
   y,
   wt = rep(1, nrow(x)),
@@ -14,7 +21,31 @@ avas(
   circ = NULL,
   delrsq = 0.01,
   yspan = 0,
-  control = NULL
+  control = NULL,
+  ...
+)
+
+\method{avas}{formula}(
+  formula,
+  data = NULL,
+  subset = NULL,
+  na.action = getOption("na.action"),
+  ...
+)
+
+\method{summary}{avas}(object, ...)
+
+\method{print}{avas}(x, ..., digits = 4)
+
+\method{plot}{avas}(
+  x,
+  ...,
+  which = 1:(x$p + 1),
+  caption = c(list("Response Y AVAS Transformation"), as.list(paste("Carrier",
+    rownames(x$x), "AVAS Transformation"))),
+  xlab = "Original",
+  ylab = "Transformed",
+  ask = prod(par("mfcol")) < length(which) && dev.interactive()
 )
 }
 \arguments{
@@ -80,9 +111,7 @@ TWOPI <- 8*atan(1)
 x <- runif(200,0,TWOPI)
 y <- exp(sin(x)+rnorm(200)/2)
 a <- avas(x,y)
-par(mfrow=c(3,1))
-plot(a$y,a$ty)  # view the response transformation
-plot(a$x,a$tx)  # view the carrier transformation
+plot(a) # View response and carrier transformations
 plot(a$tx,a$ty) # examine the linearity of the fitted model
 
 # From D. Wang and M. Murphy (2005), Identifying nonlinear relationships
@@ -94,7 +123,7 @@ X3 <- runif(100)*2-1
 X4 <- runif(100)*2-1
 
 # Original equation of Y:
-Y <- log(4 + sin(3*X1) + abs(X2) + X3^2 + X4 + .1*rnorm(100))
+Y <- log(4 + sin(3\*X1) + abs(X2) + X3^2 + X4 + .1\*rnorm(100))
 
 # Transformed version so that Y, after transformation, is a
 # linear function of transforms of the X variables:

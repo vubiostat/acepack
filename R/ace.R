@@ -118,7 +118,7 @@
 #' X4 <- runif(100)*2-1
 #' 
 #' # Original equation of Y:
-#' Y <- log(4 + sin(3*X1) + abs(X2) + X3^2 + X4 + .1*rnorm(100))
+#' Y <- log(4 + sin(3\*X1) + abs(X2) + X3^2 + X4 + .1\*rnorm(100))
 #' 
 #' # Transformed version so that Y, after transformation, is a
 #' # linear function of transforms of the X variables:
@@ -310,7 +310,7 @@ print.ace <- function(x, ..., digits=4)
   # Find original R^2
   x$orig_rsq <-
     round(
-      summary(lm(x$y ~ x$tx)
+      summary(lm(x$y ~ t(x$x))
  #       lm(y~., data=data.frame(y=x$y, x=t(x$x)))
       )$r.squared,
       digits
@@ -350,8 +350,8 @@ plot.ace <- function(
   x, 
   ...,
   which=1:(x$p+1),
-  caption=c(list("Response Y Transformation"),
-    as.list(paste("Carrier", rownames(x$x), "Transformation"))),
+  caption=c(list("Response Y ACE Transformation"),
+    as.list(paste("Carrier", rownames(x$x), "ACE Transformation"))),
   xlab = "Original",
   ylab = "Transformed",
   ask = prod(par("mfcol")) < length(which) && dev.interactive()
