@@ -55,8 +55,16 @@
 #'   \code{\link{options}}, and is \code{\link{na.fail}} if that is unset.
 #'   The ‘factory-fresh’ default is \code{\link{na.omit}}. Another possible
 #'   value is NULL, no action. Value \code{\link{na.exclude}} can be useful.
-#' @param ... additional arguments which go ignored. Included for S3 dispatch
-#'   consistency.
+#' @param ... additional arguments which go ignored for ace call. Included for S3 dispatch
+#'   consistency. They are utilized when using print as they get passed to cat. 
+#'   Also when plotting an ace object they are passed to plot.
+#' @param digits rounding digits for summary/print
+#' @param object an S3 ace object
+#' @param which when plotting an ace object which plots to produce.
+#' @param caption a list of captions for a plot. 
+#' @param xlab the x-axis label when plotting.
+#' @param ylab the y-axis label when plotting.
+#' @param ask when plotting should the terminal be asked for input between plots.
 #' @return
 #'   A structure with the following components:
 #'    \item{x}{the input x matrix.}
@@ -97,6 +105,7 @@
 #' X <- cbind(X1,X2)
 #' Y <- 3*X1+X2
 #' a1 <- ace(X,Y)
+#' par(mfrow=c(1,1))
 #' plot(rowSums(a1$tx),a1$y)
 #' (lm(a1$y ~ a1$tx)) # shows that the colums of X are equally weighted
 #' 
@@ -294,14 +303,15 @@ summary.ace <- function(object, ...)
 }
 
 #' @rdname ace
+#' @importFrom stats lm
 #' @export
 print.ace <- function(x, ..., digits=4)
 {
   # Find original R^2
   x$orig_rsq <-
     round(
-      summary(
-        lm(y~., data=data.frame(y=x$y, x=t(x$x)))
+      summary(lm(x$y ~ x$tx)
+ #       lm(y~., data=data.frame(y=x$y, x=t(x$x)))
       )$r.squared,
       digits
     )
@@ -329,8 +339,48 @@ print.ace <- function(x, ..., digits=4)
 }
 
 #' @rdname ace
+#' @importFrom graphics par
+#' @importFrom grDevices as.graphicsAnnot
+#' @importFrom grDevices dev.flush
+#' @importFrom grDevices dev.hold
+#' @importFrom grDevices dev.interactive
+#' @importFrom grDevices devAskNewPage
 #' @export
-plot.ace <- function(x, ...)
+plot.ace <- function(
+  x, 
+  ...,
+  which=1:(x$p+1),
+  caption=c(list("Response Y Transformation"),
+    as.list(paste("Carrier", rownames(x$x), "Transformation"))),
+  xlab = "Original",
+  ylab = "Transformed",
+  ask = prod(par("mfcol")) < length(which) && dev.interactive()
+)
 {
-  object
+  show <- rep(FALSE, x$p+1)
+  show[which] <- TRUE
+  
+  getCaption <- function(k) # allow caption = "" , plotmath etc
+    if(length(caption) < k) NA_character_ else as.graphicsAnnot(caption[[k]])
+  
+  if (ask)
+  {
+  	oask <- devAskNewPage(TRUE)
+  	on.exit(devAskNewPage(oask))
+  }
+  
+  if(show[1L])
+  {
+    dev.hold()
+    plot(x$y, x$ty, main=getCaption(1), xlab=xlab, ylab=ylab, ...)
+    dev.flush()
+  }
+  
+  for(i in 1L:(x$p))
+    if(show[i+1])
+    {
+      dev.hold()
+      plot(x$x[i,], x$tx[,i], main=getCaption(i+1), xlab=xlab, ylab=ylab, ...)
+      dev.flush()
+    }
 }
