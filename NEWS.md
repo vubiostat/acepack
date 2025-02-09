@@ -3,17 +3,19 @@
 ## 1.5.3
 
 * Date: 02-05-2025
-* Added independence test using ACE as provided by Holzmann & Klar.
+* [Added independence test using ACE as provided by Holzmann & Klar.](https://github.com/vubiostat/acepack/issues/11)
+* [Added formula interface to ACE.](https://github.com/vubiostat/acepack/issues/6)
+* [Added S3 plot/summary/print to ace output.](https://github.com/vubiostat/acepack/issues/7)
 
 ## 1.5.2
 
 * Date: 01-27-2025
-* Fixing parallel make build issue and type checking on scratch memory
+* [Fixing parallel make build issue and type checking on scratch memory.](https://github.com/vubiostat/acepack/issues/9)
 
 ## 1.5.1
 
 * Date: 01-21-2025
-* Fixing errors detected by Ripley in future version of R.
+* [Fixing errors detected by Ripley in future version of R.](https://github.com/vubiostat/acepack/issues/8)
 
 ## 1.5.0
 
@@ -34,7 +36,7 @@
 ## 1.4.0
 
 * Date: 10-13-2016
-* Jonathan Baron (Penn) has transfered maintainer status to Shawn Garbett (Vanderbilt). A shoutout to Dr. Baron's work for the last several years. 
+* Jonathan Baron (Penn) has transferred maintainer status to Shawn Garbett (Vanderbilt). A shoutout and thanks to Dr. Baron's work for the last several years. 
 
 ## 1.3.x
 
@@ -42,7 +44,7 @@ Older notes. Unknown versions.
 
 * 10-6-2016 Shawn Garbett cleaned up fortran6 warnings to maintain CRAN status. Stated precision of exported variables now matches internal computations. An extremely unlikely but possible division by zero path is prevented.
 * 11-23-2014 Removed non-standard files from top directory.
-* 4-20-2013 Brian Ripley fixed a fortran error.
+* 4-20-2013 Brian Ripley fixed a Fortran error.
 * 4-5-2012 Added namespace and removed stray print in avas.
 * 7-4-2010 Fixed options circ, cat, and mon, in both ace and avas, so that they now can apply to the dependent variable, as specified previously in both the help page and the fortran code. Colin McCullogh did most of the work. Frank Harrell also reported this bug.
 * Fixed the checks on the options so that they apply to the correct dimension. Previously circ and mon were not working as described. Thanks to Frank Harrell.
