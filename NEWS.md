@@ -1,5 +1,10 @@
 # *News*
 
+## 1.5.3
+
+* Date: 02-05-2025
+* Added independence test using ACE as provided by Holzmann & Klar.
+
 ## 1.5.2
 
 * Date: 01-27-2025
