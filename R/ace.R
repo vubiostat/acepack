@@ -223,22 +223,24 @@ ace.default  <- function(
   mode(delrsq) <- "double"
   mode(z)      <- "double"
   
-  .Fortran("mace",
-    p       = as.integer(ncol(x)),
-    n       = as.integer(nrow(x)), 
-    x       = t(x),
-    y       = y,
-    w       = as.double(wt),
-    l       = as.integer(l), 
-    delrsq  = delrsq,
-    ns      = as.integer(ns),
-    tx      = tx,
-    ty      = ty, 
-    rsq     = double(1),
-    ierr    = integer(1),
-    m       = as.integer(m), 
-    z       = z,
-    PACKAGE = "acepack")
+  structure(
+    .Fortran("mace",
+      p       = as.integer(ncol(x)),
+      n       = as.integer(nrow(x)), 
+      x       = t(x),
+      y       = y,
+      w       = as.double(wt),
+      l       = as.integer(l), 
+      delrsq  = delrsq,
+      ns      = as.integer(ns),
+      tx      = tx,
+      ty      = ty, 
+      rsq     = double(1),
+      ierr    = integer(1),
+      m       = as.integer(m), 
+      z       = z,
+      PACKAGE = "acepack"),
+    class=c("ace","list"))
 }
 
 #' @rdname ace
@@ -256,8 +258,10 @@ ace.formula  <- function(
   mf <- match.call(expand.dots = FALSE)
   m  <- match(c("formula", "data", "subset", "na.action"), names(mf), 0L)
   mf <- mf[c(1L, m)]
+  
   mf$drop.unused.levels <- TRUE
   mf[[1L]] <- quote(stats::model.frame)
+  
   mf <- eval(mf, parent.frame())
 
   ace(mf[,2:ncol(mf)],mf[,1],...)
