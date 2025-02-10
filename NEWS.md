@@ -5,7 +5,8 @@
 * Date: 02-05-2025
 * [Added independence test using ACE as provided by Holzmann & Klar.](https://github.com/vubiostat/acepack/issues/11)
 * [Added formula interface to ACE.](https://github.com/vubiostat/acepack/issues/6)
-* [Added S3 plot/summary/print to ace output.](https://github.com/vubiostat/acepack/issues/7)
+* [Added S3 plot/summary/print to ace and AVAS output.](https://github.com/vubiostat/acepack/issues/7)
+* [Added Checking of ACE error codes.](https://github.com/vubiostat/acepack/issues/13)
 
 ## 1.5.2
 

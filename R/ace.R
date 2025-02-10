@@ -118,7 +118,7 @@
 #' X4 <- runif(100)*2-1
 #' 
 #' # Original equation of Y:
-#' Y <- log(4 + sin(3\*X1) + abs(X2) + X3^2 + X4 + .1\*rnorm(100))
+#' Y <- log(4 + sin(3*X1) + abs(X2) + X3^2 + X4 + .1*rnorm(100))
 #' 
 #' # Transformed version so that Y, after transformation, is a
 #' # linear function of transforms of the X variables:
@@ -151,6 +151,14 @@
 #' @useDynLib acepack, .registration=TRUE
 #' 
 ace <- function(...) UseMethod("ace")
+
+# Internal function to handle error
+ace_error <- function(ierr)
+{
+  if(ierr==1 || ierr==2) stop("Weights must be greater than zero.")
+  if(ierr==3 || ierr==4 || ierr==5 || ierr==6) stop("Internal error. Variable category misspecified.")
+  if(ierr != 0) stop(paste("Internal error. Unknown ierr", ierr, "returned."))
+}
 
 #' @rdname ace
 #' @export
@@ -250,7 +258,7 @@ ace.default  <- function(
   mode(delrsq) <- "double"
   mode(z)      <- "double"
   
-  structure(
+  results <- structure(
     .Fortran("mace",
       p       = as.integer(ncol(x)),
       n       = as.integer(nrow(x)), 
@@ -268,6 +276,10 @@ ace.default  <- function(
       z       = z,
       PACKAGE = "acepack"),
     class=c("ace","list"))
+  
+  if(results$ierr != 0) ace_error(results$ierr)
+
+  results
 }
 
 #' @rdname ace

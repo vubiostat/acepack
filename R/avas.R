@@ -48,6 +48,31 @@
 #'   choice). .5 is a reasonable alternative to try.
 #' @param control named list; control parameters to set. Documented at 
 #' \code{\link{set_control}}.
+#' @param formula formula; an object of class "\code{\link{formula}}": a
+#'    symbolic description of the model to be smoothed.
+#' @param data an optional data frame, list or environment (or object coercible
+#'   by \code{\link{as.data.frame}} to a data frame) containing the variables in
+#'   the model. If not found in data, the variables are taken from
+#'   \code{environment(formula)}, typically the environment from which
+#'   \code{ace} is called.
+#' @param subset an optional vector specifying a subset of observations to be
+#'   used in the fitting process. Only used when a \code{formula}
+#'   is specified.
+#' @param na.action a function which indicates what should happen when the data
+#'   contain NAs. The default is set by the \code{na.action} setting of
+#'   \code{\link{options}}, and is \code{\link{na.fail}} if that is unset.
+#'   The ‘factory-fresh’ default is \code{\link{na.omit}}. Another possible
+#'   value is NULL, no action. Value \code{\link{na.exclude}} can be useful.
+#' @param ... additional arguments which go ignored for avas call. Included for S3 dispatch
+#'   consistency. They are utilized when using print as they get passed to cat. 
+#'   Also when plotting an ace object they are passed to plot.
+#' @param digits rounding digits for summary/print
+#' @param object an S3 ace object
+#' @param which when plotting an ace object which plots to produce.
+#' @param caption a list of captions for a plot. 
+#' @param xlab the x-axis label when plotting.
+#' @param ylab the y-axis label when plotting.
+#' @param ask when plotting should the terminal be asked for input between plots.
 #' @return
 #'   A structure with the following components:
 #'     \item{x}{the input x matrix.}
@@ -84,7 +109,7 @@
 #' X4 <- runif(100)*2-1
 #' 
 #' # Original equation of Y:
-#' Y <- log(4 + sin(3\*X1) + abs(X2) + X3^2 + X4 + .1\*rnorm(100))
+#' Y <- log(4 + sin(3*X1) + abs(X2) + X3^2 + X4 + .1*rnorm(100))
 #' 
 #' # Transformed version so that Y, after transformation, is a
 #' # linear function of transforms of the X variables:
