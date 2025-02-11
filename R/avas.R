@@ -246,12 +246,16 @@ avas.default <- function(
     iters = iters, PACKAGE = "acepack")
   junk$iters <- junk$iters[1:junk$niter, ]
   
-  structure(
+  results <- structure(
     list(x = t(x), y = y, tx = junk$tx, ty = junk$ty, rsq = junk$rsq, 
         l=l, m, yspan = junk$yspan, iters = junk$iters, niters = junk$niter,
         p=ncol(x)),
     class=c("avas", "list")
   )
+  # Find original R^2
+  results$orig_rsq <- summary(lm(results$y ~ t(results$x)))$r.squared
+
+  results
 }
 
 #' @rdname avas
@@ -291,13 +295,8 @@ summary.avas <- function(object, ...)
 print.avas <- function(x, ..., digits=4)
 {
   # Find original R^2
-  x$orig_rsq <-
-    round(
-      summary(lm(x$y ~ t(x$x))
-      )$r.squared,
-      digits
-    )
-  x$rsq <- round(x$rsq, digits)
+  x$orig_rsq <- round(x$orig_rsq, digits)
+  x$rsq      <- round(x$rsq, digits)
   
   cat('\nAdditivity and Variance Stabilization\n\n', ...)
   

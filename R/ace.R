@@ -278,6 +278,9 @@ ace.default  <- function(
     class=c("ace","list"))
   
   if(results$ierr != 0) ace_error(results$ierr)
+  
+  # Find original R^2
+  results$orig_rsq <- summary(lm(results$y ~ t(results$x)))$r.squared
 
   results
 }
@@ -310,6 +313,7 @@ ace.formula  <- function(
 summary.ace <- function(object, ...)
 {
   object$print_summary <- TRUE
+
   object
 }
 
@@ -318,15 +322,8 @@ summary.ace <- function(object, ...)
 #' @export
 print.ace <- function(x, ..., digits=4)
 {
-  # Find original R^2
-  x$orig_rsq <-
-    round(
-      summary(lm(x$y ~ t(x$x))
- #       lm(y~., data=data.frame(y=x$y, x=t(x$x)))
-      )$r.squared,
-      digits
-    )
-  x$rsq <- round(x$rsq, digits)
+  object$rsq <- round(x$rsq, digits)
+  object$orig_rsq <- round(x$rsq, digits)
   
   cat('\nAlternating Conditional Expections\n\n', ...)
 
