@@ -88,9 +88,9 @@ permutations <- function(x)
 #' z <- matrix(rnorm(2*n), n) / sqrt(rchisq(n, 2)/2)
 #' x <- z[,2]; y <- z[,1]
 #' cor.test(x, y, method="spearman")
-#' ace.test(x, y)
+#' acetest(x, y)
 #' 
-#' plot(ace.test(z))
+#' plot(acetest(z))
 acetest <- function(x, y = NULL, nperm = 999, ...)
 { 
   if(is.data.frame(x)) x <- as.matrix(x)
