@@ -293,7 +293,6 @@ ace.formula  <- function(
   ...)
 {
   # Copied from lm()
-  cl <- match.call()
   mf <- match.call(expand.dots = FALSE)
   m  <- match(c("formula", "data", "subset", "na.action"), names(mf), 0L)
   mf <- mf[c(1L, m)]
