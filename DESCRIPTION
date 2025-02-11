@@ -33,7 +33,7 @@ Description: Two nonparametric methods for multiple regression transform selecti
   correlation is low [see Tibshirani, R. 1986. "Estimating Transformations for Regression via Additivity
   and Variance Stabilization". Journal of the American Statistical Association. 83:394-405. 
   <doi:10.1080/01621459.1988.10478610>]. A good introduction to these two methods is in chapter 16 of
-  Frank Harrel's "Regression Modeling Strategies" in the Springer Series in Statistics.
+  Frank Harrell's "Regression Modeling Strategies" in the Springer Series in Statistics.
   A permutation independence test is included from [Holzmann, H., Klar, B. 2025. "Lancaster correlation - a new dependence measure
   linked to maximum correlation". Scandinavian Journal of Statistics.
    52(1):145-169 <doi:10.1111/sjos.12733>].
