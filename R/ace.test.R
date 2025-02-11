@@ -14,6 +14,15 @@
 # without express or implied warranty.
 ###############################################################################
 
+  
+permutations <- function(x)
+{
+  stopifnot(is.atomic(x)) # for the matrix call to make sense
+  out <- as.matrix(expand.grid(
+    replicate(length(x), x, simplify = FALSE), stringsAsFactors = FALSE))
+  out[apply(out,1, anyDuplicated) == 0, ]
+}
+  
 #' @name ace.test
 #' @title ACE permutation test of independence
 #' @description Performs a permutation test of independence or association. The
@@ -45,7 +54,6 @@
 #' Holzmann, H., Klar, B. 2025. "Lancaster correlation - a new dependence measure
 #' linked to maximum correlation". Scandinavian Journal of Statistics.
 #' 52(1):145-169 <doi:10.1111/sjos.12733>
-#' @importFrom arrangements permutations
 #' @importFrom stats cor
 #' @export ace.test
 #' @rdname ace.test

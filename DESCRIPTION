@@ -42,7 +42,6 @@ Description: Two nonparametric methods for multiple regression transform selecti
    52(1):145-169 <doi:10.1111/sjos.12733>].
 Title: ACE and AVAS for Selecting Multiple Regression Transformations
 License: MIT + file LICENSE
-Imports: arrangements
 Suggests: testthat, roxygen2
 Repository: CRAN
 NeedsCompilation: yes
