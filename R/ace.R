@@ -322,8 +322,8 @@ summary.ace <- function(object, ...)
 #' @export
 print.ace <- function(x, ..., digits=4)
 {
-  object$rsq <- round(x$rsq, digits)
-  object$orig_rsq <- round(x$rsq, digits)
+  x$rsq      <- round(x$rsq,      digits)
+  x$orig_rsq <- round(x$orig_rsq, digits)
   
   cat('\nAlternating Conditional Expections\n\n', ...)
 
