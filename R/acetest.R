@@ -48,7 +48,7 @@ permutations <- function(x)
   out
 } 
 
-#' @name ace.test
+#' @name acetest
 #' @title ACE permutation test of independence
 #' @description Performs a permutation test of independence or association. The
 #'   alternative hypothesis is that x and y are dependent. 
@@ -80,7 +80,7 @@ permutations <- function(x)
 #' linked to maximum correlation". Scandinavian Journal of Statistics.
 #' 52(1):145-169 <doi:10.1111/sjos.12733>
 #' @importFrom stats cor
-#' @export ace.test
+#' @export
 #' @rdname ace.test
 #' @examples
 #' 
@@ -91,7 +91,7 @@ permutations <- function(x)
 #' ace.test(x, y)
 #' 
 #' plot(ace.test(z))
-ace.test <- function(x, y = NULL, nperm = 999, ...)
+acetest <- function(x, y = NULL, nperm = 999, ...)
 { 
   if(is.data.frame(x)) x <- as.matrix(x)
   
