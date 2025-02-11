@@ -73,7 +73,7 @@ ace.test <- function(x, y = NULL, nperm = 999, ...)
   # Check user supplied parameters
   if (is.matrix(x) )
   {
-    if (dim(x)[2] != 2) stop("Matrix 'x' must be 2 columns.")
+    if (ncol(x) != 2) stop("Matrix 'x' must be 2 columns.")
     if (!is.null(y))    stop("Cannot have a matrix for 'x' and provide 'y'.")
   } else # x is not a matrix
   { 

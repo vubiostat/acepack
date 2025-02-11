@@ -301,7 +301,7 @@ print.avas <- function(x, ..., digits=4)
   
   cat('\nAdditivity and Variance Stabilization\n\n', ...)
   
-  cat('p =', x$p, ', N =', dim(x$x)[2], '\n\n', ...)
+  cat('p =', x$p, ', N =', ncol(x$x), '\n\n', ...)
   cat('Raw Multiple R-squared:', x$orig_rsq, '\n', ...)
   cat('Transformed Multiple R-squared:', x$rsq, '\n', ...)
   
