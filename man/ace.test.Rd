@@ -63,7 +63,7 @@ a list containing the following:
 }
 \description{
 Performs a permutation test of independence or association. The
-  alternative hypothesis is that there is a x and y are dependent. 
+  alternative hypothesis is that x and y are dependent. 
   
 Code authored by Hajo Holzmann, Bernhard Klar, Shawn Garbett.
 }
