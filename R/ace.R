@@ -174,6 +174,7 @@ ace.default  <- function(
   circ    = NULL,
   delrsq  = 0.01,
   control = NULL,
+  on.error = warning,
   ...) 
 {
   if(!is.null(control)) do.call(set_control, control)
