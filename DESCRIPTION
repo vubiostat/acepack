@@ -20,10 +20,13 @@ Authors@R: c(person(given = "Phil",
                       role = "aut"),
                person("Bernhard", "Klar",
                       email = "bernhard.klar@kit.edu",
+                      role = "aut"),
+               person("Scott", "Chasalow",
+                      email = "Scott.Chasalow@users.pv.wau.nl",
                       role = "aut")
              )
 Description: Two nonparametric methods for multiple regression transform selection are provided.
-  The first, Alternative Conditional Expectations (ACE), 
+  The first, Alternating Conditional Expectations (ACE), 
   is an algorithm to find the fixed point of maximal
   correlation, i.e. it finds a set of transformed response variables that maximizes R^2
   using smoothing functions [see Breiman, L., and J.H. Friedman. 1985. "Estimating Optimal Transformations
