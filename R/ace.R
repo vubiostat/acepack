@@ -167,19 +167,20 @@ ace_error <- function(ierr, FUN)
 ace.default  <- function(
   x,
   y,
-  wt       = rep(1, nrow(x)),
-  cat      = NULL, 
-  mon      = NULL, 
-  lin      = NULL,
-  circ     = NULL,
-  delrsq   = 0.01,
-  control  = NULL,
-  on.error = warning,
+  wt      = NULL,
+  cat     = NULL, 
+  mon     = NULL, 
+  lin     = NULL,
+  circ    = NULL,
+  delrsq  = 0.01,
+  control = NULL,
   ...) 
 {
   if(!is.null(control)) do.call(set_control, control)
   
   x  <- as.matrix(x)
+  
+  if(is.null(wt)) wt=rep(1, nrow(x))
   
   if (delrsq <= 0) stop("delrsq must be positive")
 
