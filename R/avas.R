@@ -146,7 +146,7 @@ avas <- function(...) UseMethod("avas")
 avas.default <- function(
   x, 
   y,
-  wt      = rep(1, nrow(x)),
+  wt      = NULL,
   cat     = NULL,
   mon     = NULL, 
   lin     = NULL,
@@ -161,6 +161,8 @@ avas.default <- function(
   if (delrsq <= 0) stop("delrsq must be positive")
   
   x  <- as.matrix(x)
+  if(is.null(wt)) wt <- rep(1, nrow(x))
+  
   iy <- ncol(x) + 1
   l  <- matrix(1, ncol = iy)
   

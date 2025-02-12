@@ -1,5 +1,10 @@
 # *News*
 
+## 1.6.1
+
+* Date 02-12-2025
+* [Fixed bug in weight specification when x was a vector](https:///github.com/vubiostat/acepack/issues/15)
+
 ## 1.6.0
 
 * Date: 02-05-2025

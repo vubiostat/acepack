@@ -14,7 +14,7 @@ ace(...)
 \method{ace}{default}(
   x,
   y,
-  wt = rep(1, nrow(x)),
+  wt = NULL,
   cat = NULL,
   mon = NULL,
   lin = NULL,
