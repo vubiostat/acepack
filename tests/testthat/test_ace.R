@@ -52,3 +52,21 @@ test_that("Estimates Multiple Transformations Specified via Formula",
   expect_true(max(x[,5]        - model$tx[,5] - 0.008231) < 0.1)
   
 })
+
+
+test_that("Handles categorical properly",
+{
+  y <- rnorm(100)
+  x <- sample(1:3, 100, replace=TRUE)
+  
+  expect_no_error(result <- ace(x, y, cat=1))
+  expect_equal(result$ierr, 0)
+  
+  expect_warning(ace(rep(1, 100), y, cat=1), "no variance")
+  expect_warning(ace(x, rep(1, 100), cat=0), "no variance")
+})
+
+test_that("Will stop on error if specified",
+{
+  expect_error(ace(rep(1, 100), rnorm(100), cat=1, on.error=stop), "no variance") 
+})

@@ -14,13 +14,14 @@ ace(...)
 \method{ace}{default}(
   x,
   y,
-  wt = NULL,
+  wt = rep(1, nrow(x)),
   cat = NULL,
   mon = NULL,
   lin = NULL,
   circ = NULL,
   delrsq = 0.01,
   control = NULL,
+  on.error = warning,
   ...
 )
 
@@ -83,6 +84,8 @@ R-squared changes by less than \code{delrsq} in 3 consecutive iterations
 
 \item{control}{named list; control parameters to set. Documented at 
 \code{\link{set_control}}.}
+
+\item{on.error}{function; call back for when ierr is not equal to zero. Defaults to warning.}
 
 \item{formula}{formula; an object of class "\code{\link{formula}}": a
 symbolic description of the model to be smoothed.}

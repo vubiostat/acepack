@@ -40,6 +40,7 @@
 #'   (default 0.01).
 #' @param control named list; control parameters to set. Documented at 
 #' \code{\link{set_control}}.
+#' @param on.error function; call back for when ierr is not equal to zero. Defaults to warning.
 #' @param formula formula; an object of class "\code{\link{formula}}": a
 #'    symbolic description of the model to be smoothed.
 #' @param data an optional data frame, list or environment (or object coercible
@@ -153,11 +154,12 @@
 ace <- function(...) UseMethod("ace")
 
 # Internal function to handle error
-ace_error <- function(ierr)
+ace_error <- function(ierr, FUN)
 {
-  if(ierr==1 || ierr==2) stop("Weights must be greater than zero.")
-  if(ierr==3 || ierr==4 || ierr==5 || ierr==6) stop("Internal error. Variable category misspecified.")
-  if(ierr != 0) stop(paste("Internal error. Unknown ierr", ierr, "returned."))
+  if(!inherits(FUN, 'function')) return(NULL)
+  if(ierr==1 || ierr==2) FUN("Weights must be greater than zero or Y has no variance.")
+  if(ierr==3 || ierr==4 || ierr==5 || ierr==6) FUN("Internal error. Variable category misspecified or no variance in a dimension.")
+  if(ierr != 0) FUN(paste("Internal error. Unknown ierr", ierr, "returned."))
 }
 
 #' @rdname ace
@@ -165,20 +167,19 @@ ace_error <- function(ierr)
 ace.default  <- function(
   x,
   y,
-  wt      = NULL,
-  cat     = NULL, 
-  mon     = NULL, 
-  lin     = NULL,
-  circ    = NULL,
-  delrsq  = 0.01,
-  control = NULL,
+  wt       = rep(1, nrow(x)),
+  cat      = NULL, 
+  mon      = NULL, 
+  lin      = NULL,
+  circ     = NULL,
+  delrsq   = 0.01,
+  control  = NULL,
+  on.error = warning,
   ...) 
 {
   if(!is.null(control)) do.call(set_control, control)
   
   x  <- as.matrix(x)
-  
-  if(is.null(wt)) wt=rep(1, nrow(x))
   
   if (delrsq <= 0) stop("delrsq must be positive")
 
@@ -279,7 +280,7 @@ ace.default  <- function(
       PACKAGE = "acepack"),
     class=c("ace","list"))
   
-  if(results$ierr != 0) ace_error(results$ierr)
+  if(results$ierr != 0) ace_error(results$ierr, on.error)
   
   # Find original R^2
   results$orig_rsq <- summary(lm(results$y ~ t(results$x)))$r.squared
