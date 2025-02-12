@@ -21,6 +21,7 @@ ace(...)
   circ = NULL,
   delrsq = 0.01,
   control = NULL,
+  on.error = warning,
   ...
 )
 
@@ -84,6 +85,8 @@ R-squared changes by less than \code{delrsq} in 3 consecutive iterations
 \item{control}{named list; control parameters to set. Documented at 
 \code{\link{set_control}}.}
 
+\item{on.error}{function; call back for when ierr is not equal to zero. Defaults to warning.}
+
 \item{formula}{formula; an object of class "\code{\link{formula}}": a
 symbolic description of the model to be smoothed.}
 
@@ -116,8 +119,6 @@ value is NULL, no action. Value \code{\link{na.exclude}} can be useful.}
 \item{ylab}{the y-axis label when plotting.}
 
 \item{ask}{when plotting should the terminal be asked for input between plots.}
-
-\item{on.error}{function; call back for when ierr is not equal to zero. Defaults to warning.}
 }
 \value{
 A structure with the following components:
