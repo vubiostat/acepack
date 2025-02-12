@@ -1,3 +1,19 @@
+  #############################################################################
+ #
+# This file is part of acepack.
+#
+# Copyright 1985,2007 Jerome H. Friedman
+# Copyright 2016,2025 Shawn Garbett, Vanderbilt University Medical Center
+#
+# Permission to use, copy, modify, distribute, and sell this software and
+# its documentation for any purpose is hereby granted without fee,
+# provided that the above copyright notice appear in all copies and that
+# both that copyright notice and this permission notice appear in
+# supporting documentation. No representations are made about the
+# suitability of this software for any purpose.  It is provided "as is"
+# without express or implied warranty.
+###############################################################################
+
 #' @name avas
 #' @title Additivity and variance stabilization for regression
 #' @description Estimate transformations of \code{x} and \code{y} such that
@@ -32,6 +48,31 @@
 #'   choice). .5 is a reasonable alternative to try.
 #' @param control named list; control parameters to set. Documented at 
 #' \code{\link{set_control}}.
+#' @param formula formula; an object of class "\code{\link{formula}}": a
+#'    symbolic description of the model to be smoothed.
+#' @param data an optional data frame, list or environment (or object coercible
+#'   by \code{\link{as.data.frame}} to a data frame) containing the variables in
+#'   the model. If not found in data, the variables are taken from
+#'   \code{environment(formula)}, typically the environment from which
+#'   \code{ace} is called.
+#' @param subset an optional vector specifying a subset of observations to be
+#'   used in the fitting process. Only used when a \code{formula}
+#'   is specified.
+#' @param na.action a function which indicates what should happen when the data
+#'   contain NAs. The default is set by the \code{na.action} setting of
+#'   \code{\link{options}}, and is \code{\link{na.fail}} if that is unset.
+#'   The ‘factory-fresh’ default is \code{\link{na.omit}}. Another possible
+#'   value is NULL, no action. Value \code{\link{na.exclude}} can be useful.
+#' @param ... additional arguments which go ignored for avas call. Included for S3 dispatch
+#'   consistency. They are utilized when using print as they get passed to cat. 
+#'   Also when plotting an ace object they are passed to plot.
+#' @param digits rounding digits for summary/print
+#' @param object an S3 ace object
+#' @param which when plotting an ace object which plots to produce.
+#' @param caption a list of captions for a plot. 
+#' @param xlab the x-axis label when plotting.
+#' @param ylab the y-axis label when plotting.
+#' @param ask when plotting should the terminal be asked for input between plots.
 #' @return
 #'   A structure with the following components:
 #'     \item{x}{the input x matrix.}
@@ -56,9 +97,7 @@
 #' x <- runif(200,0,TWOPI)
 #' y <- exp(sin(x)+rnorm(200)/2)
 #' a <- avas(x,y)
-#' par(mfrow=c(3,1))
-#' plot(a$y,a$ty)  # view the response transformation
-#' plot(a$x,a$tx)  # view the carrier transformation
+#' plot(a) # View response and carrier transformations
 #' plot(a$tx,a$ty) # examine the linearity of the fitted model
 #' 
 #' # From D. Wang and M. Murphy (2005), Identifying nonlinear relationships
@@ -99,8 +138,23 @@
 #' plot(exp(Y),a1$ty)
 #' 
 #' @export
-avas <- function (x, y, wt = rep(1, nrow(x)), cat = NULL, mon = NULL, 
-    lin = NULL, circ = NULL, delrsq = 0.01, yspan = 0, control = NULL) 
+#' @rdname avas
+avas <- function(...) UseMethod("avas")
+
+#' @rdname avas
+#' @export
+avas.default <- function(
+  x, 
+  y,
+  wt      = rep(1, nrow(x)),
+  cat     = NULL,
+  mon     = NULL, 
+  lin     = NULL,
+  circ    = NULL,
+  delrsq  = 0.01,
+  yspan   = 0,
+  control = NULL,
+  ...) 
 {
   if(!is.null(control)) do.call(set_control, control)
 
@@ -192,6 +246,122 @@ avas <- function (x, y, wt = rep(1, nrow(x)), cat = NULL, mon = NULL,
     iters = iters, PACKAGE = "acepack")
   junk$iters <- junk$iters[1:junk$niter, ]
   
-  list(x = t(x), y = y, tx = junk$tx, ty = junk$ty, rsq = junk$rsq, 
-        l=l, m, yspan = junk$yspan, iters = junk$iters, niters = junk$niter)
+  results <- structure(
+    list(x = t(x), y = y, tx = junk$tx, ty = junk$ty, rsq = junk$rsq, 
+        l=l, m, yspan = junk$yspan, iters = junk$iters, niters = junk$niter,
+        p=ncol(x)),
+    class=c("avas", "list")
+  )
+  # Find original R^2
+  results$orig_rsq <- summary(lm(results$y ~ t(results$x)))$r.squared
+
+  results
+}
+
+#' @rdname avas
+#' @importFrom stats model.frame
+#' @export
+avas.formula  <- function(
+  formula,
+  data      = NULL,
+  subset    = NULL,
+  na.action = getOption('na.action'),
+  ...)
+{
+  # Copied from lm()
+  mf <- match.call(expand.dots = FALSE)
+  m  <- match(c("formula", "data", "subset", "na.action"), names(mf), 0L)
+  mf <- mf[c(1L, m)]
+  
+  mf$drop.unused.levels <- TRUE
+  mf[[1L]] <- quote(stats::model.frame)
+  
+  mf <- eval(mf, parent.frame())
+
+  avas(mf[,2:ncol(mf)],mf[,1],...)
+}
+
+#' @rdname avas
+#' @export
+summary.avas <- function(object, ...)
+{
+  object$print_summary <- TRUE
+  object
+}
+
+#' @rdname avas
+#' @importFrom stats lm
+#' @export
+print.avas <- function(x, ..., digits=4)
+{
+  # Find original R^2
+  x$orig_rsq <- round(x$orig_rsq, digits)
+  x$rsq      <- round(x$rsq, digits)
+  
+  cat('\nAdditivity and Variance Stabilization\n\n', ...)
+  
+  cat('p =', x$p, ', N =', ncol(x$x), '\n\n', ...)
+  cat('Raw Multiple R-squared:', x$orig_rsq, '\n', ...)
+  cat('Transformed Multiple R-squared:', x$rsq, '\n', ...)
+  
+  cat('\n', ...)
+  
+  if(!is.null(x$print_summary) && x$print_summary)
+  {
+    cat('Original Y\n', ...)
+    print(summary(x$y))
+    cat('\nTransformed Y\n', ...)
+    print(summary(x$ty))
+    cat('\nOriginal X\n', ...)
+    print(summary(t(x$x)))
+    cat('\nTransformed X\n', ...)
+    print(summary(x$tx))
+  }
+}
+
+#' @rdname avas
+#' @importFrom graphics par
+#' @importFrom grDevices as.graphicsAnnot
+#' @importFrom grDevices dev.flush
+#' @importFrom grDevices dev.hold
+#' @importFrom grDevices dev.interactive
+#' @importFrom grDevices devAskNewPage
+#' @export
+plot.avas <- function(
+  x, 
+  ...,
+  which=1:(x$p+1),
+  caption=c(list("Response Y AVAS Transformation"),
+    as.list(paste("Carrier", rownames(x$x), "AVAS Transformation"))),
+  xlab = "Original",
+  ylab = "Transformed",
+  ask = prod(par("mfcol")) < length(which) && dev.interactive()
+)
+{
+  show <- rep(FALSE, x$p+1)
+  show[which] <- TRUE
+  
+  getCaption <- function(k) # allow caption = "" , plotmath etc
+    if(length(caption) < k) NA_character_ else as.graphicsAnnot(caption[[k]])
+  
+  if (ask)
+  {
+  	oask <- devAskNewPage(TRUE)
+  	on.exit(devAskNewPage(oask))
+  }
+  
+  if(show[1L])
+  {
+    dev.hold()
+    plot(x$y, x$ty, main=getCaption(1), xlab=xlab, ylab=ylab, ...)
+    dev.flush()
+  }
+  
+  for(i in 1L:(x$p))
+    if(show[i+1])
+    {
+      dev.hold()
+      plot(x$x[i,], x$tx[,i], main=getCaption(i+1), xlab=xlab, ylab=ylab, ...)
+      dev.flush()
+    }
 }

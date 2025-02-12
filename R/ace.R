@@ -1,3 +1,19 @@
+  #############################################################################
+ #
+# This file is part of acepack.
+#
+# Copyright 1985,2007 Jerome H. Friedman
+# Copyright 2016,2025 Shawn Garbett, Vanderbilt University Medical Center
+#
+# Permission to use, copy, modify, distribute, and sell this software and
+# its documentation for any purpose is hereby granted without fee,
+# provided that the above copyright notice appear in all copies and that
+# both that copyright notice and this permission notice appear in
+# supporting documentation. No representations are made about the
+# suitability of this software for any purpose.  It is provided "as is"
+# without express or implied warranty.
+###############################################################################
+
 #' @name ace
 #' @title Alternating Conditional Expectations
 #'
@@ -24,6 +40,31 @@
 #'   (default 0.01).
 #' @param control named list; control parameters to set. Documented at 
 #' \code{\link{set_control}}.
+#' @param formula formula; an object of class "\code{\link{formula}}": a
+#'    symbolic description of the model to be smoothed.
+#' @param data an optional data frame, list or environment (or object coercible
+#'   by \code{\link{as.data.frame}} to a data frame) containing the variables in
+#'   the model. If not found in data, the variables are taken from
+#'   \code{environment(formula)}, typically the environment from which
+#'   \code{ace} is called.
+#' @param subset an optional vector specifying a subset of observations to be
+#'   used in the fitting process. Only used when a \code{formula}
+#'   is specified.
+#' @param na.action a function which indicates what should happen when the data
+#'   contain NAs. The default is set by the \code{na.action} setting of
+#'   \code{\link{options}}, and is \code{\link{na.fail}} if that is unset.
+#'   The ‘factory-fresh’ default is \code{\link{na.omit}}. Another possible
+#'   value is NULL, no action. Value \code{\link{na.exclude}} can be useful.
+#' @param ... additional arguments which go ignored for ace call. Included for S3 dispatch
+#'   consistency. They are utilized when using print as they get passed to cat. 
+#'   Also when plotting an ace object they are passed to plot.
+#' @param digits rounding digits for summary/print
+#' @param object an S3 ace object
+#' @param which when plotting an ace object which plots to produce.
+#' @param caption a list of captions for a plot. 
+#' @param xlab the x-axis label when plotting.
+#' @param ylab the y-axis label when plotting.
+#' @param ask when plotting should the terminal be asked for input between plots.
 #' @return
 #'   A structure with the following components:
 #'    \item{x}{the input x matrix.}
@@ -64,6 +105,7 @@
 #' X <- cbind(X1,X2)
 #' Y <- 3*X1+X2
 #' a1 <- ace(X,Y)
+#' par(mfrow=c(1,1))
 #' plot(rowSums(a1$tx),a1$y)
 #' (lm(a1$y ~ a1$tx)) # shows that the colums of X are equally weighted
 #' 
@@ -104,10 +146,33 @@
 #' plot(Y,a1$ty)
 #' plot(exp(Y),a1$ty)
 #' 
+#' @rdname ace
 #' @export
 #' @useDynLib acepack, .registration=TRUE
-ace <- function(x, y, wt = rep(1, nrow(x)), cat = NULL, mon = NULL, 
-    lin = NULL, circ = NULL, delrsq = 0.01, control = NULL) 
+#' 
+ace <- function(...) UseMethod("ace")
+
+# Internal function to handle error
+ace_error <- function(ierr)
+{
+  if(ierr==1 || ierr==2) stop("Weights must be greater than zero.")
+  if(ierr==3 || ierr==4 || ierr==5 || ierr==6) stop("Internal error. Variable category misspecified.")
+  if(ierr != 0) stop(paste("Internal error. Unknown ierr", ierr, "returned."))
+}
+
+#' @rdname ace
+#' @export
+ace.default  <- function(
+  x,
+  y,
+  wt      = rep(1, nrow(x)),
+  cat     = NULL, 
+  mon     = NULL, 
+  lin     = NULL,
+  circ    = NULL,
+  delrsq  = 0.01,
+  control = NULL,
+  ...) 
 {
   if(!is.null(control)) do.call(set_control, control)
   
@@ -183,8 +248,8 @@ ace <- function(x, y, wt = rep(1, nrow(x)), cat = NULL, mon = NULL,
   ty <- y
   m  <- matrix(0, nrow = nrow(x), ncol = iy)
   z  <- matrix(0, nrow = nrow(x), ncol = 12)
-
   ns <- 1
+  
   mode(x)      <- "double"
   mode(y)      <- "double"
   mode(tx)     <- "double"
@@ -193,9 +258,137 @@ ace <- function(x, y, wt = rep(1, nrow(x)), cat = NULL, mon = NULL,
   mode(delrsq) <- "double"
   mode(z)      <- "double"
   
-  .Fortran("mace", p = as.integer(ncol(x)), n = as.integer(nrow(x)), 
-    x = t(x), y = y, w = as.double(wt), l = as.integer(l), 
-    delrsq = delrsq, ns = as.integer(ns), tx = tx, ty = ty, 
-    rsq = double(1), ierr = integer(1), m = as.integer(m), 
-    z = z, PACKAGE = "acepack")
+  results <- structure(
+    .Fortran("mace",
+      p       = as.integer(ncol(x)),
+      n       = as.integer(nrow(x)), 
+      x       = t(x),
+      y       = y,
+      w       = as.double(wt),
+      l       = as.integer(l), 
+      delrsq  = delrsq,
+      ns      = as.integer(ns),
+      tx      = tx,
+      ty      = ty, 
+      rsq     = double(1),
+      ierr    = integer(1),
+      m       = as.integer(m), 
+      z       = z,
+      PACKAGE = "acepack"),
+    class=c("ace","list"))
+  
+  if(results$ierr != 0) ace_error(results$ierr)
+  
+  # Find original R^2
+  results$orig_rsq <- summary(lm(results$y ~ t(results$x)))$r.squared
+
+  results
+}
+
+#' @rdname ace
+#' @importFrom stats model.frame
+#' @export
+ace.formula  <- function(
+  formula,
+  data      = NULL,
+  subset    = NULL,
+  na.action = getOption('na.action'),
+  ...)
+{
+  # Copied from lm()
+  mf <- match.call(expand.dots = FALSE)
+  m  <- match(c("formula", "data", "subset", "na.action"), names(mf), 0L)
+  mf <- mf[c(1L, m)]
+  
+  mf$drop.unused.levels <- TRUE
+  mf[[1L]] <- quote(stats::model.frame)
+  
+  mf <- eval(mf, parent.frame())
+
+  ace(mf[,2:ncol(mf)],mf[,1],...)
+}
+
+#' @rdname ace
+#' @export
+summary.ace <- function(object, ...)
+{
+  object$print_summary <- TRUE
+
+  object
+}
+
+#' @rdname ace
+#' @importFrom stats lm
+#' @export
+print.ace <- function(x, ..., digits=4)
+{
+  x$rsq      <- round(x$rsq,      digits)
+  x$orig_rsq <- round(x$orig_rsq, digits)
+  
+  cat('\nAlternating Conditional Expections\n\n', ...)
+
+  cat('p =', x$p, ', N =', x$n, '\n\n', ...)
+  cat('Raw Multiple R-squared:', x$orig_rsq, '\n', ...)
+  cat('Transformed Multiple R-squared:', x$rsq, '\n', ...)
+  
+  cat('\n', ...)
+  
+  if(!is.null(x$print_summary) && x$print_summary)
+  {
+    cat('Original Y\n', ...)
+    print(summary(x$y))
+    cat('\nTransformed Y\n', ...)
+    print(summary(x$ty))
+    cat('\nOriginal X\n', ...)
+    print(summary(t(x$x)))
+    cat('\nTransformed X\n', ...)
+    print(summary(x$tx))
+  }
+}
+
+#' @rdname ace
+#' @importFrom graphics par
+#' @importFrom grDevices as.graphicsAnnot
+#' @importFrom grDevices dev.flush
+#' @importFrom grDevices dev.hold
+#' @importFrom grDevices dev.interactive
+#' @importFrom grDevices devAskNewPage
+#' @export
+plot.ace <- function(
+  x, 
+  ...,
+  which=1:(x$p+1),
+  caption=c(list("Response Y ACE Transformation"),
+    as.list(paste("Carrier", rownames(x$x), "ACE Transformation"))),
+  xlab = "Original",
+  ylab = "Transformed",
+  ask = prod(par("mfcol")) < length(which) && dev.interactive()
+)
+{
+  show <- rep(FALSE, x$p+1)
+  show[which] <- TRUE
+  
+  getCaption <- function(k) # allow caption = "" , plotmath etc
+    if(length(caption) < k) NA_character_ else as.graphicsAnnot(caption[[k]])
+  
+  if (ask)
+  {
+  	oask <- devAskNewPage(TRUE)
+  	on.exit(devAskNewPage(oask))
+  }
+  
+  if(show[1L])
+  {
+    dev.hold()
+    plot(x$y, x$ty, main=getCaption(1), xlab=xlab, ylab=ylab, ...)
+    dev.flush()
+  }
+  
+  for(i in 1L:(x$p))
+    if(show[i+1])
+    {
+      dev.hold()
+      plot(x$x[i,], x$tx[,i], main=getCaption(i+1), xlab=xlab, ylab=ylab, ...)
+      dev.flush()
+    }
 }

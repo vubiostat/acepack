@@ -148,4 +148,20 @@ I think this is good enough.
 
 Jerry.
 
+#############
+
+Am 07.02.2025 um 00:04 schrieb Garbett, Shawn P:
+
+> Bernhard,
+>
+> Please review the following and see if it's acceptable for you. 
+>
+> https://github.com/vubiostat/acepack/commit/c8b9da412838cfa573a6033778339039ca3c8d17
+>
+
+yes
+
+> One note is that the acepack is MIT license and your code was GPL-2. To publish under MIT I will need your acknowledgement that this is okay to continue.
+
+Yes, we accept the MIT license.
 

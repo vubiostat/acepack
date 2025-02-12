@@ -2,9 +2,16 @@
 % Please edit documentation in R/avas.R
 \name{avas}
 \alias{avas}
+\alias{avas.default}
+\alias{avas.formula}
+\alias{summary.avas}
+\alias{print.avas}
+\alias{plot.avas}
 \title{Additivity and variance stabilization for regression}
 \usage{
-avas(
+avas(...)
+
+\method{avas}{default}(
   x,
   y,
   wt = rep(1, nrow(x)),
@@ -14,10 +21,38 @@ avas(
   circ = NULL,
   delrsq = 0.01,
   yspan = 0,
-  control = NULL
+  control = NULL,
+  ...
+)
+
+\method{avas}{formula}(
+  formula,
+  data = NULL,
+  subset = NULL,
+  na.action = getOption("na.action"),
+  ...
+)
+
+\method{summary}{avas}(object, ...)
+
+\method{print}{avas}(x, ..., digits = 4)
+
+\method{plot}{avas}(
+  x,
+  ...,
+  which = 1:(x$p + 1),
+  caption = c(list("Response Y AVAS Transformation"), as.list(paste("Carrier",
+    rownames(x$x), "AVAS Transformation"))),
+  xlab = "Original",
+  ylab = "Transformed",
+  ask = prod(par("mfcol")) < length(which) && dev.interactive()
 )
 }
 \arguments{
+\item{...}{additional arguments which go ignored for avas call. Included for S3 dispatch
+consistency. They are utilized when using print as they get passed to cat. 
+Also when plotting an ace object they are passed to plot.}
+
 \item{x}{matrix containing the independent variables.}
 
 \item{y}{a vector containing the response variable.}
@@ -55,6 +90,39 @@ choice). .5 is a reasonable alternative to try.}
 
 \item{control}{named list; control parameters to set. Documented at 
 \code{\link{set_control}}.}
+
+\item{formula}{formula; an object of class "\code{\link{formula}}": a
+symbolic description of the model to be smoothed.}
+
+\item{data}{an optional data frame, list or environment (or object coercible
+by \code{\link{as.data.frame}} to a data frame) containing the variables in
+the model. If not found in data, the variables are taken from
+\code{environment(formula)}, typically the environment from which
+\code{ace} is called.}
+
+\item{subset}{an optional vector specifying a subset of observations to be
+used in the fitting process. Only used when a \code{formula}
+is specified.}
+
+\item{na.action}{a function which indicates what should happen when the data
+contain NAs. The default is set by the \code{na.action} setting of
+\code{\link{options}}, and is \code{\link{na.fail}} if that is unset.
+The ‘factory-fresh’ default is \code{\link{na.omit}}. Another possible
+value is NULL, no action. Value \code{\link{na.exclude}} can be useful.}
+
+\item{object}{an S3 ace object}
+
+\item{digits}{rounding digits for summary/print}
+
+\item{which}{when plotting an ace object which plots to produce.}
+
+\item{caption}{a list of captions for a plot.}
+
+\item{xlab}{the x-axis label when plotting.}
+
+\item{ylab}{the y-axis label when plotting.}
+
+\item{ask}{when plotting should the terminal be asked for input between plots.}
 }
 \value{
 A structure with the following components:
@@ -80,9 +148,7 @@ TWOPI <- 8*atan(1)
 x <- runif(200,0,TWOPI)
 y <- exp(sin(x)+rnorm(200)/2)
 a <- avas(x,y)
-par(mfrow=c(3,1))
-plot(a$y,a$ty)  # view the response transformation
-plot(a$x,a$tx)  # view the carrier transformation
+plot(a) # View response and carrier transformations
 plot(a$tx,a$ty) # examine the linearity of the fitted model
 
 # From D. Wang and M. Murphy (2005), Identifying nonlinear relationships
