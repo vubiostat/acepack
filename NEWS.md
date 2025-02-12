@@ -4,6 +4,7 @@
 
 * Date 02-12-2025
 * [Fixed bug in weight specification when x was a vector](https:///github.com/vubiostat/acepack/issues/15)
+* When ierr isn't 0 calls a function that defaults to warning.
 
 ## 1.6.0
 

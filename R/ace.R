@@ -181,7 +181,7 @@ ace.default  <- function(
   
   x  <- as.matrix(x)
   
-  if(is.null(wt)) wt=rep(1, nrow(x))
+  if(is.null(wt)) wt <- rep(1, nrow(x))
   
   if (delrsq <= 0) stop("delrsq must be positive")
 
