@@ -4,7 +4,7 @@ acepack
 `acepack` is an [R](https://www.r-project.org) package that provides two
 nonparametric methods for multiple regression transform selection.
 
-The first, Alternative Conditional Expectations (ACE), 
+The first, Alternating Conditional Expectations (ACE), 
 is an algorithm to find the fixed point of maximal
 correlation, i.e. it finds a set of transformed response variables that
 maximizes R^2 using smoothing functions [see Breiman, L., and J.H. Friedman.
