@@ -282,11 +282,18 @@ ace.default  <- function(
       PACKAGE = "acepack"),
     class=c("ace","list"))
   
-  if(results$ierr != 0) ace_error(results$ierr, on.error)
+  if(results$ierr != 0)
+  {
+    ace_error(results$ierr, on.error)
   
-  # Find original R^2
-  results$orig_rsq <- summary(lm(results$y ~ t(results$x)))$r.squared
-
+    results$rsq      <- NA
+    results$orig_rsq <- NA
+  } else
+  {
+    # Find original R^2
+    results$orig_rsq <- summary(lm(results$y ~ t(results$x)))$r.squared
+  }
+  
   results
 }
 

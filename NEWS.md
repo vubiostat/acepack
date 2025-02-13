@@ -1,5 +1,10 @@
 # *News*
 
+## 1.6.2
+
+* Date 02-15-2025
+* Added better ierr handling for ace. 
+
 ## 1.6.1
 
 * Date 02-12-2025

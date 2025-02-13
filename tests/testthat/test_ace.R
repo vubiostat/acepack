@@ -62,8 +62,13 @@ test_that("Handles categorical properly",
   expect_no_error(result <- ace(x, y, cat=1))
   expect_equal(result$ierr, 0)
   
-  expect_warning(ace(rep(1, 100), y, cat=1), "no variance")
-  expect_warning(ace(x, rep(1, 100), cat=0), "no variance")
+  expect_warning(results <- ace(rep(1, 100), y, cat=1), "no variance")
+  expect_true(is.na(results$rsq))
+  expect_true(is.na(results$orig_rsq))
+  
+  expect_warning(results <- ace(x, rep(1, 100), cat=0), "no variance")
+  expect_true(is.na(results$rsq))
+  expect_true(is.na(results$orig_rsq))
 })
 
 test_that("Will stop on error if specified",
