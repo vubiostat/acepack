@@ -158,7 +158,7 @@ acetest <- function(x, y = NULL, nperm = 999, ...)
 
   if(is.null(yname) || identical(yname, character(0)) || yname == '') yname <- 'y'
   
-  # Do the alternative hypothesis estimate
+  # Observed value of maximum correlation
   a       <- ace(x, y)
   ace.cor <- as.vector( cor(a$tx, a$ty, ...) )
   n       <- factorial(length(x))
