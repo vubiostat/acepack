@@ -4,7 +4,7 @@
 !
 ! Copyright 1985,2007 Jerome H. Friedman, Department of Statistics and
 !   Stanford Linear Accelerator Center, Stanford University
-! Copyright 2016,2025 Shawn Garbett, Vanderbilt University Medical Center
+! Copyright 2016,2025 Shawn Garbett, Vanderbilt University
 !
 ! Permission to use, copy, modify, distribute, and sell this software and
 ! its documentation for any purpose is hereby granted without fee,
